@@ -5,15 +5,9 @@ namespace Tests\Feature\PasswordBroker\Application;
 use Identity\Application\Services\RsaService;
 use Identity\Domain\User\Models\User;
 use Identity\Infrastructure\Factories\User\UserFactory;
-use Illuminate\Auth\SessionGuard;
-use Illuminate\Contracts\Auth\StatefulGuard;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Testing\Fluent\AssertableJson;
-use Laravel\Passport\Passport;
-use Laravel\Passport\Token;
 use PasswordBroker\Application\Services\EncryptionService;
 use PasswordBroker\Application\Services\EntryGroupService;
 use PasswordBroker\Domain\Entry\Models\Entry;
@@ -222,7 +216,7 @@ class EntryFieldsTest extends TestCase
 
         $entryGroupService->addUserToGroupAsAdmin($admin, $entryGroup);
 
-        Passport::actingAs($admin);
+        $this->actingAs($admin);
         dispatch_sync(new AddEntry($entry, $entryGroup, new EntryValidationHandler()));
         /**
          * @var Entry $entry
@@ -267,10 +261,10 @@ class EntryFieldsTest extends TestCase
 
         $entryGroupService->addUserToGroupAsAdmin($admin, $entryGroup);
 
-        Passport::actingAs($admin);
+        $this->actingAs($admin);
         dispatch_sync(new AddEntry($entry, $entryGroup, new EntryValidationHandler()));
         $entryGroupService->addUserToGroupAsModerator($moderator, $entryGroup, null, 'master_password');
-        Passport::actingAs($moderator);
+        $this->actingAs($moderator);
         /**
          * @var Entry $entry
          */
@@ -311,11 +305,11 @@ class EntryFieldsTest extends TestCase
 
         $entryGroupService->addUserToGroupAsAdmin($admin, $entryGroup);
 
-        Passport::actingAs($admin);
+        $this->actingAs($admin);
         dispatch_sync(new AddEntry($entry, $entryGroup, new EntryValidationHandler()));
         $entryGroupService->addUserToGroupAsMember($member, $entryGroup, null, 'master_password');
 //        Auth::logout();
-        Passport::actingAs($member);
+        $this->actingAs($member);
         /**
          * @var Entry $entry
          */
@@ -355,7 +349,7 @@ class EntryFieldsTest extends TestCase
 
         $entryGroupService->addUserToGroupAsAdmin($admin, $entryGroup);
 
-        Passport::actingAs($admin);
+        $this->actingAs($admin);
         dispatch_sync(new AddEntry($entry, $entryGroup, new EntryValidationHandler()));
         /**
          * @var Entry $entry
@@ -395,10 +389,10 @@ class EntryFieldsTest extends TestCase
 
         $entryGroupService->addUserToGroupAsAdmin($admin, $entryGroup);
 
-        Passport::actingAs($admin);
+        $this->actingAs($admin);
         dispatch_sync(new AddEntry($entry, $entryGroup, new EntryValidationHandler()));
         $entryGroupService->addUserToGroupAsModerator($moderator, $entryGroup, null, 'master_password');
-        Passport::actingAs($moderator);
+        $this->actingAs($moderator);
         /**
          * @var Entry $entry
          */
@@ -437,10 +431,10 @@ class EntryFieldsTest extends TestCase
 
         $entryGroupService->addUserToGroupAsAdmin($admin, $entryGroup);
 
-        Passport::actingAs($admin);
+        $this->actingAs($admin);
         dispatch_sync(new AddEntry($entry, $entryGroup, new EntryValidationHandler()));
         $entryGroupService->addUserToGroupAsMember($member, $entryGroup, null, 'master_password');
-        Passport::actingAs($member);
+        $this->actingAs($member);
         /**
          * @var Entry $entry
          */
@@ -478,7 +472,7 @@ class EntryFieldsTest extends TestCase
 
         $entryGroupService->addUserToGroupAsAdmin($admin, $entryGroup);
 
-        Passport::actingAs($admin);
+        $this->actingAs($admin);
         dispatch_sync(new AddEntry($entry, $entryGroup, new EntryValidationHandler()));
         /**
          * @var Entry $entry
@@ -519,10 +513,10 @@ class EntryFieldsTest extends TestCase
 
         $entryGroupService->addUserToGroupAsAdmin($admin, $entryGroup);
 
-        Passport::actingAs($admin);
+        $this->actingAs($admin);
         dispatch_sync(new AddEntry($entry, $entryGroup, new EntryValidationHandler()));
         $entryGroupService->addUserToGroupAsModerator($moderator, $entryGroup, null, UserFactory::MASTER_PASSWORD);
-        Passport::actingAs($moderator);
+        $this->actingAs($moderator);
         /**
          * @var Entry $entry
          */
@@ -561,10 +555,10 @@ class EntryFieldsTest extends TestCase
 
         $entryGroupService->addUserToGroupAsAdmin($admin, $entryGroup);
 
-        Passport::actingAs($admin);
+        $this->actingAs($admin);
         dispatch_sync(new AddEntry($entry, $entryGroup, new EntryValidationHandler()));
         $entryGroupService->addUserToGroupAsMember($member, $entryGroup, null, UserFactory::MASTER_PASSWORD);
-        Passport::actingAs($member);
+        $this->actingAs($member);
         /**
          * @var Entry $entry
          */
@@ -602,7 +596,7 @@ class EntryFieldsTest extends TestCase
 
         $entryGroupService->addUserToGroupAsAdmin($admin, $entryGroup);
 
-        Passport::actingAs($admin);
+        $this->actingAs($admin);
         dispatch_sync(new AddEntry($entry, $entryGroup, new EntryValidationHandler()));
         /**
          * @var Entry $entry
@@ -658,10 +652,10 @@ class EntryFieldsTest extends TestCase
 
         $entryGroupService->addUserToGroupAsAdmin($admin, $entryGroup);
 
-        Passport::actingAs($admin);
+        $this->actingAs($admin);
         dispatch_sync(new AddEntry($entry, $entryGroup, new EntryValidationHandler()));
         $entryGroupService->addUserToGroupAsModerator($moderator, $entryGroup, null, UserFactory::MASTER_PASSWORD);
-        Passport::actingAs($moderator);
+        $this->actingAs($moderator);
         /**
          * @var Entry $entry
          */
@@ -716,10 +710,10 @@ class EntryFieldsTest extends TestCase
 
         $entryGroupService->addUserToGroupAsAdmin($admin, $entryGroup);
 
-        Passport::actingAs($admin);
+        $this->actingAs($admin);
         dispatch_sync(new AddEntry($entry, $entryGroup, new EntryValidationHandler()));
         $entryGroupService->addUserToGroupAsMember($member, $entryGroup, null, UserFactory::MASTER_PASSWORD);
-        Passport::actingAs($member);
+        $this->actingAs($member);
         /**
          * @var Entry $entry
          */
@@ -772,7 +766,7 @@ class EntryFieldsTest extends TestCase
 
         $entryGroupService->addUserToGroupAsAdmin($admin, $entryGroup);
 
-        Passport::actingAs($admin);
+        $this->actingAs($admin);
         dispatch_sync(new AddEntry($entry, $entryGroup, new EntryValidationHandler()));
         /**
          * @var Entry $entry
@@ -810,10 +804,10 @@ class EntryFieldsTest extends TestCase
 
         $entryGroupService->addUserToGroupAsAdmin($admin, $entryGroup);
 
-        Passport::actingAs($admin);
+        $this->actingAs($admin);
         dispatch_sync(new AddEntry($entry, $entryGroup, new EntryValidationHandler()));
         $entryGroupService->addUserToGroupAsModerator($moderator, $entryGroup, null, UserFactory::MASTER_PASSWORD);
-        Passport::actingAs($moderator);
+        $this->actingAs($moderator);
         /**
          * @var Entry $entry
          */
@@ -850,10 +844,10 @@ class EntryFieldsTest extends TestCase
 
         $entryGroupService->addUserToGroupAsAdmin($admin, $entryGroup);
 
-        Passport::actingAs($admin);
+        $this->actingAs($admin);
         dispatch_sync(new AddEntry($entry, $entryGroup, new EntryValidationHandler()));
         $entryGroupService->addUserToGroupAsMember($member, $entryGroup, null, UserFactory::MASTER_PASSWORD);
-        Passport::actingAs($member);
+        $this->actingAs($member);
         /**
          * @var Entry $entry
          */

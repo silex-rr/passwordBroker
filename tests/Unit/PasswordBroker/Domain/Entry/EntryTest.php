@@ -7,6 +7,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use PasswordBroker\Domain\Entry\Models\Entry;
 use PasswordBroker\Domain\Entry\Models\EntryGroup;
+use phpseclib3\Crypt\PublicKeyLoader;
 use phpseclib3\Crypt\Random;
 use phpseclib3\Crypt\Rijndael;
 use phpseclib3\Crypt\RSA;
@@ -30,8 +31,8 @@ class EntryTest extends TestCase
         $privateKey = $privateKey->withHash('sha512');
 
         $publicKey = $privateKey->getPublicKey();
-        $privateKey = PrivateKey::load((string)$privateKey, $master_pass);
-        $publicKey = PublicKey::load((string)$publicKey);
+        $privateKey = PublicKeyLoader::load((string)$privateKey, $master_pass);
+        $publicKey = PublicKeyLoader::load((string)$publicKey);
 
         $encrypted_data = $publicKey->encrypt($data);
 

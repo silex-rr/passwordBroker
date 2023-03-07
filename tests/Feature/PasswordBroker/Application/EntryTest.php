@@ -7,13 +7,11 @@ use Identity\Infrastructure\Factories\User\UserFactory;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Testing\Fluent\AssertableJson;
-use Laravel\Passport\Passport;
 use PasswordBroker\Application\Services\EntryGroupService;
 use PasswordBroker\Domain\Entry\Models\Attributes\Title;
 use PasswordBroker\Domain\Entry\Models\Entry;
 use PasswordBroker\Domain\Entry\Models\EntryGroup;
 use PasswordBroker\Domain\Entry\Services\AddEntry;
-use PasswordBroker\Infrastructure\Factories\Entry\EntryGroupFactory;
 use PasswordBroker\Infrastructure\Validation\Handlers\EntryValidationHandler;
 use Tests\TestCase;
 
@@ -108,7 +106,7 @@ class EntryTest extends TestCase
         $admin = User::factory()->create();
         $entryGroup = EntryGroup::factory()->create();
         $entryGroup->addAdmin($admin, $this->faker->password(128, 128));
-        Passport::actingAs($admin);
+        $this->actingAs($admin);
 
         $entry_attributes = Entry::factory()->raw();
         unset($entry_attributes['entry_group_id'], $entry_attributes['entry_id']);
@@ -142,7 +140,7 @@ class EntryTest extends TestCase
         $moderator = User::factory()->create();
         $entryGroup = EntryGroup::factory()->create();
         $entryGroup->addModerator($moderator, $this->faker->password(128, 128));
-        Passport::actingAs($moderator);
+        $this->actingAs($moderator);
 
         $entry_attributes = Entry::factory()->raw();
         unset($entry_attributes['entry_group_id'], $entry_attributes['entry_id']);
@@ -176,7 +174,7 @@ class EntryTest extends TestCase
         $member = User::factory()->create();
         $entryGroup = EntryGroup::factory()->create();
         $entryGroup->addMember($member, $this->faker->password(128, 128));
-        Passport::actingAs($member);
+        $this->actingAs($member);
 
         $entry_attributes = Entry::factory()->raw();
         unset($entry_attributes['entry_group_id'], $entry_attributes['entry_id']);
@@ -210,7 +208,7 @@ class EntryTest extends TestCase
         $entry = Entry::factory()->make();
         $admin = User::factory()->create();
         $entryGroupService = app(EntryGroupService::class);
-        Passport::actingAs($admin);
+        $this->actingAs($admin);
 
         $entryGroupService->addUserToGroupAsAdmin($admin, $entryGroup);
 
@@ -260,7 +258,7 @@ class EntryTest extends TestCase
         $entry = Entry::factory()->create();
         $moderator = User::factory()->create();
         $entryGroupService = app(EntryGroupService::class);
-        Passport::actingAs($moderator);
+        $this->actingAs($moderator);
 
         $entryGroupService->addUserToGroupAsModerator($moderator, $entryGroup, $this->faker()->password(128, 128));
 
@@ -305,7 +303,7 @@ class EntryTest extends TestCase
         $entry = Entry::factory()->create();
         $member = User::factory()->create();
         $entryGroupService = app(EntryGroupService::class);
-        Passport::actingAs($member);
+        $this->actingAs($member);
 
         $entryGroupService->addUserToGroupAsMember($member, $entryGroup, $this->faker()->password(128, 128));
 
@@ -350,7 +348,7 @@ class EntryTest extends TestCase
         $entryGroup->addAdmin($admin, $this->faker->password(128, 128));
         $entry = Entry::factory()->create(['entry_group_id' => $entryGroup->entry_group_id]);
 
-        Passport::actingAs($admin);
+        $this->actingAs($admin);
         $this->assertEquals(1,
             $entryGroup->entries()->count()
         );
@@ -377,7 +375,7 @@ class EntryTest extends TestCase
         $entryGroup->addModerator($moderator, $this->faker->password(128, 128));
         $entry = Entry::factory()->create(['entry_group_id' => $entryGroup->entry_group_id]);
 
-        Passport::actingAs($moderator);
+        $this->actingAs($moderator);
         $this->assertEquals(1,
             $entryGroup->entries()->count()
         );
@@ -404,7 +402,7 @@ class EntryTest extends TestCase
         $entryGroup->addMember($member, $this->faker->password(128, 128));
         $entry = Entry::factory()->create(['entry_group_id' => $entryGroup->entry_group_id]);
 
-        Passport::actingAs($member);
+        $this->actingAs($member);
         $this->assertEquals(1,
             $entryGroup->entries()->count()
         );
@@ -432,7 +430,7 @@ class EntryTest extends TestCase
         $entry = Entry::factory()->create();
         $admin = User::factory()->create();
         $entryGroupService = app(EntryGroupService::class);
-        Passport::actingAs($admin);
+        $this->actingAs($admin);
 
         $entryGroupService->addUserToGroupAsAdmin($admin, $entryGroupSource);
         $entryGroupService->addUserToGroupAsAdmin($admin, $entryGroupTarget);
@@ -491,7 +489,7 @@ class EntryTest extends TestCase
         $entry = Entry::factory()->create();
         [$admin, $moderator] = User::factory()->count(2)->create();
         $entryGroupService = app(EntryGroupService::class);
-        Passport::actingAs($admin);
+        $this->actingAs($admin);
 
         $entryGroupService->addUserToGroupAsAdmin($admin, $entryGroupSource);
         $entryGroupService->addUserToGroupAsAdmin($admin, $entryGroupTarget);
@@ -501,7 +499,7 @@ class EntryTest extends TestCase
         $entryGroupService->addUserToGroupAsModerator($moderator, $entryGroupSource, master_password: UserFactory::MASTER_PASSWORD);
         $entryGroupService->addUserToGroupAsModerator($moderator, $entryGroupTarget, master_password: UserFactory::MASTER_PASSWORD);
 
-        Passport::actingAs($moderator);
+        $this->actingAs($moderator);
 
         $this->assertEquals(1,
             $entryGroupSource->entries()->count()
@@ -555,7 +553,7 @@ class EntryTest extends TestCase
         $entry = Entry::factory()->create();
         [$admin, $member] = User::factory()->count(2)->create();
         $entryGroupService = app(EntryGroupService::class);
-        Passport::actingAs($admin);
+        $this->actingAs($admin);
 
         $entryGroupService->addUserToGroupAsAdmin($admin, $entryGroupSource);
         $entryGroupService->addUserToGroupAsAdmin($admin, $entryGroupTarget);
@@ -565,7 +563,7 @@ class EntryTest extends TestCase
         $entryGroupService->addUserToGroupAsMember($member, $entryGroupSource, master_password: UserFactory::MASTER_PASSWORD);
         $entryGroupService->addUserToGroupAsMember($member, $entryGroupTarget, master_password: UserFactory::MASTER_PASSWORD);
 
-        Passport::actingAs($member);
+        $this->actingAs($member);
 
         $this->assertEquals(1,
             $entryGroupSource->entries()->count()

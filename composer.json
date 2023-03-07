@@ -9,7 +9,7 @@
         "guzzlehttp/guzzle": "^7.2",
         "laravel/framework": "^9.19",
         "laravel/tinker": "^2.7",
-        "laravel/passport": "^v11.6.1",
+        "laravel/sanctum": ">=v2.15.1",
 
         "phpseclib/phpseclib": "~3.0",
         "ramsey/uuid": ">=4.5.1",

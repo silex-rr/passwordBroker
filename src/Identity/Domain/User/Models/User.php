@@ -15,7 +15,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Laravel\Passport\HasApiTokens;
+use Laravel\Sanctum\HasApiTokens;
 use PasswordBroker\Domain\Entry\Models\EntryGroup;
 use PasswordBroker\Domain\Entry\Models\Groups\Admin;
 use PasswordBroker\Domain\Entry\Models\Groups\Member;
@@ -30,9 +30,9 @@ use PasswordBroker\Domain\Entry\Models\Groups\Moderator;
 class User extends Authenticatable
 {
     use ModelDomainConstructor;
-    use HasApiTokens;
     use HasFactoryDomain;
     use HasUuids;
+    use HasApiTokens;
     protected $primaryKey = 'user_id';
     public $incrementing = false;
     public $keyType = 'string';
@@ -60,11 +60,6 @@ class User extends Authenticatable
         'password',
         'remember_token',
     ];
-
-    public function findForPassport($username)
-    {
-        return $this->where('name', $username)->first();
-    }
 
     public function getId_UserAttribute(): Attributes\UserId
     {

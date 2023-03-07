@@ -1,5 +1,6 @@
 <?php
 
+use Identity\Application\Http\Controllers\UserAuthController;
 use Identity\Application\Http\Controllers\UserRegistrationController;
 use Illuminate\Support\Facades\Route;
 
@@ -15,4 +16,11 @@ use Illuminate\Support\Facades\Route;
 */
 
 //Route::get('/', [User::class, 'index']);
-Route::post('/', [UserRegistrationController::class, 'store']);
+
+Route::middleware('api')->group(function () {
+    Route::post('/', [UserRegistrationController::class, 'store']);
+});
+
+Route::post('/login', [UserAuthController::class, 'login'])
+    ->name('login');
+Route::get('/logout', [UserAuthController::class, 'logout']);

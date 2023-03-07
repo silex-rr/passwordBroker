@@ -3,11 +3,8 @@
 namespace Tests\Feature\PasswordBroker\Application;
 
 use Identity\Domain\User\Models\User;
-use Illuminate\Database\Query\Builder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
-use Laravel\Passport\Passport;
-use Mockery\Generator\StringManipulation\Pass\Pass;
 use PasswordBroker\Application\Services\EntryGroupService;
 use PasswordBroker\Domain\Entry\Models\EntryGroup;
 use PasswordBroker\Domain\Entry\Models\Groups\Admin;
@@ -30,7 +27,7 @@ class EntryGroupUserTest extends TestCase
         [$admin, $new_admin] = User::factory()->count(2)->create();
         $entryGroupRandomAttributes = $this->getEntryGroupRandomAttributes();
 
-        Passport::actingAs($admin);
+        $this->actingAs($admin);
         $this->postJson(route('entryGroups'), $entryGroupRandomAttributes)->assertStatus(200);
         $this->assertDatabaseHas(app(EntryGroup::class)->getTable(), $entryGroupRandomAttributes);
 
@@ -74,7 +71,7 @@ class EntryGroupUserTest extends TestCase
         [$admin, $new_moderator] = User::factory()->count(2)->create();
         $entryGroupRandomAttributes = $this->getEntryGroupRandomAttributes();
 
-        Passport::actingAs($admin);
+        $this->actingAs($admin);
         $this->postJson(route('entryGroups'), $entryGroupRandomAttributes)->assertStatus(200);
         $this->assertDatabaseHas(app(EntryGroup::class)->getTable(), $entryGroupRandomAttributes);
 
@@ -118,7 +115,7 @@ class EntryGroupUserTest extends TestCase
         [$admin, $new_member] = User::factory()->count(2)->create();
         $entryGroupRandomAttributes = $this->getEntryGroupRandomAttributes();
 
-        Passport::actingAs($admin);
+        $this->actingAs($admin);
         $this->postJson(route('entryGroups'), $entryGroupRandomAttributes)->assertStatus(200);
         $this->assertDatabaseHas(app(EntryGroup::class)->getTable(), $entryGroupRandomAttributes);
 
@@ -167,7 +164,7 @@ class EntryGroupUserTest extends TestCase
 
         $this->assertEquals(2, $entryGroup->users()->count());
 
-        Passport::actingAs($admin);
+        $this->actingAs($admin);
 
         $this->deleteJson(route('entryGroupUser',
             ['entryGroup' => $entryGroup->entry_group_id->getValue(), 'user' => $second_admin->user_id->getValue()])
@@ -190,7 +187,7 @@ class EntryGroupUserTest extends TestCase
 
         $this->assertEquals(2, $entryGroup->users()->count());
 
-        Passport::actingAs($admin);
+        $this->actingAs($admin);
 
         $this->deleteJson(route('entryGroupUser',
             ['entryGroup' => $entryGroup->entry_group_id->getValue(), 'user' => $moderator->user_id->getValue()])
@@ -213,7 +210,7 @@ class EntryGroupUserTest extends TestCase
 
         $this->assertEquals(2, $entryGroup->users()->count());
 
-        Passport::actingAs($admin);
+        $this->actingAs($admin);
 
         $this->deleteJson(route('entryGroupUser',
             ['entryGroup' => $entryGroup->entry_group_id->getValue(), 'user' => $member->user_id->getValue()])
@@ -234,7 +231,7 @@ class EntryGroupUserTest extends TestCase
 
         $this->assertEquals(1, $entryGroup->admins()->count());
 
-        Passport::actingAs($admin);
+        $this->actingAs($admin);
 
         $this->deleteJson(route('entryGroupUser',
             ['entryGroup' => $entryGroup->entry_group_id->getValue(), 'user' => $admin->user_id->getValue()])
@@ -255,7 +252,7 @@ class EntryGroupUserTest extends TestCase
         [$admin, $moderator, $new_admin, $new_moderator, $new_member] = User::factory()->count(5)->create();
         $entryGroupRandomAttributes = $this->getEntryGroupRandomAttributes();
 
-        Passport::actingAs($admin);
+        $this->actingAs($admin);
         $this->postJson(route('entryGroups'), $entryGroupRandomAttributes)->assertStatus(200);
         $this->assertDatabaseHas(app(EntryGroup::class)->getTable(), $entryGroupRandomAttributes);
 
@@ -267,7 +264,7 @@ class EntryGroupUserTest extends TestCase
 
         app(EntryGroupService::class)->addUserToGroupAsModerator($moderator, $entryGroup, null, 'master_password');
 
-        Passport::actingAs($moderator);
+        $this->actingAs($moderator);
 
         $this->postJson(
             route('entryGroupUsers', [
@@ -329,7 +326,7 @@ class EntryGroupUserTest extends TestCase
 
         $this->assertEquals(4, $entryGroup->users()->count());
 
-        Passport::actingAs($moderator);
+        $this->actingAs($moderator);
 
         $this->deleteJson(route('entryGroupUser',
                 ['entryGroup' => $entryGroup->entry_group_id->getValue(), 'user' => $target_admin->user_id->getValue()])
@@ -358,7 +355,7 @@ class EntryGroupUserTest extends TestCase
         [$admin, $member, $new_admin, $new_moderator, $new_member] = User::factory()->count(5)->create();
         $entryGroupRandomAttributes = $this->getEntryGroupRandomAttributes();
 
-        Passport::actingAs($admin);
+        $this->actingAs($admin);
         $this->postJson(route('entryGroups'), $entryGroupRandomAttributes)->assertStatus(200);
         $this->assertDatabaseHas(app(EntryGroup::class)->getTable(), $entryGroupRandomAttributes);
 
@@ -370,7 +367,7 @@ class EntryGroupUserTest extends TestCase
 
         app(EntryGroupService::class)->addUserToGroupAsMember($member, $entryGroup, null, 'master_password');
 
-        Passport::actingAs($member);
+        $this->actingAs($member);
 
         $this->postJson(
             route('entryGroupUsers', [
@@ -432,7 +429,7 @@ class EntryGroupUserTest extends TestCase
 
         $this->assertEquals(4, $entryGroup->users()->count());
 
-        Passport::actingAs($member);
+        $this->actingAs($member);
 
         $this->deleteJson(route('entryGroupUser',
                 ['entryGroup' => $entryGroup->entry_group_id->getValue(), 'user' => $target_admin->user_id->getValue()])

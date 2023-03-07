@@ -6,6 +6,7 @@ use Identity\Domain\User\Models\Attributes\UserId;
 use Identity\Domain\User\Models\User;
 use Illuminate\Support\Facades\Storage;
 use phpseclib3\Crypt\Common\AsymmetricKey;
+use phpseclib3\Crypt\PublicKeyLoader;
 use phpseclib3\Crypt\RSA;
 use phpseclib3\Crypt\RSA\PrivateKey;
 use phpseclib3\Crypt\RSA\PublicKey;
@@ -60,13 +61,13 @@ class RsaService
         return $filesystem->get($userId->getValue());
     }
 
-    public function getUserPrivateKey(UserId $userId, string $master_password): PrivateKey|AsymmetricKey
+    public function getUserPrivateKey(UserId $userId, string $master_password): \phpseclib3\Crypt\Common\PrivateKey
     {
-        return PrivateKey::load($this->getUserPrivateKeyString($userId), $master_password);
+        return PublicKeyLoader::loadPrivateKey($this->getUserPrivateKeyString($userId), $master_password);
     }
 
-    public function getUserPublicKey(User $user): PublicKey|AsymmetricKey
+    public function getUserPublicKey(User $user): \phpseclib3\Crypt\Common\PublicKey
     {
-        return PublicKey::load($user->public_key);
+        return PublicKeyLoader::loadPublicKey($user->public_key);
     }
 }
