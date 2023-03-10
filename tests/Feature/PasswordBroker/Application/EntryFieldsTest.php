@@ -114,7 +114,7 @@ class EntryFieldsTest extends TestCase
             [
                 'type' => Password::TYPE,
                 'value' => $password_str,
-                'master_password' => 'master_password'
+                'master_password' => UserFactory::MASTER_PASSWORD
             ]
         )->assertStatus(401);
 
@@ -153,7 +153,7 @@ class EntryFieldsTest extends TestCase
             [
                 'type' => Password::TYPE,
                 'value' => $password_str_new,
-                'master_password' => 'master_password'
+                'master_password' => UserFactory::MASTER_PASSWORD
             ]
         )->assertStatus(401);
 
@@ -263,7 +263,7 @@ class EntryFieldsTest extends TestCase
 
         $this->actingAs($admin);
         dispatch_sync(new AddEntry($entry, $entryGroup, new EntryValidationHandler()));
-        $entryGroupService->addUserToGroupAsModerator($moderator, $entryGroup, null, 'master_password');
+        $entryGroupService->addUserToGroupAsModerator($moderator, $entryGroup, null, UserFactory::MASTER_PASSWORD);
         $this->actingAs($moderator);
         /**
          * @var Entry $entry
@@ -307,7 +307,7 @@ class EntryFieldsTest extends TestCase
 
         $this->actingAs($admin);
         dispatch_sync(new AddEntry($entry, $entryGroup, new EntryValidationHandler()));
-        $entryGroupService->addUserToGroupAsMember($member, $entryGroup, null, 'master_password');
+        $entryGroupService->addUserToGroupAsMember($member, $entryGroup, null, UserFactory::MASTER_PASSWORD);
 //        Auth::logout();
         $this->actingAs($member);
         /**
@@ -391,7 +391,7 @@ class EntryFieldsTest extends TestCase
 
         $this->actingAs($admin);
         dispatch_sync(new AddEntry($entry, $entryGroup, new EntryValidationHandler()));
-        $entryGroupService->addUserToGroupAsModerator($moderator, $entryGroup, null, 'master_password');
+        $entryGroupService->addUserToGroupAsModerator($moderator, $entryGroup, null, UserFactory::MASTER_PASSWORD);
         $this->actingAs($moderator);
         /**
          * @var Entry $entry
@@ -433,7 +433,7 @@ class EntryFieldsTest extends TestCase
 
         $this->actingAs($admin);
         dispatch_sync(new AddEntry($entry, $entryGroup, new EntryValidationHandler()));
-        $entryGroupService->addUserToGroupAsMember($member, $entryGroup, null, 'master_password');
+        $entryGroupService->addUserToGroupAsMember($member, $entryGroup, null, UserFactory::MASTER_PASSWORD);
         $this->actingAs($member);
         /**
          * @var Entry $entry
@@ -488,7 +488,7 @@ class EntryFieldsTest extends TestCase
                 'type' => Password::TYPE,
                 'value' => $password_str,
                 'title' => '',
-                'master_password' => 'master_password'
+                'master_password' => UserFactory::MASTER_PASSWORD
             ]
         )->assertStatus(200);
 
@@ -609,7 +609,7 @@ class EntryFieldsTest extends TestCase
             route('entryField', ['entryGroup' => $entryGroup, 'entry' => $entry, 'field' => $password]),
             [
                 'value' => $password_str_new,
-                'master_password' => 'master_password'
+                'master_password' => UserFactory::MASTER_PASSWORD
             ]
         )->assertStatus(200);
 
@@ -667,7 +667,7 @@ class EntryFieldsTest extends TestCase
             route('entryField', ['entryGroup' => $entryGroup, 'entry' => $entry, 'field' => $password]),
             [
                 'value' => $password_str_new,
-                'master_password' => 'master_password'
+                'master_password' => UserFactory::MASTER_PASSWORD
             ]
         )->assertStatus(200);
 
@@ -725,7 +725,7 @@ class EntryFieldsTest extends TestCase
             route('entryField', ['entryGroup' => $entryGroup, 'entry' => $entry, 'field' => $password]),
             [
                 'value' => $password_str_new,
-                'master_password' => 'master_password'
+                'master_password' => UserFactory::MASTER_PASSWORD
             ]
         )->assertStatus(403);
 

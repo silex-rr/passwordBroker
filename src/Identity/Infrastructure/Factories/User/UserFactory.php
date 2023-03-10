@@ -13,7 +13,7 @@ use Illuminate\Support\Str;
 
 class UserFactory extends FactoryDomain
 {
-    public const MASTER_PASSWORD = 'master_password';
+    public const MASTER_PASSWORD = 'master_password_1';
     /**
      * Define the model's default state.
      *
@@ -34,7 +34,7 @@ class UserFactory extends FactoryDomain
             'name' => UserName::fromNative(fake()->name()),
             'email' => Email::fromNative(fake()->safeEmail()),
             'email_verified_at' => now(),
-            'password' => fake()->password(12),
+            'password' => fake()->password(12) . fake()->numberBetween(),
             'remember_token' => Str::random(10),
             'public_key' => PublicKey::fromNative((string)$publicKey)
         ];

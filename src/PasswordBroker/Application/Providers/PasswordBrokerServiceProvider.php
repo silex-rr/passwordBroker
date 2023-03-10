@@ -2,6 +2,7 @@
 
 namespace PasswordBroker\Application\Providers;
 
+use App\Common\Application\Traits\ProviderMergeConfigRecursion;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
@@ -12,6 +13,7 @@ use PasswordBroker\Domain\Entry\Models\Fields\Field;
 
 class PasswordBrokerServiceProvider extends ServiceProvider
 {
+    use ProviderMergeConfigRecursion;
     private string $migrations_dir = 'Infrastructure'
         . DIRECTORY_SEPARATOR . 'Database'
         . DIRECTORY_SEPARATOR . 'migrations';
@@ -39,7 +41,7 @@ class PasswordBrokerServiceProvider extends ServiceProvider
 
     public function register(): void
     {
-        $this->mergeConfigFrom($this->base_path . $this->configs_dir . DIRECTORY_SEPARATOR . 'password.php', 'passwordBroker');
+        $this->mergeConfigRecursion(require $this->base_path . $this->configs_dir . DIRECTORY_SEPARATOR . 'password.php', 'passwordBroker');
     }
 
     public function bindRoutes(): void

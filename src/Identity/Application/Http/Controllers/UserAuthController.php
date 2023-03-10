@@ -2,22 +2,22 @@
 
 namespace Identity\Application\Http\Controllers;
 
-use http\Client\Request;
+use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 
-class UserAuthController
+class UserAuthController extends Controller
 {
-    public function login(Request $request): JsonResponse
+    public function login(): JsonResponse
     {
-        $credentials = $request->only('email', 'password');
+        $credentials = request()?->only('email', 'password');
 
         if (Auth::attempt($credentials)) {
             Auth::user();
             return new JsonResponse(['message' => 'Login successful'], 200);
-        } else {
-            return new JsonResponse(['message' => 'Invalid email or password'], 401);
         }
+
+        return new JsonResponse(['message' => 'Invalid email or password'], 401);
     }
 
     public function logout(): JsonResponse

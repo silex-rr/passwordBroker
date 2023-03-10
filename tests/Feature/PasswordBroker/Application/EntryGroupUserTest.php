@@ -3,6 +3,7 @@
 namespace Tests\Feature\PasswordBroker\Application;
 
 use Identity\Domain\User\Models\User;
+use Identity\Infrastructure\Factories\User\UserFactory;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use PasswordBroker\Application\Services\EntryGroupService;
@@ -46,7 +47,7 @@ class EntryGroupUserTest extends TestCase
             [
                 'target_user_id' => $new_admin->user_id->getValue(),
                 'role' => Admin::ROLE_NAME,
-                'master_password' => 'master_password'
+                'master_password' => UserFactory::MASTER_PASSWORD
             ])->assertStatus(200);
         $this->assertEquals(0,
             Member::where('user_id', $new_admin->user_id->getValue())
@@ -90,7 +91,7 @@ class EntryGroupUserTest extends TestCase
             [
                 'target_user_id' => $new_moderator->user_id->getValue(),
                 'role' => Moderator::ROLE_NAME,
-                'master_password' => 'master_password'
+                'master_password' => UserFactory::MASTER_PASSWORD
             ])->assertStatus(200);
         $this->assertEquals(0,
             Member::where('user_id', $new_moderator->user_id->getValue())
@@ -134,7 +135,7 @@ class EntryGroupUserTest extends TestCase
             [
                 'target_user_id' => $new_member->user_id->getValue(),
                 'role' => Member::ROLE_NAME,
-                'master_password' => 'master_password'
+                'master_password' => UserFactory::MASTER_PASSWORD
             ])->assertStatus(200);
         $this->assertEquals(1,
             Member::where('user_id', $new_member->user_id->getValue())
@@ -262,7 +263,7 @@ class EntryGroupUserTest extends TestCase
         $entryGroup = $admin->adminOf()->with('entryGroup')->firstOrFail()
             ->entryGroup()->where('name', $entryGroupRandomAttributes['name'])->firstOrFail();
 
-        app(EntryGroupService::class)->addUserToGroupAsModerator($moderator, $entryGroup, null, 'master_password');
+        app(EntryGroupService::class)->addUserToGroupAsModerator($moderator, $entryGroup, null, UserFactory::MASTER_PASSWORD);
 
         $this->actingAs($moderator);
 
@@ -273,7 +274,7 @@ class EntryGroupUserTest extends TestCase
             [
                 'target_user_id' => $new_admin->user_id->getValue(),
                 'role' => Admin::ROLE_NAME,
-                'master_password' => 'master_password'
+                'master_password' => UserFactory::MASTER_PASSWORD
             ]
         )->assertStatus(403);
 
@@ -284,7 +285,7 @@ class EntryGroupUserTest extends TestCase
             [
                 'target_user_id' => $new_moderator->user_id->getValue(),
                 'role' => Moderator::ROLE_NAME,
-                'master_password' => 'master_password'
+                'master_password' => UserFactory::MASTER_PASSWORD
             ]
         )->assertStatus(403);
 
@@ -295,7 +296,7 @@ class EntryGroupUserTest extends TestCase
             [
                 'target_user_id' => $new_member->user_id->getValue(),
                 'role' => Member::ROLE_NAME,
-                'master_password' => 'master_password'
+                'master_password' => UserFactory::MASTER_PASSWORD
             ]
         )->assertStatus(403);
 
@@ -365,7 +366,7 @@ class EntryGroupUserTest extends TestCase
         $entryGroup = $admin->adminOf()->with('entryGroup')->firstOrFail()
             ->entryGroup()->where('name', $entryGroupRandomAttributes['name'])->firstOrFail();
 
-        app(EntryGroupService::class)->addUserToGroupAsMember($member, $entryGroup, null, 'master_password');
+        app(EntryGroupService::class)->addUserToGroupAsMember($member, $entryGroup, null, UserFactory::MASTER_PASSWORD);
 
         $this->actingAs($member);
 
@@ -376,7 +377,7 @@ class EntryGroupUserTest extends TestCase
             [
                 'target_user_id' => $new_admin->user_id->getValue(),
                 'role' => Admin::ROLE_NAME,
-                'master_password' => 'master_password'
+                'master_password' => UserFactory::MASTER_PASSWORD
             ]
         )->assertStatus(403);
 
@@ -387,7 +388,7 @@ class EntryGroupUserTest extends TestCase
             [
                 'target_user_id' => $new_moderator->user_id->getValue(),
                 'role' => Moderator::ROLE_NAME,
-                'master_password' => 'master_password'
+                'master_password' => UserFactory::MASTER_PASSWORD
             ]
         )->assertStatus(403);
 
@@ -398,7 +399,7 @@ class EntryGroupUserTest extends TestCase
             [
                 'target_user_id' => $new_member->user_id->getValue(),
                 'role' => Member::ROLE_NAME,
-                'master_password' => 'master_password'
+                'master_password' => UserFactory::MASTER_PASSWORD
             ]
         )->assertStatus(403);
 

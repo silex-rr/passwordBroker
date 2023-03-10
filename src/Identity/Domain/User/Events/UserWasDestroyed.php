@@ -10,7 +10,7 @@ use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Auth;
 
-class UserWasUpdated extends DomainEvent
+class UserWasDestroyed extends DomainEvent
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 

@@ -15,6 +15,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use PasswordBroker\Domain\Entry\Models\EntryGroup;
 use PasswordBroker\Domain\Entry\Models\Groups\Admin;
@@ -26,6 +27,8 @@ use PasswordBroker\Domain\Entry\Models\Groups\Moderator;
  * @property Attributes\PublicKey $public_key
  * @property Attributes\IsAdmin $is_admin
  * @property string $password
+ * @property Attributes\UserName $name
+ * @property Attributes\Email $email
  */
 class User extends Authenticatable
 {
@@ -33,6 +36,7 @@ class User extends Authenticatable
     use HasFactoryDomain;
     use HasUuids;
     use HasApiTokens;
+    use Notifiable;
     protected $primaryKey = 'user_id';
     public $incrementing = false;
     public $keyType = 'string';
@@ -48,7 +52,6 @@ class User extends Authenticatable
     ];
     protected $dispatchesEvents = [
         'created' => UserWasCreated::class,
-        'updated' => UserWasUpdated::class
     ];
 
     /**

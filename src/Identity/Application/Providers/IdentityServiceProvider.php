@@ -2,13 +2,14 @@
 
 namespace Identity\Application\Providers;
 
+use App\Common\Application\Traits\ProviderMergeConfigRecursion;
 use Identity\Domain\User\Models\User;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 
 class IdentityServiceProvider extends ServiceProvider
 {
-
+    use ProviderMergeConfigRecursion;
     private string $migrations_dir = 'Infrastructure'
         . DIRECTORY_SEPARATOR . 'Database'
         . DIRECTORY_SEPARATOR . 'migrations';
@@ -31,10 +32,11 @@ class IdentityServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        $this->mergeConfigFrom($this->base_path . $this->configs_dir . DIRECTORY_SEPARATOR . 'filesystems.disks.php', 'filesystems.disks');
-        $this->mergeConfigFrom($this->base_path . $this->configs_dir . DIRECTORY_SEPARATOR . 'auth.providers.php', 'auth.providers');
+        $this->mergeConfigRecursion(require $this->base_path . $this->configs_dir . DIRECTORY_SEPARATOR . 'filesystems.disks.php', 'filesystems.disks');
+        $this->mergeConfigRecursion(require $this->base_path . $this->configs_dir . DIRECTORY_SEPARATOR . 'auth.providers.php', 'auth.providers');
         $this->bindRoutes();
     }
+
 
     /**
      * Bootstrap services.
