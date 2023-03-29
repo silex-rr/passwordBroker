@@ -20,6 +20,8 @@ Route::middleware('api')->group(function (){
 
     Route::get('/entryGroups', [EntryGroupController::class, 'index'])
         ->name('entryGroups');
+    Route::get('/entryGroupsAsTree', [EntryGroupController::class, 'indexAsTree'])
+        ->name('entryGroupsAsTree');
     Route::post('/entryGroups', [EntryGroupController::class, 'store']);
     Route::get('/entryGroups/{entryGroup:entry_group_id}', [EntryGroupController::class, 'show'])
         ->name('entryGroup');

@@ -25,7 +25,15 @@ class EntryGroupController extends Controller
     {
         $resourceAbilityMap = parent::resourceAbilityMap();
         $resourceAbilityMap['move'] = 'move';
+        $resourceAbilityMap['indexAsTree'] = 'viewAny';
         return $resourceAbilityMap;
+    }
+
+    protected function resourceMethodsWithoutModels(): array
+    {
+        $resourceMethodsWithoutModels = parent::resourceMethodsWithoutModels();
+        $resourceMethodsWithoutModels[] = 'indexAsTree';
+        return $resourceMethodsWithoutModels;
     }
 
 
@@ -37,6 +45,19 @@ class EntryGroupController extends Controller
         $user = Auth::user();
 
         return new JsonResponse($user->userOf(), 200);
+    }
+    public function indexAsTree(): JsonResponse
+    {
+        /**
+         * @var User $user
+         */
+        $user = Auth::user();
+
+        return new JsonResponse(
+            [
+                'trees' => $this->entryGroupService->groupsAsTree($user->userOf())
+            ]
+            , 200);
     }
 
     public function store(EntryGroupRequest $request): JsonResponse
@@ -60,9 +81,15 @@ class EntryGroupController extends Controller
         return new JsonResponse(1, 200);
     }
 
-    public function show(): JsonResponse
+    public function show(EntryGroup $entryGroup): JsonResponse
     {
-        return new JsonResponse([], 200);
+        $role = $entryGroup->users()->where('user_id', Auth::user()->user_id->getValue())->first();
+        return new JsonResponse(
+            [
+                'entryGroup' => $entryGroup,
+                'role' => $role
+            ]
+            , 200);
     }
 
     public function update(): JsonResponse

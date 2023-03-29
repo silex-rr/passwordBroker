@@ -4,6 +4,7 @@ namespace PasswordBroker\Application\Services;
 
 use Identity\Application\Services\RsaService;
 use Identity\Domain\User\Models\User;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use PasswordBroker\Domain\Entry\Models\EntryGroup;
 use RuntimeException;
@@ -85,5 +86,84 @@ class EntryGroupService
         $auth_encrypted_aes_password = $entryGroup->users()->where('user_id', $auth_user->user_id->getValue())
             ->firstOrFail()->encrypted_aes_password->getValue();
         return $privateKey->decrypt($auth_encrypted_aes_password);
+    }
+
+    /**
+     * @param Collection $entryGroupsFlatMap
+     * @param string|null $encoder
+     * @return Collection
+     */
+    public function groupsAsTree(Collection $entryGroupsFlatMap, bool $base64Encoded = false): Collection
+    {
+        $tree = collect([]);
+        /**
+         * @var Collection[] $treeChildren
+         */
+        $treeChildren = [];
+
+        /**
+         * @var EntryGroup[] $entryGroupsById
+         */
+        $entryGroupsById = [];
+        $needToFill = [];
+        foreach ($entryGroupsFlatMap as $entryGroup) {
+            $entryGroupsById[$entryGroup->entry_group_id->getValue()] = [
+                'entryGroup' => $entryGroup->entryGroup()->first(),
+                'role' => $entryGroup->getRoleName()
+            ];
+            $needToFill[] = $entryGroup->entry_group_id->getValue();
+        }
+
+        foreach ($needToFill as $id) {
+            if (array_key_exists($id, $treeChildren)) {
+                continue;
+            }
+            $children = collect([]);
+            while ($id) {
+                if (!$entryGroupsById[$id]['entryGroup']->parentEntryGroup()->exists()) {
+                    if(!$tree->contains('entry_group_id', $id)) {
+                        $treeChildren[$id] = $children;
+                        $tree->add(
+                            collect([
+                                'entry_group_id' => $id,
+                                'title' => $entryGroupsById[$id]['entryGroup']->name->getValue(),
+                                'role' => $entryGroupsById[$id]['role'],
+                                'children' => $children
+                            ])
+                        );
+                    }
+                    break;
+                }
+
+                $treeChildren[$id] = $children;
+                $children = collect([[
+                    'entry_group_id' => $id,
+                    'title' => $entryGroupsById[$id]['entryGroup']->name->getValue(),
+                    'role' => $entryGroupsById[$id]['role'],
+                    'children' => $treeChildren[$id]
+                ]]);
+
+                /**
+                 * @var EntryGroup $parent
+                 */
+                $parent = $entryGroupsById[$id]['entryGroup']->parentEntryGroup()->first();
+                $parent_id = $parent->entry_group_id->getValue();
+
+                if (array_key_exists($parent_id, $treeChildren)) {
+                    $children->each(fn ($child) => $treeChildren[$parent_id]->add($child));
+                    break;
+                }
+
+                if (!array_key_exists($parent_id, $entryGroupsById)) {
+                    $entryGroupsById[$parent_id] = [
+                        'entryGroup' => $parent,
+                        'role' => 'guest'
+                    ];
+                }
+                $id = $parent_id;
+            }
+        }
+
+        return $tree;
     }
 }
