@@ -6,7 +6,7 @@ use App\Common\Domain\Traits\HasFactoryDomain;
 use App\Common\Domain\Traits\ModelDomainConstructor;
 use App\Models\Abstracts\AbstractValue;
 use Identity\Domain\User\Models\User;
-use Identity\Domain\User\Models\UserToGroupTranslator;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
@@ -22,9 +22,11 @@ use PasswordBroker\Infrastructure\Validation\EntryGroupUserValidator;
 use PasswordBroker\Infrastructure\Validation\EntryGroupValidator;
 use PasswordBroker\Infrastructure\Validation\Handlers\EntryGroupUserValidationHandler;
 use PasswordBroker\Infrastructure\Validation\Handlers\EntryGroupValidationHandler;
+use Symfony\Component\Mime\Encoder\Base64Encoder;
 
 /**
  * @property Attributes\EntryGroupId $entry_group_id
+ * @property Attributes\GroupName $name
  */
 class EntryGroup extends Model
 {
@@ -151,5 +153,12 @@ class EntryGroup extends Model
     public function validateUser(EntryGroupUserValidationHandler $validationHandler, User $user): void
     {
         (new EntryGroupUserValidator($this, $user, $validationHandler))->validate();
+    }
+
+    public function encryptedEntryGroupIdBase64(): Attribute
+    {
+        return new Attribute(
+            get: fn () => app(Base64Encoder::class)->encodeString($this->entry_group_id->getValue())
+        );
     }
 }

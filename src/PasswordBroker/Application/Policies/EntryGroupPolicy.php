@@ -25,6 +25,7 @@ class EntryGroupPolicy
     {
         return Response::allow();
     }
+
     public function view(User $user, EntryGroup $entryGroup): Response
     {
         return $entryGroup->admins()->where('user_id', $user->user_id)->exists()
