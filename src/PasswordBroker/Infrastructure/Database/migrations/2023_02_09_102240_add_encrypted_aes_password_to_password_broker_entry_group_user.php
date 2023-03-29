@@ -14,7 +14,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('password_broker_entry_group_user', static function (Blueprint $table) {
-            $table->text('encrypted_aes_password')->after('role');
+            $table->binary('encrypted_aes_password')->after('role');
         });
     }
 
