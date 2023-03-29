@@ -23,22 +23,9 @@ class UserController extends Controller
     {
         $this->authorizeResource(User::class, ['user']);
     }
-
-    protected function resourceAbilityMap(): array
-    {
-        $resourceAbilityMap = parent::resourceAbilityMap();
-        $resourceAbilityMap['show_me'] = 'viewSelf';
-        return $resourceAbilityMap;
-    }
-
     public function index(): JsonResponse
     {
         return new JsonResponse([], 200);
-    }
-
-    public function show(User $user): JsonResponse
-    {
-        return new JsonResponse($user, 200);
     }
 
     public function destroy(User $user): JsonResponse
@@ -61,9 +48,9 @@ class UserController extends Controller
         return new JsonResponse(null, 200);
     }
 
-    public function showMe(): JsonResponse
+    public function show(User $user): JsonResponse
     {
-        return new JsonResponse(Auth::user(), 200);
+        return new JsonResponse($user, 200);
     }
 
     public function store(RegisterUserRequest $request): JsonResponse
