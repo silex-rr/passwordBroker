@@ -6,12 +6,14 @@ use App\Common\Domain\Traits\ModelDomainConstructor;
 use Identity\Domain\User\Models\Casts\UserId;
 use Identity\Domain\User\Models\User;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use PasswordBroker\Domain\Entry\Contracts\RoleInterface;
 use PasswordBroker\Domain\Entry\Models\Casts\EntryGroupId;
 use PasswordBroker\Domain\Entry\Models\EntryGroup;
 use PasswordBroker\Domain\Entry\Models\Groups\Casts\EncryptedAesPassword;
+use Symfony\Component\Mime\Encoder\Base64Encoder;
 
 /**
  * @property \Identity\Domain\User\Models\Attributes\UserId $user_id
@@ -34,6 +36,10 @@ abstract class Role extends Model
 
     public $guarded = [
         'role'
+    ];
+
+    protected $hidden = [
+        'encrypted_aes_password'
     ];
 
     public $casts = [
@@ -70,5 +76,12 @@ abstract class Role extends Model
     public function getRoleName(): string
     {
         return static::ROLE_NAME;
+    }
+
+    public function encryptedEntryGroupIdBase64(): Attribute
+    {
+        return new Attribute(
+            get: fn () => app(Base64Encoder::class)->encodeString($this->entry_group_id->getValue())
+        );
     }
 }
