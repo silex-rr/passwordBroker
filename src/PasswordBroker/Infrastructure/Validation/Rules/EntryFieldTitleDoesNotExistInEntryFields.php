@@ -29,7 +29,7 @@ class EntryFieldTitleDoesNotExistInEntryFields implements Rule
     public function passes($attribute, $value): bool
     {
 
-        return !$this->entry->fields()->where('title', $value)->exists();
+        return !$this->entry->fields()->contains('title', $value);
     }
 
     /**

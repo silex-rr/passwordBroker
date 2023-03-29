@@ -17,6 +17,7 @@ use PasswordBroker\Domain\Entry\Services\DestroyEntry;
 use PasswordBroker\Domain\Entry\Services\MoveEntry;
 use PasswordBroker\Domain\Entry\Services\UpdateEntry;
 use PasswordBroker\Infrastructure\Validation\Handlers\EntryValidationHandler;
+use phpseclib3\Exception\NoKeyLoadedException;
 
 class EntryController extends Controller
 {
