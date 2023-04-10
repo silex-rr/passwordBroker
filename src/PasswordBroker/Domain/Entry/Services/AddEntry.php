@@ -6,6 +6,7 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
+use PasswordBroker\Application\Services\EntryGroupService;
 use PasswordBroker\Domain\Entry\Events\EntryWasCreated;
 use PasswordBroker\Domain\Entry\Models\Entry;
 use PasswordBroker\Domain\Entry\Models\EntryGroup;
@@ -42,6 +43,7 @@ class AddEntry implements ShouldQueue
 
         $this->validate();
         $this->entry->save();
+
         event(new EntryWasCreated($this->entry));
     }
 

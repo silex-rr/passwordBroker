@@ -17,8 +17,6 @@ class UpdateUserRequest extends FormRequest
 
     public function rules(): array
     {
-        $table = app(User::class)->getTable();
-
         /**
          * @var User $userTarget
          */
@@ -28,10 +26,14 @@ class UpdateUserRequest extends FormRequest
             'user.email' => [
                 'required',
                 'email',
-                Rule::unique($table, 'email')->ignore($userTarget)
+                Rule::unique($userTarget->getTableFullName(), 'email')->ignore($userTarget)
             ],
 
-            'user.username' => 'required|min:1|unique:' . $table . ',name,' . $userTarget->user_id->getValue(),
+            'user.username' => [
+                    'required',
+                    'min:1',
+                    Rule::unique($userTarget->getTableFullName(), 'name')->ignore($userTarget)
+                ],
             'user.password' => [
                 'nullable',
                 'confirmed',

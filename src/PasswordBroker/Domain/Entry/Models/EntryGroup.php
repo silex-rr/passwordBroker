@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use PasswordBroker\Domain\Entry\Models\Casts\EntryGroupId;
 use PasswordBroker\Domain\Entry\Models\Casts\GroupName;
+use PasswordBroker\Domain\Entry\Models\Casts\MaterializedPath;
 use PasswordBroker\Domain\Entry\Models\Groups\Admin;
 use PasswordBroker\Domain\Entry\Models\Groups\Attributes\EncryptedAesPassword;
 use PasswordBroker\Domain\Entry\Models\Groups\Member;
@@ -27,6 +28,7 @@ use Symfony\Component\Mime\Encoder\Base64Encoder;
 /**
  * @property Attributes\EntryGroupId $entry_group_id
  * @property Attributes\GroupName $name
+ * @property Attributes\MaterializedPath $materialized_path
  */
 class EntryGroup extends Model
 {
@@ -42,7 +44,8 @@ class EntryGroup extends Model
 
     public $casts = [
         'entry_group_id' => EntryGroupId::class,
-        'name' => GroupName::class
+        'name' => GroupName::class,
+        'materialized_path' => MaterializedPath::class
     ];
 
     public function entries(): HasMany

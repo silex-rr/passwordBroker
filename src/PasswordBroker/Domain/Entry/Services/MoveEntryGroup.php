@@ -6,6 +6,7 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
+use PasswordBroker\Application\Services\EntryGroupService;
 use PasswordBroker\Domain\Entry\Events\EntryGroupWasMoved;
 use PasswordBroker\Domain\Entry\Models\EntryGroup;
 
@@ -15,7 +16,8 @@ class MoveEntryGroup implements ShouldQueue
 
     public function __construct(
         protected EntryGroup  $entryGroup,
-        protected ?EntryGroup $entryGroupTarget
+        protected ?EntryGroup $entryGroupTarget,
+        protected EntryGroupService $entryGroupService
     )
     {
     }
@@ -27,7 +29,8 @@ class MoveEntryGroup implements ShouldQueue
         } else {
             $this->entryGroup->parentEntryGroup()->associate($this->entryGroupTarget);
         }
-        $this->entryGroup->save();
+        $this->entryGroupService->rebuildMaterializedPath($this->entryGroup, $this->entryGroupTarget);
+
         event(
             new EntryGroupWasMoved(
                 entryGroup: $this->entryGroup,

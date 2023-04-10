@@ -200,6 +200,7 @@ return [
          */
         Identity\Application\Providers\IdentityServiceProvider::class,
         Identity\Application\Providers\IdentityAuthServiceProvider::class,
+        Identity\Application\Providers\IdentitySessionServiceProvider::class,
         /*
          * PasswordBroker Domain
          */

@@ -30,7 +30,7 @@ class EntryGroupUserTest extends TestCase
 
         $this->actingAs($admin);
         $this->postJson(route('entryGroups'), $entryGroupRandomAttributes)->assertStatus(200);
-        $this->assertDatabaseHas(app(EntryGroup::class)->getTable(), $entryGroupRandomAttributes);
+        $this->assertDatabaseHas(app(EntryGroup::class)->getTableFullName(), $entryGroupRandomAttributes);
 
         /**
          * @var EntryGroup $entryGroup
@@ -74,7 +74,7 @@ class EntryGroupUserTest extends TestCase
 
         $this->actingAs($admin);
         $this->postJson(route('entryGroups'), $entryGroupRandomAttributes)->assertStatus(200);
-        $this->assertDatabaseHas(app(EntryGroup::class)->getTable(), $entryGroupRandomAttributes);
+        $this->assertDatabaseHas(app(EntryGroup::class)->getTableFullName(), $entryGroupRandomAttributes);
 
         /**
          * @var EntryGroup $entryGroup
@@ -118,7 +118,7 @@ class EntryGroupUserTest extends TestCase
 
         $this->actingAs($admin);
         $this->postJson(route('entryGroups'), $entryGroupRandomAttributes)->assertStatus(200);
-        $this->assertDatabaseHas(app(EntryGroup::class)->getTable(), $entryGroupRandomAttributes);
+        $this->assertDatabaseHas(app(EntryGroup::class)->getTableFullName(), $entryGroupRandomAttributes);
 
         /**
          * @var EntryGroup $entryGroup
@@ -255,7 +255,7 @@ class EntryGroupUserTest extends TestCase
 
         $this->actingAs($admin);
         $this->postJson(route('entryGroups'), $entryGroupRandomAttributes)->assertStatus(200);
-        $this->assertDatabaseHas(app(EntryGroup::class)->getTable(), $entryGroupRandomAttributes);
+        $this->assertDatabaseHas(app(EntryGroup::class)->getTableFullName(), $entryGroupRandomAttributes);
 
         /**
          * @var EntryGroup $entryGroup
@@ -358,7 +358,7 @@ class EntryGroupUserTest extends TestCase
 
         $this->actingAs($admin);
         $this->postJson(route('entryGroups'), $entryGroupRandomAttributes)->assertStatus(200);
-        $this->assertDatabaseHas(app(EntryGroup::class)->getTable(), $entryGroupRandomAttributes);
+        $this->assertDatabaseHas(app(EntryGroup::class)->getTableFullName(), $entryGroupRandomAttributes);
 
         /**
          * @var EntryGroup $entryGroup

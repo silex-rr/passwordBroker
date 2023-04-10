@@ -3,8 +3,10 @@
 namespace Identity\Application\Providers;
 
 use App\Common\Application\Traits\ProviderMergeConfigRecursion;
+use Identity\Application\Http\Sessions\DatabaseSessionHandler;
 use Identity\Domain\User\Models\User;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Session;
 use Illuminate\Support\ServiceProvider;
 
 class IdentityServiceProvider extends ServiceProvider
@@ -32,9 +34,20 @@ class IdentityServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        $this->mergeConfigRecursion(require $this->base_path . $this->configs_dir . DIRECTORY_SEPARATOR . 'filesystems.disks.php', 'filesystems.disks');
-        $this->mergeConfigRecursion(require $this->base_path . $this->configs_dir . DIRECTORY_SEPARATOR . 'auth.providers.php', 'auth.providers');
+        $this->mergeConfigRecursion(
+            require $this->base_path . $this->configs_dir . DIRECTORY_SEPARATOR . 'filesystems.disks.php',
+            'filesystems.disks'
+        );
+        $this->mergeConfigRecursion(
+            require $this->base_path . $this->configs_dir . DIRECTORY_SEPARATOR . 'auth.providers.php',
+            'auth.providers'
+        );
+        $this->mergeConfigRecursion(
+            require $this->base_path . $this->configs_dir . DIRECTORY_SEPARATOR . 'database.connections.php',
+            'database.connections'
+        );
         $this->bindRoutes();
+
     }
 
 
@@ -45,6 +58,17 @@ class IdentityServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+//        Session::resolved(static function ($session) {
+//            $session->extend('screen-session', function ($app) {
+//                $table = $app['config']['session.table'];
+//                $lifetime = $app['config']['session.lifetime'];
+//                $connection = $app['db']->connection($app['config']['session.connection']);
+//                return new DatabaseSessionHandler($connection, $table, $lifetime, $app);
+//            });
+//        });
+
+
+
         $this->loadMigrationsFrom($this->base_path . $this->migrations_dir);
     }
 

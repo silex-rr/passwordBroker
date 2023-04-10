@@ -14,12 +14,13 @@ use PasswordBroker\Domain\Entry\Models\Fields\Field;
 class PasswordBrokerServiceProvider extends ServiceProvider
 {
     use ProviderMergeConfigRecursion;
+
     private string $migrations_dir = 'Infrastructure'
-        . DIRECTORY_SEPARATOR . 'Database'
-        . DIRECTORY_SEPARATOR . 'migrations';
+    . DIRECTORY_SEPARATOR . 'Database'
+    . DIRECTORY_SEPARATOR . 'migrations';
 
     private string $configs_dir = 'Application'
-        . DIRECTORY_SEPARATOR . 'config';
+    . DIRECTORY_SEPARATOR . 'config';
 
     private string $base_path;
 
@@ -36,19 +37,27 @@ class PasswordBrokerServiceProvider extends ServiceProvider
 
         EntryGroup::observe(EntryGroupObserver::class);
         //Clean domain table prefix
-        DB::connection()->setTablePrefix('');
+//        DB::connection()->setTablePrefix('');
     }
 
     public function register(): void
     {
-        $this->mergeConfigRecursion(require $this->base_path . $this->configs_dir . DIRECTORY_SEPARATOR . 'password.php', 'passwordBroker');
+        $this->mergeConfigRecursion(
+            require $this->base_path . $this->configs_dir . DIRECTORY_SEPARATOR . 'password.php',
+            'passwordBroker'
+        );
+        $this->mergeConfigRecursion(
+            require $this->base_path . $this->configs_dir . DIRECTORY_SEPARATOR . 'database.connections.php',
+            'database.connections'
+        );
+//        dd(config('database.connections'));
     }
 
     public function bindRoutes(): void
     {
-        Route::bind('entryGroup', fn (string $entry_group_id) => EntryGroup::where('entry_group_id', $entry_group_id)->firstOrFail());
-        Route::bind('entry', fn (string $entry_id) => Entry::where('entry_id', $entry_id)->firstOrFail());
-        Route::bind('field', fn (string $field_id) => Field::getFiledByFieldId($field_id));
+        Route::bind('entryGroup', fn(string $entry_group_id) => EntryGroup::where('entry_group_id', $entry_group_id)->firstOrFail());
+        Route::bind('entry', fn(string $entry_id) => Entry::where('entry_id', $entry_id)->firstOrFail());
+        Route::bind('field', fn(string $field_id) => Field::getFiledByFieldId($field_id));
     }
 
 }

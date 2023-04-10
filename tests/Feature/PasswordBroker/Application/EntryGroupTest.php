@@ -63,6 +63,7 @@ class EntryGroupTest extends TestCase
         $this->actingAs($user);
 
         $attributes = $this->getEntryGroupRandomAttributes();
+        unset($attributes['materialized_path']);
         $this->postJson(route('entryGroups'), $attributes)->assertStatus(200);
 
         $this->assertDatabaseHas('entry_groups', $attributes, app(EntryGroup::class)->getConnection()->getName());
@@ -345,14 +346,14 @@ class EntryGroupTest extends TestCase
 
         $this->actingAs($admin);
 
-        $this->assertDatabaseHas($entryGroup->getTable(),
+        $this->assertDatabaseHas($entryGroup->getTableFullName(),
             $entryGroup->getAttributes()
         );
 
         $this->deleteJson(route('entryGroup', ['entryGroup' => $entryGroup->entry_group_id->getValue()]))
             ->assertStatus(403);
 
-        $this->assertDatabaseHas($entryGroup->getTable(),
+        $this->assertDatabaseHas($entryGroup->getTableFullName(),
             $entryGroup->getAttributes()
         );
     }

@@ -15,8 +15,7 @@ class RegisterUserRequest extends FormRequest
 
     public function rules() : array
     {
-        $table = app(User::class)->getTable();
-
+        $table = app(User::class)->getTableFullName();
         return [
             'user.email' => 'required|email|unique:' . $table . ',email',
             'user.username' => 'required|min:1|unique:' . $table . ',name',

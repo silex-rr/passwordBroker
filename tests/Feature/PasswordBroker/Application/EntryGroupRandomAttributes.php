@@ -16,7 +16,7 @@ trait EntryGroupRandomAttributes
          * @var EntryGroup $entryGroup
          */
         $attributes = EntryGroup::factory()->raw();
-        unset($attributes['entry_group_id']);
+        unset($attributes['entry_group_id'], $attributes['materialized_path']);
         return $attributes;
     }
 }

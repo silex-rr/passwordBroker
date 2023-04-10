@@ -6,6 +6,7 @@ use Identity\Application\Services\RsaService;
 use Identity\Domain\User\Models\User;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
+use PasswordBroker\Domain\Entry\Models\Attributes\MaterializedPath;
 use PasswordBroker\Domain\Entry\Models\EntryGroup;
 use RuntimeException;
 use Symfony\Component\EventDispatcher\EventDispatcher;
@@ -90,7 +91,7 @@ class EntryGroupService
 
     /**
      * @param Collection $entryGroupsFlatMap
-     * @param string|null $encoder
+     * @param bool $base64Encoded
      * @return Collection
      */
     public function groupsAsTree(Collection $entryGroupsFlatMap, bool $base64Encoded = false): Collection
@@ -165,5 +166,26 @@ class EntryGroupService
         }
 
         return $tree;
+    }
+
+    public function rebuildMaterializedPath(EntryGroup $entryGroup, ?EntryGroup $parentEntryGroup = null): void
+    {
+        $materializedPath = $entryGroup->entry_group_id->getValue();
+
+        if (is_null($parentEntryGroup)) {
+            $parent = $entryGroup->parentEntryGroup();
+            if ($parent->exists()) {
+                $parentEntryGroup = $parent->first();
+            }
+        }
+        if ($parentEntryGroup) {
+            $materializedPath = $parentEntryGroup->materialized_path->getValue() . '.' . $materializedPath;
+        }
+
+        $entryGroup->materialized_path = new MaterializedPath($materializedPath);
+        $entryGroup->save();
+        foreach ($entryGroup->entryGroups()->get() as $entryGroupChild) {
+            $this->rebuildMaterializedPath($entryGroupChild, $entryGroup);
+        }
     }
 }

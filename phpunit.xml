@@ -21,8 +21,16 @@
         <env name="APP_ENV" value="testing"/>
         <env name="BCRYPT_ROUNDS" value="4"/>
         <env name="CACHE_DRIVER" value="array"/>
-         <env name="DB_CONNECTION" value="sqlite"/>
-         <env name="DB_DATABASE" value=":memory:"/>
+<!--         <env name="DB_CONNECTION" value="sqlite"/>-->
+<!--         <env name="DB_DATABASE" value=":memory:"/>-->
+         <env name="DB_CONNECTION" value="mysql"/>
+         <env name="DB_HOST" value="10.56.1.150"/>
+         <env name="DB_PORT" value="3307"/>
+         <env name="DB_DATABASE" value="passwordBrokerTest"/>
+         <env name="DB_USERNAME" value="passwordBroker"/>
+         <env name="DB_PASSWORD" value="passwordBroker"/>
+
+
         <env name="MAIL_MAILER" value="array"/>
         <env name="QUEUE_CONNECTION" value="sync"/>
         <env name="SESSION_DRIVER" value="array"/>

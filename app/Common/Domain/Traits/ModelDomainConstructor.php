@@ -9,10 +9,13 @@ use Illuminate\Support\Str;
 Trait ModelDomainConstructor
 {
     use GetClassNamespace;
+
+    use ModelDomainTableFullName;
     public function __construct(array $attributes = array())
     {
-        $app = Str::snake(explode('\\', self::getClassNamespace())[0]);
-        $this->getConnection()->setTablePrefix($app . '_');
+        $connection_name = Str::snake(explode('\\', self::getClassNamespace())[0]);
+//        $this->getConnection()->setTablePrefix($connection_name . '_');
+        $this->setConnection($connection_name);
 
         parent::__construct($attributes);
     }

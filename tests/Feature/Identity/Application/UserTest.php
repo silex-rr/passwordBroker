@@ -17,6 +17,9 @@ class UserTest extends TestCase
 
     public function test_a_system_admin_can_create_a_user(): void
     {
+        /**
+         * @var User $system_admin
+         */
         $system_admin = User::factory()->create(['is_admin' => new IsAdmin(true)]);
         $userAttributesDef = $userAttributes = User::factory()->make()->getAttributes();
         $userAttributes['username'] = $userAttributes['name'];
@@ -34,7 +37,8 @@ class UserTest extends TestCase
             $userAttributesDef['password'],
             $userAttributesDef['public_key'],
         );
-        $this->assertDatabaseHas($system_admin->getTable(), $userAttributesDef);
+
+        $this->assertDatabaseHas($system_admin->getTable(), $userAttributesDef, $system_admin->getConnectionName());
     }
 
     public function test_a_system_admin_can_delete_a_user(): void
@@ -55,7 +59,7 @@ class UserTest extends TestCase
         $this->assertEquals($users_num - 1,
             User::count()
         );
-        $this->assertDatabaseMissing($system_admin->getTable(), $user->getAttributes());
+        $this->assertDatabaseMissing($system_admin->getTable(), $user->getAttributes(), $user->getConnectionName());
     }
 
     public function test_a_system_admin_can_update_a_user(): void

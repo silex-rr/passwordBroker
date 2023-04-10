@@ -213,7 +213,7 @@ class EntryTest extends TestCase
         $entryGroupService->addUserToGroupAsAdmin($admin, $entryGroup);
 
 
-        dispatch_sync(new AddEntry($entry, $entryGroup, new EntryValidationHandler()));
+        dispatch_sync(new AddEntry($entry, $entryGroup, new EntryValidationHandler(), $entryGroupService));
         /**
          * @var Entry $entry
          */
@@ -262,7 +262,7 @@ class EntryTest extends TestCase
 
         $entryGroupService->addUserToGroupAsModerator($moderator, $entryGroup, $this->faker()->password(128, 128));
 
-        dispatch_sync(new AddEntry($entry, $entryGroup, new EntryValidationHandler()));
+        dispatch_sync(new AddEntry($entry, $entryGroup, new EntryValidationHandler(), $entryGroupService));
 
         $this->assertEquals(1,
             $entryGroup->entries()->count()
@@ -307,7 +307,7 @@ class EntryTest extends TestCase
 
         $entryGroupService->addUserToGroupAsMember($member, $entryGroup, $this->faker()->password(128, 128));
 
-        dispatch_sync(new AddEntry($entry, $entryGroup, new EntryValidationHandler()));
+        dispatch_sync(new AddEntry($entry, $entryGroup, new EntryValidationHandler(), $entryGroupService));
 
         $this->assertEquals(1,
             $entryGroup->entries()->count()

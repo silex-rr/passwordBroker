@@ -36,7 +36,7 @@ class UserController extends Controller
 
     public function update(User $user, UpdateUserRequest $request): JsonResponse
     {
-        $all = $request->all();
+//        $all = $request->all();
 
         $this->dispatchSync(new UpdateUser(
             userTarget: $user,
@@ -61,10 +61,10 @@ class UserController extends Controller
         $master_password = $request->input('user.master_password');
 
         return new JsonResponse($this->registrationService->execute(
-            $email,
-            $username,
-            $password,
-            $master_password
+            email: $email,
+            username: $username,
+            password: $password,
+            master_password: $master_password
         ));
     }
 

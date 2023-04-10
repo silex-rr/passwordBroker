@@ -37,9 +37,14 @@ class AddEntryGroup implements ShouldQueue
     {
         $this->validate();
         $this->entryGroup->entry_group_id;
-        $this->entryGroup->save();
 
-        app(EntryGroupService::class)->addUserToGroupAsAdmin(Auth::user(), $this->entryGroup);
+        /**
+         * @var EntryGroupService $entryGroupService
+         */
+        $entryGroupService = app(EntryGroupService::class);
+        $entryGroupService->rebuildMaterializedPath($this->entryGroup);
+        $entryGroupService->addUserToGroupAsAdmin(Auth::user(), $this->entryGroup);
+
 
         event(new EntryGroupWasCreated($this->entryGroup));
     }

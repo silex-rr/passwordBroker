@@ -160,4 +160,13 @@ class EntryGroupTest extends TestCase
         $this->assertTrue($entryGroup_1->parentEntryGroup()->first()->is($entryGroup_2));
     }
 
+    public function test_an_entry_group_have_a_materialized_path(): void
+    {
+        /**
+         * @var EntryGroup $entryGroup
+         */
+        $entryGroup = EntryGroup::factory()->create();
+        $this->assertEquals($entryGroup->entry_group_id->getValue(), $entryGroup->materialized_path->getValue());
+    }
+
 }

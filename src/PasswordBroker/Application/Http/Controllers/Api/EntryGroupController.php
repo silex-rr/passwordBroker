@@ -77,7 +77,7 @@ class EntryGroupController extends Controller
 
     public function move(EntryGroup $entryGroup, EntryGroupMoveRequest $request): JsonResponse
     {
-        $this->dispatchSync(new MoveEntryGroup($entryGroup, $request->entryGroupTarget()));
+        $this->dispatchSync(new MoveEntryGroup($entryGroup, $request->entryGroupTarget(), $this->entryGroupService));
         return new JsonResponse(1, 200);
     }
 
