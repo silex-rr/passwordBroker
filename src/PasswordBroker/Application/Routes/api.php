@@ -52,6 +52,9 @@ Route::middleware('api')->group(function (){
     Route::get('/entryGroups/{entryGroup:entry_group_id}/entries/{entry:entry_id}/fields/{field:field_id}',
         [EntryFieldController::class, 'show'])
         ->name('entryField');
+    Route::post('/entryGroups/{entryGroup:entry_group_id}/entries/{entry:entry_id}/fields/{field:field_id}/decrypted',
+        [EntryFieldController::class, 'showDecrypted'])
+        ->name('entryFieldDecrypted');
     Route::put('/entryGroups/{entryGroup:entry_group_id}/entries/{entry:entry_id}/fields/{field:field_id}',
         [EntryFieldController::class, 'update']);
     Route::delete('/entryGroups/{entryGroup:entry_group_id}/entries/{entry:entry_id}/fields/{field:field_id}',

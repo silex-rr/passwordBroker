@@ -442,6 +442,9 @@ class EntryFieldsTest extends TestCase
         $password_str = $this->faker->password(12, 32);
         $password = $this->getPasswordHelper($admin, $entryGroup, $entry, $password_str);
 
+        /**
+         * @var Base64Encoder $base64Encoder
+         */
         $base64Encoder = app(Base64Encoder::class);
 
         $this->getJson(route('entryField', ['entryGroup' => $entryGroup, 'entry' => $entry, 'field' => $password]))
@@ -454,6 +457,59 @@ class EntryFieldsTest extends TestCase
                         $base64Encoder->encodeString($password->initialization_vector->getValue()))
                     ->where('type', $password->getType())
                     ->etc()
+            );
+    }
+
+    public function test_member_can_see_an_decrypted_entry_field_belonged_to_their_group(): void
+    {
+        /**
+         * @var EntryGroup $entryGroup
+         * @var User $admin
+         * @var User $member
+         * @var Entry $entry
+         * @var EntryGroupService $entryGroupService
+         */
+        $entryGroup = EntryGroup::factory()->create();
+        [$admin, $member] = User::factory()->count(2)->create();
+        $entry = Entry::factory()->make(['entry_group_id' => null]);
+        $entryGroupService = app(EntryGroupService::class);
+        /**
+         * @var EncryptionService $encryptionService
+         */
+        $encryptionService = app(EncryptionService::class);
+
+        $entryGroupService->addUserToGroupAsAdmin($admin, $entryGroup);
+
+        $this->actingAs($admin);
+        dispatch_sync(new AddEntry($entry, $entryGroup, new EntryValidationHandler()));
+        $entryGroupService->addUserToGroupAsMember($member, $entryGroup, null, UserFactory::MASTER_PASSWORD);
+        $this->actingAs($member);
+        /**
+         * @var Entry $entry
+         */
+        $entry = Entry::where('title', $entry->title)->firstOrFail();
+        $password_str = $this->faker->password(12, 32);
+        $password = $this->getPasswordHelper($admin, $entryGroup, $entry, $password_str);
+
+        /**
+         * @var Base64Encoder $base64Encoder
+         */
+        $base64Encoder = app(Base64Encoder::class);
+
+        $this->postJson(route('entryFieldDecrypted',
+            [
+                'entryGroup' => $entryGroup,
+                'entry' => $entry,
+                'field' => $password
+            ]),
+            [
+                'master_password' => UserFactory::MASTER_PASSWORD
+            ]
+        )->assertStatus(200)
+            ->assertJson(fn (AssertableJson $field)
+            => $field->where('value_decrypted_base64',
+                    $base64Encoder->encodeString($encryptionService->decryptField($password,  UserFactory::MASTER_PASSWORD))
+                )->etc()
             );
     }
 

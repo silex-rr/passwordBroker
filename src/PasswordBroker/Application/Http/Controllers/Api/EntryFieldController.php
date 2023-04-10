@@ -4,8 +4,10 @@ namespace PasswordBroker\Application\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
+use PasswordBroker\Application\Http\Requests\EntryFieldDecryptedRequest;
 use PasswordBroker\Application\Http\Requests\EntryFieldStoreRequest;
 use PasswordBroker\Application\Http\Requests\EntryFieldUpdateRequest;
+use PasswordBroker\Application\Services\EncryptionService;
 use PasswordBroker\Domain\Entry\Models\Entry;
 use PasswordBroker\Domain\Entry\Models\EntryGroup;
 use PasswordBroker\Domain\Entry\Models\Fields\Field;
@@ -13,12 +15,23 @@ use PasswordBroker\Domain\Entry\Services\AddFieldToEntry;
 use PasswordBroker\Domain\Entry\Services\DestroyEntryField;
 use PasswordBroker\Domain\Entry\Services\UpdateField;
 use phpseclib3\Exception\NoKeyLoadedException;
+use Symfony\Component\Mime\Encoder\Base64Encoder;
 
 class EntryFieldController extends Controller
 {
-    public function __construct()
+    public function __construct(
+        private readonly EncryptionService $encryptionService,
+        private readonly Base64Encoder $base64Encoder
+    )
     {
         $this->authorizeResource(Field::class, ['field']);
+    }
+
+    protected function resourceAbilityMap(): array
+    {
+        $resourceAbilityMap = parent::resourceAbilityMap();
+        $resourceAbilityMap['showDecrypted'] = 'view';
+        return $resourceAbilityMap;
     }
 
     public function index(EntryGroup $entryGroup, Entry $entry): JsonResponse
@@ -29,6 +42,26 @@ class EntryFieldController extends Controller
     public function show(EntryGroup $entryGroup, Entry $entry, Field $field): JsonResponse
     {
         return new JsonResponse($field, 200);
+    }
+
+    public function showDecrypted(EntryGroup $entryGroup, Entry $entry, Field $field, EntryFieldDecryptedRequest $request): JsonResponse
+    {
+        try {
+            return new JsonResponse(
+                ['value_decrypted_base64' =>
+                    $this->base64Encoder->encodeString(
+                        $this->encryptionService->decryptField($field, $request->getMasterPassword())
+                    )
+                ]
+                , 200);
+        } catch (NoKeyLoadedException $exception) {
+            return new JsonResponse([
+                'message' => "MasterPassword is invalid",
+                'errors' => [
+                    'master_password' => 'invalid',
+                ]
+            ], 422);
+        }
     }
 
     public function store(EntryGroup $entryGroup, Entry $entry, EntryFieldStoreRequest $request): JsonResponse
@@ -62,7 +95,7 @@ class EntryFieldController extends Controller
         $result = $this->dispatchSync(new UpdateField(
             entry: $entry,
             entryGroup: $entryGroup,
-            field:  $field,
+            field: $field,
             title: $request->get('title'),
             value_encrypted: $request->get('value_encrypted'),
             initialization_vector: $request->get('initialization_vector'),
