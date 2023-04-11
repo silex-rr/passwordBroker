@@ -476,7 +476,7 @@ class EntryFieldsTest extends TestCase
         /**
          * @var EncryptionService $encryptionService
          */
-        $encryptionService = app(EncryptionService::class);
+        $entryGroupService = app(EntryGroupService::class);
 
         $entryGroupService->addUserToGroupAsAdmin($admin, $entryGroup);
 
@@ -508,7 +508,7 @@ class EntryFieldsTest extends TestCase
         )->assertStatus(200)
             ->assertJson(fn (AssertableJson $field)
             => $field->where('value_decrypted_base64',
-                    $base64Encoder->encodeString($encryptionService->decryptField($password,  UserFactory::MASTER_PASSWORD))
+                    $base64Encoder->encodeString($entryGroupService->decryptField($password,  UserFactory::MASTER_PASSWORD))
                 )->etc()
             );
     }
@@ -674,9 +674,9 @@ class EntryFieldsTest extends TestCase
          */
         $password_updated = Password::where('field_id', $password->field_id)->firstOrFail();
         /**
-         * @var EncryptionService $encryptionService
+         * @var EntryGroupService $entryGroupService
          */
-        $encryptionService = app(EncryptionService::class);
+        $entryGroupService = app(EntryGroupService::class);
         /**
          * @var RsaService $rsaService
          */
@@ -686,7 +686,7 @@ class EntryFieldsTest extends TestCase
         $privateKey = $rsaService->getUserPrivateKey($admin->user_id, UserFactory::MASTER_PASSWORD);
         $decrypted_aes_password = $privateKey->decrypt($encrypted_aes_password);
 
-        $password_str_updated = $encryptionService->decryptField($password_updated, $decrypted_aes_password);
+        $password_str_updated = $entryGroupService->decryptField($password_updated, $decrypted_aes_password);
 
         $this->assertEquals($password_str_new, $password_str_updated);
 

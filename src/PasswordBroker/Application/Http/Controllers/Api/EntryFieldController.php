@@ -8,6 +8,7 @@ use PasswordBroker\Application\Http\Requests\EntryFieldDecryptedRequest;
 use PasswordBroker\Application\Http\Requests\EntryFieldStoreRequest;
 use PasswordBroker\Application\Http\Requests\EntryFieldUpdateRequest;
 use PasswordBroker\Application\Services\EncryptionService;
+use PasswordBroker\Application\Services\EntryGroupService;
 use PasswordBroker\Domain\Entry\Models\Entry;
 use PasswordBroker\Domain\Entry\Models\EntryGroup;
 use PasswordBroker\Domain\Entry\Models\Fields\Field;
@@ -21,6 +22,7 @@ class EntryFieldController extends Controller
 {
     public function __construct(
         private readonly EncryptionService $encryptionService,
+        private readonly EntryGroupService $entryGroupService,
         private readonly Base64Encoder $base64Encoder
     )
     {
@@ -50,7 +52,7 @@ class EntryFieldController extends Controller
             return new JsonResponse(
                 ['value_decrypted_base64' =>
                     $this->base64Encoder->encodeString(
-                        $this->encryptionService->decryptField($field, $request->getMasterPassword())
+                        $this->entryGroupService->decryptField($field, $request->getMasterPassword())
                     )
                 ]
                 , 200);

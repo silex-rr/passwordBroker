@@ -43,7 +43,7 @@ readonly class EntryService
              */
             $data_decrypted = $this->encryptionService->decrypt(
                 data_encrypted: $field->value_encrypted->getValue(),
-                pass: $decryptedAesPasswordFrom,
+                decrypted_aes_password: $decryptedAesPasswordFrom,
                 iv: $field->initialization_vector->getValue()
             );
 

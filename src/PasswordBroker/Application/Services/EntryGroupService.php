@@ -8,19 +8,18 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use PasswordBroker\Domain\Entry\Models\Attributes\MaterializedPath;
 use PasswordBroker\Domain\Entry\Models\EntryGroup;
+use PasswordBroker\Domain\Entry\Models\Fields\Field;
 use RuntimeException;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 class EntryGroupService
 {
-    private EventDispatcher $dispatcher;
-    private EncryptionService $encryptionService;
-    private RsaService $rsaService;
-    public function __construct(EventDispatcher $dispatcher, EncryptionService $encryptionService, RsaService $rsaService)
-    {
-        $this->dispatcher = $dispatcher;
-        $this->encryptionService = $encryptionService;
-        $this->rsaService = $rsaService;
+    public function __construct(
+        private EventDispatcher            $dispatcher,
+        private readonly EncryptionService $encryptionService,
+        private readonly RsaService $rsaService
+    ){
+
     }
     public function addUserToGroupAsAdmin(User $user, EntryGroup $entryGroup, ?string $encrypted_aes_password = null, ?string $master_password = null): void
     {
@@ -187,5 +186,23 @@ class EntryGroupService
         foreach ($entryGroup->entryGroups()->get() as $entryGroupChild) {
             $this->rebuildMaterializedPath($entryGroupChild, $entryGroup);
         }
+    }
+
+    /**
+     * @param Field $field
+     * @param string $master_password
+     * @return string
+     */
+    public function decryptField(Field $field, string $master_password): string
+    {
+        $decryptedAesPassword = $this->getDecryptedAesPassword(
+            master_password: $master_password,
+            entryGroup: $field->entry()->firstOrFail()->entryGroup()->firstOrFail()
+        );
+        return $this->encryptionService->decrypt(
+            data_encrypted: $field->value_encrypted->getValue(),
+            decrypted_aes_password: $decryptedAesPassword,
+            iv: $field->initialization_vector->getValue()
+        );
     }
 }
