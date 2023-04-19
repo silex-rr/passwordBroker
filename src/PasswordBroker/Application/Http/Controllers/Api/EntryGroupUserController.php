@@ -41,9 +41,9 @@ class EntryGroupUserController extends Controller
     }
 
 
-    public function index(): JsonResponse
+    public function index(EntryGroup $entryGroup): JsonResponse
     {
-        return new JsonResponse([], 200);
+        return new JsonResponse($entryGroup->users(), 200);
     }
 
     public function store(EntryGroup $entryGroup, EntryGroupUserRequest $request): JsonResponse

@@ -75,7 +75,16 @@ class EntryGroupPolicy
 
     public function viewAnyRole(User $user): Response
     {
-        return Response::denyWithStatus(403);
+        /**
+         * @var EntryGroup $entryGroup
+         */
+        $entryGroup = request()->entryGroup;
+
+        return $entryGroup->admins()->where('user_id', $user->user_id)->exists()
+            || $entryGroup->moderators()->where('user_id', $user->user_id)->exists()
+            || $entryGroup->members()->where('user_id', $user->user_id)->exists()
+            ? Response::allow()
+            : Response::denyWithStatus(403);
     }
     public function viewRole(User $user): Response
     {

@@ -29,6 +29,7 @@ Route::middleware('api')->group(function (){
     Route::patch('/entryGroups/{entryGroup:entry_group_id}', [EntryGroupController::class, 'move']);
     Route::delete('/entryGroups/{entryGroup:entry_group_id}', [EntryGroupController::class, 'destroy']);
 
+    Route::get('/entryGroups/{entryGroup:entry_group_id}/users/', [EntryGroupUserController::class, 'index']);
     Route::post('/entryGroups/{entryGroup:entry_group_id}/users/', [EntryGroupUserController::class, 'store'])
         ->name('entryGroupUsers');
     Route::delete('/entryGroups/{entryGroup:entry_group_id}/users/{user:user_id}',

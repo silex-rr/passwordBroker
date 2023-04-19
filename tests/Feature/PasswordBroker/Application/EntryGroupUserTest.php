@@ -6,6 +6,7 @@ use Identity\Domain\User\Models\User;
 use Identity\Infrastructure\Factories\User\UserFactory;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Testing\Fluent\AssertableJson;
 use PasswordBroker\Application\Services\EntryGroupService;
 use PasswordBroker\Domain\Entry\Models\EntryGroup;
 use PasswordBroker\Domain\Entry\Models\Groups\Admin;
@@ -445,6 +446,41 @@ class EntryGroupUserTest extends TestCase
         )->assertStatus(403);
 
         $this->assertEquals(4, $entryGroup->users()->count());
+    }
+
+    public function test_an_admin_can_see_users_in_their_entry_group(): void
+    {
+        /**
+         * @var User $member
+         * @var User $admin
+         * @var User $moderator
+         * @var User $second_member
+         * @var EntryGroup $entryGroup
+         */
+        [$member, $admin, $moderator, $second_member] = User::factory()->count(4)->create();
+        $entryGroup = EntryGroup::factory()->create();
+        $entryGroup->addAdmin($admin, $this->faker()->password(128,128));
+        $entryGroup->addMember($member, $this->faker()->password(128,128));
+        $entryGroup->addModerator($moderator, $this->faker()->password(128,128));
+        $entryGroup->addMember($second_member, $this->faker()->password(128,128));
+        $userIds = [
+            $admin->user_id->getValue(),
+            $member->user_id->getValue(),
+            $moderator->user_id->getValue(),
+            $second_member->user_id->getValue(),
+        ];
+
+        $this->actingAs($admin);
+
+        $this->assertEquals(4, $entryGroup->users()->count());
+
+        $this->getJson(route('entryGroupUsers', ['entryGroup' => $entryGroup]))->assertStatus(200)
+            ->assertJson(fn (AssertableJson $roles) =>
+                $roles->has(4)->each(fn (AssertableJson $role)
+                    => $role->where('user_id', fn ($user_id) => in_array($user_id, $userIds, true))
+                        ->etc()
+                )->etc()
+            );
     }
 
 //    /**
