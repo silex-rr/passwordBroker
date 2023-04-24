@@ -66,7 +66,7 @@ class EntryGroupTest extends TestCase
         unset($attributes['materialized_path']);
         $this->postJson(route('entryGroups'), $attributes)->assertStatus(200);
 
-        $this->assertDatabaseHas('entry_groups', $attributes, app(EntryGroup::class)->getConnection()->getName());
+        $this->assertDatabaseHas(app(EntryGroup::class)->getTable(), $attributes, app(EntryGroup::class)->getConnection()->getName());
     }
 
     public function test_a_user_can_see_their_entry_group(): void

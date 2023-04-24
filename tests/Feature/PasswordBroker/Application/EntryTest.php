@@ -115,7 +115,7 @@ class EntryTest extends TestCase
             $entry_attributes
         )->assertStatus(200);
 
-        $this->assertDatabaseHas('entries', $entry_attributes, app(Entry::class)->getConnection()->getName());
+        $this->assertDatabaseHas(Entry::class, $entry_attributes, app(Entry::class)->getConnection()->getName());
         $this->assertEquals(
             1,
             $entryGroup->entries()->where('title', $entry_attributes['title'])->count()
@@ -149,7 +149,7 @@ class EntryTest extends TestCase
             $entry_attributes
         )->assertStatus(200);
 
-        $this->assertDatabaseHas('entries', $entry_attributes, app(Entry::class)->getConnection()->getName());
+        $this->assertDatabaseHas(Entry::class, $entry_attributes, app(Entry::class)->getConnection()->getName());
         $this->assertEquals(
             1,
             $entryGroup->entries()->where('title', $entry_attributes['title'])->count()
@@ -183,7 +183,7 @@ class EntryTest extends TestCase
             $entry_attributes
         )->assertStatus(403);
 
-        $this->assertDatabaseMissing('entries', $entry_attributes, app(Entry::class)->getConnection()->getName());
+        $this->assertDatabaseMissing(Entry::class, $entry_attributes, app(Entry::class)->getConnection()->getName());
         $this->assertEquals(
             0,
             $entryGroup->entries()->where('title', $entry_attributes['title'])->count()

@@ -5,27 +5,41 @@ namespace Identity\Application\Http\Controllers;
 use App\Http\Controllers\Controller;
 use Identity\Application\Http\Requests\RegisterUserRequest;
 use Identity\Application\Http\Requests\UpdateUserRequest;
+use Identity\Application\Http\Requests\UsersSearchRequest;
 use Identity\Application\Services\UserRegistrationService;
 use Identity\Domain\User\Models\User;
 use Identity\Domain\User\Services\DestroyUser;
+use Identity\Domain\User\Services\SearchUsers;
 use Identity\Domain\User\Services\UpdateUser;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
 {
     use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
 
-    public function __construct(protected readonly UserRegistrationService $registrationService)
+    public function __construct(
+        protected readonly UserRegistrationService $registrationService
+    )
     {
         $this->authorizeResource(User::class, ['user']);
     }
-    public function index(): JsonResponse
+
+
+    public function index(UsersSearchRequest $request): JsonResponse
     {
-        return new JsonResponse([], 200);
+
+        $job = new SearchUsers(
+            query: $request->getQuery(),
+            perPage: $request->getPerPage(),
+            page: $request->getPage(),
+            entryGroupInclude: $request->getEntryGroupInclude(),
+            entryGroupExclude: $request->getEntryGroupExclude()
+        );
+
+        return new JsonResponse($this->dispatchSync($job), 200);
     }
 
     public function destroy(User $user): JsonResponse
@@ -33,6 +47,7 @@ class UserController extends Controller
         $this->dispatchSync(new DestroyUser($user));
         return new JsonResponse(null, 200);
     }
+
 
     public function update(User $user, UpdateUserRequest $request): JsonResponse
     {

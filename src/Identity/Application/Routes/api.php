@@ -31,6 +31,9 @@ Route::middleware('api')->group(function () {
     Route::delete('/user/{user:user_id}', [UserController::class, 'destroy']);
     Route::put('/user/{user:user_id}', [UserController::class, 'update']);
 
+    Route::get('/users/search', [UserController::class, 'index'])
+        ->name('user_search');
+
     Route::get('/me', [UserAuthController::class, 'show'])
         ->name('show_me');
 });

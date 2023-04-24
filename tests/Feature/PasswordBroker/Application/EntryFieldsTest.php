@@ -677,16 +677,8 @@ class EntryFieldsTest extends TestCase
          * @var EntryGroupService $entryGroupService
          */
         $entryGroupService = app(EntryGroupService::class);
-        /**
-         * @var RsaService $rsaService
-         */
-        $rsaService = app(RsaService::class);
 
-        $encrypted_aes_password = $admin->userOf()->where('entry_group_id', $entryGroup->entry_group_id)->firstOrFail()->encrypted_aes_password;
-        $privateKey = $rsaService->getUserPrivateKey($admin->user_id, UserFactory::MASTER_PASSWORD);
-        $decrypted_aes_password = $privateKey->decrypt($encrypted_aes_password);
-
-        $password_str_updated = $entryGroupService->decryptField($password_updated, $decrypted_aes_password);
+        $password_str_updated = $entryGroupService->decryptField($password_updated, UserFactory::MASTER_PASSWORD);
 
         $this->assertEquals($password_str_new, $password_str_updated);
 
@@ -734,18 +726,8 @@ class EntryFieldsTest extends TestCase
         /**
          * @var EncryptionService $encryptionService
          */
-        $encryptionService = app(EncryptionService::class);
-        /**
-         * @var RsaService $rsaService
-         */
-        $rsaService = app(RsaService::class);
 
-        $encrypted_aes_password = $moderator->userOf()->where('entry_group_id', $entryGroup->entry_group_id)->firstOrFail()->encrypted_aes_password;
-
-        $privateKey = $rsaService->getUserPrivateKey($moderator->user_id, UserFactory::MASTER_PASSWORD);
-        $decrypted_aes_password = $privateKey->decrypt($encrypted_aes_password);
-
-        $password_str_updated = $encryptionService->decryptField($password_updated, $decrypted_aes_password);
+        $password_str_updated = $entryGroupService->decryptField($password_updated, UserFactory::MASTER_PASSWORD);
 
         $this->assertEquals($password_str_new, $password_str_updated);
     }
@@ -789,20 +771,8 @@ class EntryFieldsTest extends TestCase
          * @var Password $password_updated
          */
         $password_updated = Password::where('field_id', $password->field_id)->firstOrFail();
-        /**
-         * @var EncryptionService $encryptionService
-         */
-        $encryptionService = app(EncryptionService::class);
-        /**
-         * @var RsaService $rsaService
-         */
-        $rsaService = app(RsaService::class);
 
-        $encrypted_aes_password = $member->userOf()->where('entry_group_id', $entryGroup->entry_group_id)->firstOrFail()->encrypted_aes_password;
-        $privateKey = $rsaService->getUserPrivateKey($member->user_id, UserFactory::MASTER_PASSWORD);
-        $decrypted_aes_password = $privateKey->decrypt($encrypted_aes_password);
-
-        $password_str_updated = $encryptionService->decryptField($password_updated, $decrypted_aes_password);
+        $password_str_updated = $entryGroupService->decryptField($password_updated, UserFactory::MASTER_PASSWORD);
 
         $this->assertEquals($password_str, $password_str_updated);
     }

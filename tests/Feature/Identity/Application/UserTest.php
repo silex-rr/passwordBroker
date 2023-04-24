@@ -3,12 +3,15 @@
 namespace Identity\Application;
 
 use Identity\Domain\User\Models\Attributes\IsAdmin;
+use Identity\Domain\User\Models\Attributes\UserName;
 use Identity\Domain\User\Models\User;
 use Identity\Infrastructure\Factories\User\UserFactory;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Testing\Fluent\AssertableJson;
+use PasswordBroker\Domain\Entry\Models\EntryGroup;
 use Tests\TestCase;
+use function Psy\debug;
 
 class UserTest extends TestCase
 {
@@ -219,5 +222,71 @@ class UserTest extends TestCase
         $user_targetDB = User::where('user_id', $user_target->user_id)->firstOrFail();
 
         $this->assertTrue($user_target->name->equals($user_targetDB->name));
+    }
+
+    public function test_search(): void
+    {
+        /**
+         * @var User $admin
+        */
+        $admin = User::factory()->create(['name' => new UserName('admin')]);
+        /**
+         * @var User $user_1
+         */
+        $user_1 = User::factory()->create(['name' => new UserName('user_john')]);
+        /**
+         * @var User $user_2
+         */
+        $user_2 = User::factory()->create(['name' => new UserName('user_alex')]);
+        /**
+         * @var User $user_3
+         */
+        $user_3 = User::factory()->create(['name' => new UserName('user_jeremy')]);
+        /**
+         * @var User $user_already_in_entry_group
+         */
+        $user_already_in_entry_group = User::factory()->create(['name' => new UserName('user_jonathan')]);
+
+        /**
+         * @var EntryGroup $entryGroup
+         */
+        $entryGroup = EntryGroup::factory()->create();
+        $entryGroup->addAdmin($admin, $this->faker->password(128,128));
+        $entryGroup->addMember($user_already_in_entry_group, $this->faker->password(128,128));
+
+        $this->actingAs($admin);
+
+//        $user_ids = [
+//            $user_1->user_id->getValue(),
+//            $user_2->user_id->getValue(),
+//            $user_3->user_id->getValue(),
+//        ];
+//        $this->assertDatabaseHas($user_1->getTable(), ['user_id' => $user_1->user_id->getValue()]);
+//
+//        $this->getJson(route('user_search', [
+//            'q' => '',
+//            'entryGroupExclude' => $entryGroup->entry_group_id->getValue()
+//        ]))->assertStatus(200)
+//            ->assertJson(fn (AssertableJson $response)
+//                => $response->has('data', count($user_ids), fn(AssertableJson $user)
+//                   => $user->where('user_id', fn ($user_id) => in_array($user_id, $user_ids, true))
+//                        ->etc()
+//                )->etc()
+//            );
+
+        $user_ids = [
+            $user_1->user_id->getValue(),
+            $user_3->user_id->getValue(),
+        ];
+        $this->getJson(route('user_search', [
+            'q' => 'r_j',
+            'entryGroupExclude' => $entryGroup->entry_group_id->getValue()
+        ]))->assertStatus(200)
+            ->assertJson(fn (AssertableJson $response)
+                => $response->has('data', count($user_ids), fn(AssertableJson $user)
+                    => $user->where('user_id', fn ($user_id) => in_array($user_id, $user_ids, true))
+                        ->etc()
+                )->etc()
+            );
     }
 }
