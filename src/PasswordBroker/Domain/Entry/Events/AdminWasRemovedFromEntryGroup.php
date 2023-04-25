@@ -10,15 +10,19 @@ use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Support\Facades\Auth;
+use PasswordBroker\Domain\Entry\Models\EntryGroup;
 use PasswordBroker\Domain\Entry\Models\Groups\Admin;
 
 class AdminWasRemovedFromEntryGroup extends DomainEvent
     implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, Saveable;
-    public function __construct(public Admin $admin)
+    public function __construct(
+        public string $admin_user_id,
+        public EntryGroup $entryGroup
+    )
     {
-        $this->entity = $admin;
+        $this->entity = $this->entryGroup;
         /**
          * @var User $user
          */

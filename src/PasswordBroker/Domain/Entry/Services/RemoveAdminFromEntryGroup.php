@@ -22,7 +22,8 @@ class RemoveAdminFromEntryGroup implements ShouldQueue
 
     public function handle(): void
     {
+        $user_id = $this->admin->user_id->getValue();
         $this->admin->delete();
-        event(new AdminWasRemovedFromEntryGroup($this->admin));
+        event(new AdminWasRemovedFromEntryGroup($user_id, $this->entryGroup));
     }
 }

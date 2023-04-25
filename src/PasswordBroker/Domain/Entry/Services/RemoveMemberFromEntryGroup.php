@@ -22,8 +22,8 @@ class RemoveMemberFromEntryGroup implements ShouldQueue
 
     public function handle(): void
     {
-
+        $user_id = $this->member->user_id->getValue();
         $this->member->delete();
-        event(new MemberWasRemovedFromEntryGroup($this->member));
+        event(new MemberWasRemovedFromEntryGroup($user_id, $this->entryGroup));
     }
 }

@@ -10,6 +10,7 @@ use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Support\Facades\Auth;
+use PasswordBroker\Domain\Entry\Models\EntryGroup;
 use PasswordBroker\Domain\Entry\Models\Groups\Moderator;
 
 class ModeratorWasRemovedFromEntryGroup extends DomainEvent
@@ -17,9 +18,12 @@ class ModeratorWasRemovedFromEntryGroup extends DomainEvent
 {
     use Dispatchable, InteractsWithSockets, Saveable;
 
-    public function __construct(public Moderator $moderator)
+    public function __construct(
+        public string $moderator_user_id,
+        public EntryGroup $entryGroup
+    )
     {
-        $this->entity = $moderator;
+        $this->entity = $entryGroup;
         /**
          * @var User $user
          */

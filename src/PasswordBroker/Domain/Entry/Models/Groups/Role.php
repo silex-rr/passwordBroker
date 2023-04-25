@@ -39,7 +39,7 @@ abstract class Role extends Model
     ];
 
     protected $hidden = [
-        'encrypted_aes_password'
+        'encrypted_aes_password',
     ];
 
     public $casts = [
@@ -82,6 +82,13 @@ abstract class Role extends Model
     {
         return new Attribute(
             get: fn () => app(Base64Encoder::class)->encodeString($this->entry_group_id->getValue())
+        );
+    }
+
+    public function encryptedUserIdBase64(): Attribute
+    {
+        return new Attribute(
+            get: fn () => app(Base64Encoder::class)->encodeString($this->user_id->getValue())
         );
     }
 }

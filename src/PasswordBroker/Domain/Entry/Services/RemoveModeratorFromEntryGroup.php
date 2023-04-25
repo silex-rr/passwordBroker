@@ -2,7 +2,6 @@
 
 namespace PasswordBroker\Domain\Entry\Services;
 
-use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
@@ -12,7 +11,7 @@ use PasswordBroker\Domain\Entry\Models\Groups\Moderator;
 
 class RemoveModeratorFromEntryGroup implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable;
+    use Dispatchable, InteractsWithQueue;
 
     public function __construct(
         protected Moderator $moderator,
@@ -22,7 +21,11 @@ class RemoveModeratorFromEntryGroup implements ShouldQueue
 
     public function handle(): void
     {
+        $user_id = $this->moderator->user_id->getValue();
         $this->moderator->delete();
-        event(new ModeratorWasRemovedFromEntryGroup($this->moderator));
+        event(new ModeratorWasRemovedFromEntryGroup(
+            $user_id,
+            $this->entryGroup
+        ));
     }
 }
