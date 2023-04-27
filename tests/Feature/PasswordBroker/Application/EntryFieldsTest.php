@@ -7,11 +7,13 @@ use Identity\Domain\User\Models\User;
 use Identity\Infrastructure\Factories\User\UserFactory;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Testing\Fluent\AssertableJson;
 use PasswordBroker\Application\Services\EncryptionService;
 use PasswordBroker\Application\Services\EntryGroupService;
 use PasswordBroker\Domain\Entry\Models\Entry;
 use PasswordBroker\Domain\Entry\Models\EntryGroup;
+use PasswordBroker\Domain\Entry\Models\Fields\File;
 use PasswordBroker\Domain\Entry\Models\Fields\Password;
 use PasswordBroker\Domain\Entry\Services\AddEntry;
 use PasswordBroker\Infrastructure\Validation\Handlers\EntryValidationHandler;
@@ -893,6 +895,73 @@ class EntryFieldsTest extends TestCase
             Password::where('field_id', $password->field_id)->exists()
         );
     }
+
+    public function test_moderator_can_add_file_field_to_their_entry(): void
+    {
+        /**
+         * @var EntryGroup $entryGroup
+         * @var User $admin
+         * @var User $moderator
+         * @var Entry $entry
+         * @var EntryGroupService $entryGroupService
+         */
+        $entryGroup = EntryGroup::factory()->create();
+        $admin = User::factory()->create();
+        $moderator = User::factory()->create();
+        $entry = Entry::factory()->make(['entry_group_id' => null]);
+        $entryGroupService = app(EntryGroupService::class);
+
+        $this->actingAs($admin);
+        $entryGroupService->addUserToGroupAsAdmin($admin, $entryGroup);
+        $entryGroupService->addUserToGroupAsModerator($moderator, $entryGroup, null, UserFactory::MASTER_PASSWORD);
+        $this->actingAs($moderator);
+
+        dispatch_sync(new AddEntry($entry, $entryGroup, new EntryValidationHandler()));
+        /**
+         * @var Entry $entry
+         */
+        $entry = Entry::where('title', $entry->title)->firstOrFail();
+
+        $content = $this->faker->text;
+        $file = UploadedFile::fake()->createWithContent('test_file.txt', $content);
+        $this->postJson(route('entryFields', ['entryGroup' => $entryGroup, 'entry' => $entry]), [
+            'type' => File::TYPE,
+            'master_password' => UserFactory::MASTER_PASSWORD,
+            'file' => $file
+        ])->assertStatus(200);
+
+        $base64Encoder = app(Base64Encoder::class);
+
+        $entryFields = $this->getJson(route('entryFields', ['entryGroup' => $entryGroup, 'entry' => $entry]))
+            ->assertStatus(200)
+            ->assertJson(fn (AssertableJson $fields)
+                => $fields->has(1)->first(fn (AssertableJson $entry)
+                    => $entry->where('type', File::TYPE)
+                        ->etc()
+                )
+            )
+            ->json();
+
+        $filed_id = $entryFields[0]['field_id'];
+
+
+        $resp = $this->postJson(
+            route('entryFieldDecrypted',
+                ['entryGroup' => $entryGroup, 'entry' => $entry, 'field' => $filed_id]
+            ),
+            ['master_password' => UserFactory::MASTER_PASSWORD]
+        )
+            ->assertStatus(200)
+//            ->json();
+            ->assertJson(fn (AssertableJson $fieldDecrypted)
+                => $fieldDecrypted->where('value_decrypted_base64', $base64Encoder->encodeString($content))
+                    ->where('field.file_size', fn ($file_size) => $file_size !== '0')
+                    ->where('field.file_name', fn ($file_size) => $file_size !== '')
+                    ->etc()
+            );
+
+    }
+
 
     /**
      * @param User $admin

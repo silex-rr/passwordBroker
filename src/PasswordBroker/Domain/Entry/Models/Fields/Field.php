@@ -16,6 +16,8 @@ use PasswordBroker\Domain\Entry\Models\Casts\EntryId;
 use PasswordBroker\Domain\Entry\Models\Entry;
 use PasswordBroker\Domain\Entry\Models\Fields\Casts\CreatedBy;
 use PasswordBroker\Domain\Entry\Models\Fields\Casts\FieldId;
+use PasswordBroker\Domain\Entry\Models\Fields\Casts\FileName;
+use PasswordBroker\Domain\Entry\Models\Fields\Casts\FileSize;
 use PasswordBroker\Domain\Entry\Models\Fields\Casts\InitializationVector;
 use PasswordBroker\Domain\Entry\Models\Fields\Casts\Title;
 use PasswordBroker\Domain\Entry\Models\Fields\Casts\UpdatedBy;
@@ -37,7 +39,8 @@ abstract class Field extends Model
     protected static array $related = [
         Password::TYPE => Password::class,
         Link::TYPE => Link::class,
-        Note::TYPE => Note::class
+        Note::TYPE => Note::class,
+        File::TYPE => File::class
     ];
 
     use HasUuids;
@@ -49,6 +52,8 @@ abstract class Field extends Model
         'field_id',
         'entry_id',
         'title',
+        'file_name',
+        'file_size',
         'value_encrypted',
         'initialization_vector',
         'created_by',
@@ -57,19 +62,23 @@ abstract class Field extends Model
     public $guarded = [
         'type'
     ];
-    public $casts = array(
+    public $casts = [
         'field_id' => FieldId::class,
         'entry_id' => EntryId::class,
         'title' => Title::class,
+        'file_name' => FileName::class,
+        'file_size' => FileSize::class,
         'value_encrypted' => ValueEncrypted::class,
         'initialization_vector' => InitializationVector::class,
         'created_by' => CreatedBy::class,
         'updated_by' => UpdatedBy::class,
-    );
+    ];
 
     protected $hidden = [
         'value_encrypted',
-        'initialization_vector'
+        'initialization_vector',
+        'file_name',
+        'file_size'
     ];
 
     protected $appends = [
@@ -89,12 +98,16 @@ abstract class Field extends Model
         EntryIdAttribute                $entryId,
         Attributes\Title                $title,
         Attributes\ValueEncrypted       $value_encrypted,
-        Attributes\InitializationVector $initialization_vector
+        Attributes\InitializationVector $initialization_vector,
+        ?Attributes\FileName            $file_name = null,
+        ?Attributes\FileSize            $file_size = null
     ): self
     {
         $field = new static([
             'entry_id' => $entryId,
             'title' => $title,
+            'file_name' => $file_name,
+            'file_size' => $file_size,
             'value_encrypted' => $value_encrypted,
             'initialization_vector' => $initialization_vector,
             'created_by' => $userId,

@@ -134,4 +134,24 @@ class EntryTest extends TestCase
             $entry->links()->where('field_id', $link->field_id)->count()
         );
     }
+    public function test_an_entry_can_have_a_files(): void
+    {
+        /**
+         * @var Entry $entry
+         * @var User $user
+         */
+        $entry = Entry::factory()->create();
+        $user = User::factory()->create();
+
+        $file = $entry->addFile(
+            $user->user_id,
+            $this->faker->text(),
+            $this->faker->password(128, 128)
+        );
+
+        $this->assertEquals(
+            1,
+            $entry->files()->where('field_id', $file->field_id)->count()
+        );
+    }
 }

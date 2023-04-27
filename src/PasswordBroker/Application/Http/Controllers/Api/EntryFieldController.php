@@ -50,10 +50,12 @@ class EntryFieldController extends Controller
     {
         try {
             return new JsonResponse(
-                ['value_decrypted_base64' =>
+                [
+                    'value_decrypted_base64' =>
                     $this->base64Encoder->encodeString(
                         $this->entryGroupService->decryptField($field, $request->getMasterPassword())
-                    )
+                    ),
+                    'field' => $field
                 ]
                 , 200);
         } catch (NoKeyLoadedException $exception) {
@@ -77,6 +79,7 @@ class EntryFieldController extends Controller
                 value_encrypted: $request->get('value_encrypted'),
                 initialization_vector: $request->get('initialization_vector'),
                 value: $request->get('value'),
+                file: $request->file('file'),
                 master_password: $request->get('master_password'),
             ));
         } catch (NoKeyLoadedException $exception) {

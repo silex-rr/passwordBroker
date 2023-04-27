@@ -31,7 +31,8 @@ class EntryFieldStoreRequest extends FormRequest
             'value_encrypted' => 'required_without:master_password|string|min:1',
             'initialization_vector' => 'required_without:master_password|string|min:1',
             'master_password' => 'required_without:value_encrypted|string|min:1',
-            'value' => 'required_without:value_encrypted|string|min:1',
+            'value' => 'required_without_all:value_encrypted,file|string|min:1',
+            'file' => 'required_without_all:value_encrypted,value|file'
         ];
     }
 

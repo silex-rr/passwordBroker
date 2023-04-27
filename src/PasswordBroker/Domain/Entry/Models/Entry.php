@@ -11,9 +11,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Collection;
 use PasswordBroker\Domain\Entry\Models\Casts\EntryId;
+use PasswordBroker\Domain\Entry\Models\Fields\Attributes\FileName;
+use PasswordBroker\Domain\Entry\Models\Fields\Attributes\FileSize;
 use PasswordBroker\Domain\Entry\Models\Fields\Attributes\InitializationVector;
 use PasswordBroker\Domain\Entry\Models\Fields\Attributes\Title;
 use PasswordBroker\Domain\Entry\Models\Fields\Attributes\ValueEncrypted;
+use PasswordBroker\Domain\Entry\Models\Fields\File;
 use PasswordBroker\Domain\Entry\Models\Fields\Link;
 use PasswordBroker\Domain\Entry\Models\Fields\Note;
 use PasswordBroker\Domain\Entry\Models\Fields\Password;
@@ -68,11 +71,17 @@ class Entry extends Model
         return $this->hasMany(Note::class, 'entry_id', 'entry_id');
     }
 
+    public function files(): HasMany
+    {
+        return $this->hasMany(File::class, 'entry_id', 'entry_id');
+    }
+
     public function fields(): Collection
     {
         $fields = new Collection();
         $fields = $fields->merge($this->passwords()->get());
         $fields = $fields->merge($this->links()->get());
+        $fields = $fields->merge($this->files()->get());
         return    $fields->merge($this->notes()->get());
     }
 
@@ -114,6 +123,30 @@ class Entry extends Model
         $link->field_id;
         $link->save();
         return $link;
+    }
+
+    public function addFile(
+        UserIdAttribute $userId,
+        string          $file_encrypted,
+        string          $initializing_vector,
+        string          $title = "",
+        ?int            $file_size = null,
+        ?string         $file_name = null
+    ): File
+    {
+        $file = new File([
+            'entry_id' => $this->entry_id,
+            'title' => Title::fromNative($title),
+            'file_name' => FileName::fromNative($file_name),
+            'file_size' => FileSize::fromNative($file_size),
+            'value_encrypted' => ValueEncrypted::fromNative($file_encrypted),
+            'initialization_vector' => InitializationVector::fromNative($initializing_vector),
+            'created_by' => $userId,
+            'update_by' => $userId
+        ]);
+        $file->field_id;
+        $file->save();
+        return $file;
     }
 
     public function addNote(
