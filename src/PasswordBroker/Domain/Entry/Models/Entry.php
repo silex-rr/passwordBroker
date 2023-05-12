@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Collection;
 use PasswordBroker\Domain\Entry\Models\Casts\EntryId;
+use PasswordBroker\Domain\Entry\Models\Fields\Attributes\FileMime;
 use PasswordBroker\Domain\Entry\Models\Fields\Attributes\FileName;
 use PasswordBroker\Domain\Entry\Models\Fields\Attributes\FileSize;
 use PasswordBroker\Domain\Entry\Models\Fields\Attributes\InitializationVector;
@@ -131,7 +132,8 @@ class Entry extends Model
         string          $initializing_vector,
         string          $title = "",
         ?int            $file_size = null,
-        ?string         $file_name = null
+        ?string         $file_name = null,
+        ?string         $file_mime = null
     ): File
     {
         $file = new File([
@@ -139,6 +141,7 @@ class Entry extends Model
             'title' => Title::fromNative($title),
             'file_name' => FileName::fromNative($file_name),
             'file_size' => FileSize::fromNative($file_size),
+            'file_mime' => FileMime::fromNative($file_mime),
             'value_encrypted' => ValueEncrypted::fromNative($file_encrypted),
             'initialization_vector' => InitializationVector::fromNative($initializing_vector),
             'created_by' => $userId,

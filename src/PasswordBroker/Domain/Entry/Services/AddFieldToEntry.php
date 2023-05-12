@@ -86,7 +86,8 @@ class AddFieldToEntry implements ShouldQueue
                     initializing_vector: $this->initialization_vector,
                     title: $this->title ?: '',
                     file_size: (int)$this->file->getSize(),
-                    file_name: $this->file->getFilename()
+                    file_name: $this->file->getClientOriginalName(),
+                    file_mime: $this->file->getMimeType()
                 );
                 break;
             case Password::TYPE:

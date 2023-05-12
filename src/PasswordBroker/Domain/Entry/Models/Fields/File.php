@@ -17,7 +17,7 @@ class File extends Field
 
     public function __construct(array $attributes = array())
     {
-        $this->hidden = array_filter($this->hidden, static fn($v) => !in_array($v, ['file_name', 'file_size'], true));
+        $this->hidden = array_filter($this->hidden, static fn($v) => !in_array($v, ['file_name', 'file_size', 'file_mime'], true));
 
         parent::__construct($attributes);
     }

@@ -237,10 +237,10 @@ class EntryFieldsTest extends TestCase
             ->assertJson(fn (AssertableJson $fields)
                 => $fields->has(1)->first(fn (AssertableJson $field)
                     => $field->where('field_id', $password->field_id->getValue())
-                        ->where('encrypted_value_base64',
-                            $base64Encoder->encodeString($password->value_encrypted->getValue()))
-                        ->where('initialization_vector_base64',
-                            $base64Encoder->encodeString($password->initialization_vector->getValue()))
+//                        ->where('encrypted_value_base64',
+//                            $base64Encoder->encodeString($password->value_encrypted->getValue()))
+//                        ->where('initialization_vector_base64',
+//                            $base64Encoder->encodeString($password->initialization_vector->getValue()))
                         ->where('type', $password->getType())
                         ->etc()
                 )
@@ -281,10 +281,10 @@ class EntryFieldsTest extends TestCase
             ->assertJson(fn (AssertableJson $fields)
                 => $fields->has(1)->first(fn (AssertableJson $field)
                     => $field->where('field_id', $password->field_id->getValue())
-                        ->where('encrypted_value_base64',
-                            $base64Encoder->encodeString($password->value_encrypted->getValue()))
-                        ->where('initialization_vector_base64',
-                            $base64Encoder->encodeString($password->initialization_vector->getValue()))
+//                        ->where('encrypted_value_base64',
+//                            $base64Encoder->encodeString($password->value_encrypted->getValue()))
+//                        ->where('initialization_vector_base64',
+//                            $base64Encoder->encodeString($password->initialization_vector->getValue()))
                         ->where('type', $password->getType())
                         ->etc()
                     )
@@ -326,10 +326,10 @@ class EntryFieldsTest extends TestCase
             ->assertJson(fn (AssertableJson $fields)
                 => $fields->has(1)->first(fn (AssertableJson $field)
                     => $field->where('field_id', $password->field_id->getValue())
-                        ->where('encrypted_value_base64',
-                            $base64Encoder->encodeString($password->value_encrypted->getValue()))
-                        ->where('initialization_vector_base64',
-                            $base64Encoder->encodeString($password->initialization_vector->getValue()))
+//                        ->where('encrypted_value_base64',
+//                            $base64Encoder->encodeString($password->value_encrypted->getValue()))
+//                        ->where('initialization_vector_base64',
+//                            $base64Encoder->encodeString($password->initialization_vector->getValue()))
                         ->where('type', $password->getType())
                         ->etc()
                     )
@@ -366,10 +366,10 @@ class EntryFieldsTest extends TestCase
             ->assertStatus(200)
             ->assertJson(fn (AssertableJson $field)
                 => $field->where('field_id', $password->field_id->getValue())
-                    ->where('encrypted_value_base64',
-                        $base64Encoder->encodeString($password->value_encrypted->getValue()))
-                    ->where('initialization_vector_base64',
-                        $base64Encoder->encodeString($password->initialization_vector->getValue()))
+//                    ->where('encrypted_value_base64',
+//                        $base64Encoder->encodeString($password->value_encrypted->getValue()))
+//                    ->where('initialization_vector_base64',
+//                        $base64Encoder->encodeString($password->initialization_vector->getValue()))
                     ->where('type', $password->getType())
                     ->etc()
             );
@@ -408,10 +408,10 @@ class EntryFieldsTest extends TestCase
             ->assertStatus(200)
             ->assertJson(fn (AssertableJson $field)
                 => $field->where('field_id', $password->field_id->getValue())
-                    ->where('encrypted_value_base64',
-                        $base64Encoder->encodeString($password->value_encrypted->getValue()))
-                    ->where('initialization_vector_base64',
-                        $base64Encoder->encodeString($password->initialization_vector->getValue()))
+//                    ->where('encrypted_value_base64',
+//                        $base64Encoder->encodeString($password->value_encrypted->getValue()))
+//                    ->where('initialization_vector_base64',
+//                        $base64Encoder->encodeString($password->initialization_vector->getValue()))
                     ->where('type', $password->getType())
                     ->etc()
             );
@@ -453,10 +453,10 @@ class EntryFieldsTest extends TestCase
             ->assertStatus(200)
             ->assertJson(fn (AssertableJson $field)
                 => $field->where('field_id', $password->field_id->getValue())
-                    ->where('encrypted_value_base64',
-                        $base64Encoder->encodeString($password->value_encrypted->getValue()))
-                    ->where('initialization_vector_base64',
-                        $base64Encoder->encodeString($password->initialization_vector->getValue()))
+//                    ->where('encrypted_value_base64',
+//                        $base64Encoder->encodeString($password->value_encrypted->getValue()))
+//                    ->where('initialization_vector_base64',
+//                        $base64Encoder->encodeString($password->initialization_vector->getValue()))
                     ->where('type', $password->getType())
                     ->etc()
             );
@@ -497,8 +497,7 @@ class EntryFieldsTest extends TestCase
          * @var Base64Encoder $base64Encoder
          */
         $base64Encoder = app(Base64Encoder::class);
-
-        $this->postJson(route('entryFieldDecrypted',
+        $content = $this->postJson(route('entryFieldDecrypted',
             [
                 'entryGroup' => $entryGroup,
                 'entry' => $entry,
@@ -507,12 +506,20 @@ class EntryFieldsTest extends TestCase
             [
                 'master_password' => UserFactory::MASTER_PASSWORD
             ]
-        )->assertStatus(200)
-            ->assertJson(fn (AssertableJson $field)
-            => $field->where('value_decrypted_base64',
-                    $base64Encoder->encodeString($entryGroupService->decryptField($password,  UserFactory::MASTER_PASSWORD))
-                )->etc()
-            );
+        )->assertStatus(200)->getContent();
+        $this->assertEquals(base64_decode($content), $entryGroupService->decryptField($password,  UserFactory::MASTER_PASSWORD));
+
+
+//            ->assertContent(
+//                '"' .
+//                $base64Encoder->encodeString($entryGroupService->decryptField($password,  UserFactory::MASTER_PASSWORD))
+//                . '"'
+//            );
+//            ->assertJson(fn (AssertableJson $field)
+//            => $field->where('value_decrypted_base64',
+//                    $base64Encoder->encodeString($entryGroupService->decryptField($password,  UserFactory::MASTER_PASSWORD))
+//                )->etc()
+//            );
     }
 
     public function test_admin_can_add_a_field_to_entry_belonged_to_their_group(): void
@@ -952,13 +959,14 @@ class EntryFieldsTest extends TestCase
             ['master_password' => UserFactory::MASTER_PASSWORD]
         )
             ->assertStatus(200)
-//            ->json();
-            ->assertJson(fn (AssertableJson $fieldDecrypted)
-                => $fieldDecrypted->where('value_decrypted_base64', $base64Encoder->encodeString($content))
-                    ->where('field.file_size', fn ($file_size) => $file_size !== '0')
-                    ->where('field.file_name', fn ($file_size) => $file_size !== '')
-                    ->etc()
-            );
+            ->content();
+//            ->assertJson(fn (AssertableJson $fieldDecrypted)
+//                => $fieldDecrypted->where('value_decrypted_base64', $base64Encoder->encodeString($content))
+//                    ->where('field.file_size', fn ($file_size) => $file_size !== '0')
+//                    ->where('field.file_name', fn ($file_size) => $file_size !== '')
+//                    ->etc()
+//            );
+        $this->assertEquals(base64_decode($resp), $content);
 
     }
 

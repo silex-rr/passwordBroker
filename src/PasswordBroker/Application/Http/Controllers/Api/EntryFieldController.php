@@ -4,6 +4,7 @@ namespace PasswordBroker\Application\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Response;
 use PasswordBroker\Application\Http\Requests\EntryFieldDecryptedRequest;
 use PasswordBroker\Application\Http\Requests\EntryFieldStoreRequest;
 use PasswordBroker\Application\Http\Requests\EntryFieldUpdateRequest;
@@ -46,17 +47,17 @@ class EntryFieldController extends Controller
         return new JsonResponse($field, 200);
     }
 
-    public function showDecrypted(EntryGroup $entryGroup, Entry $entry, Field $field, EntryFieldDecryptedRequest $request): JsonResponse
+    public function showDecrypted(EntryGroup $entryGroup, Entry $entry, Field $field, EntryFieldDecryptedRequest $request): JsonResponse|Response
     {
         try {
-            return new JsonResponse(
-                [
-                    'value_decrypted_base64' =>
+            return new Response(
+//                [
+//                    'value_decrypted_base64' =>
                     $this->base64Encoder->encodeString(
                         $this->entryGroupService->decryptField($field, $request->getMasterPassword())
-                    ),
-                    'field' => $field
-                ]
+                    )//,
+//                    'field' => $field
+//                ]
                 , 200);
         } catch (NoKeyLoadedException $exception) {
             return new JsonResponse([
@@ -89,7 +90,7 @@ class EntryFieldController extends Controller
                     'master_password' => 'invalid'
                 ]
             ], 422);
-        }
+        } catch (\Exception $e) {dd($e);}
 
 
         return new JsonResponse($result, 200);

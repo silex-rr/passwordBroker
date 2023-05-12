@@ -16,6 +16,7 @@ use PasswordBroker\Domain\Entry\Models\Casts\EntryId;
 use PasswordBroker\Domain\Entry\Models\Entry;
 use PasswordBroker\Domain\Entry\Models\Fields\Casts\CreatedBy;
 use PasswordBroker\Domain\Entry\Models\Fields\Casts\FieldId;
+use PasswordBroker\Domain\Entry\Models\Fields\Casts\FileMime;
 use PasswordBroker\Domain\Entry\Models\Fields\Casts\FileName;
 use PasswordBroker\Domain\Entry\Models\Fields\Casts\FileSize;
 use PasswordBroker\Domain\Entry\Models\Fields\Casts\InitializationVector;
@@ -54,6 +55,7 @@ abstract class Field extends Model
         'title',
         'file_name',
         'file_size',
+        'file_mime',
         'value_encrypted',
         'initialization_vector',
         'created_by',
@@ -67,6 +69,7 @@ abstract class Field extends Model
         'entry_id' => EntryId::class,
         'title' => Title::class,
         'file_name' => FileName::class,
+        'file_mime' => FileMime::class,
         'file_size' => FileSize::class,
         'value_encrypted' => ValueEncrypted::class,
         'initialization_vector' => InitializationVector::class,
@@ -78,12 +81,13 @@ abstract class Field extends Model
         'value_encrypted',
         'initialization_vector',
         'file_name',
-        'file_size'
+        'file_size',
+        'file_mime'
     ];
 
     protected $appends = [
-        'encrypted_value_base64',
-        'initialization_vector_base64'
+//        'encrypted_value_base64',
+//        'initialization_vector_base64'
     ];
 
     protected $primaryKey = 'field_id';
