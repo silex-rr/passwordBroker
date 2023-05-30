@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use PasswordBroker\Domain\Entry\Models\Casts\EntryGroupId;
 use PasswordBroker\Domain\Entry\Models\Casts\GroupName;
 use PasswordBroker\Domain\Entry\Models\Casts\MaterializedPath;
@@ -36,6 +37,7 @@ class EntryGroup extends Model
     use ModelDomainConstructor;
     use HasFactoryDomain;
     use HasUuids;
+    use SoftDeletes;
     protected $primaryKey = 'entry_group_id';
     public $incrementing = false;
     public $keyType = 'string';

@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use PasswordBroker\Application\Events\FieldSave;
 use PasswordBroker\Domain\Entry\Models\Attributes\EntryId as EntryIdAttribute;
 use PasswordBroker\Domain\Entry\Models\Casts\EntryId;
@@ -96,6 +97,7 @@ abstract class Field extends Model
     ];
 
     use ModelDomainConstructor;
+    use SoftDeletes;
 
     public static function create(
         UserIdAttribute                 $userId,

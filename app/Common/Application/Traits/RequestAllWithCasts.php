@@ -18,12 +18,17 @@ trait RequestAllWithCasts
         $casts = $model->getCasts();
         $all = $this->all();
         foreach ($all as $key => $value) {
+            if (is_null($value)) {
+                $out[$key] = $value;
+                continue;
+            }
             if (array_key_exists($key, $casts)) {
-                if (in_array($casts[$key], ['int', 'string', 'float'])) {
+                if (in_array($casts[$key], ['int', 'string', 'float', 'datetime'])) {
                     switch ($casts[$key]) {
                         case 'int':
                             $out[$key] = (int)$value;
                             break;
+                        case 'datetime':
                         case 'string':
                             $out[$key] = (string)$value;
                             break;

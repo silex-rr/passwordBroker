@@ -14,6 +14,7 @@ use Identity\Domain\User\Models\Casts\UserName;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Query\Builder;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
@@ -72,19 +73,22 @@ class User extends Authenticatable
     public function adminOf(): HasMany
     {
         return $this->hasMany(Admin::class, 'user_id', 'user_id')
-            ->where('role', Admin::ROLE_NAME);
+            ->where('role', Admin::ROLE_NAME)
+            ->withWhereHas('entryGroup');
     }
 
     public function moderatorOf(): HasMany
     {
         return $this->hasMany(Moderator::class, 'user_id', 'user_id')
-            ->where('role', Moderator::ROLE_NAME);
+            ->where('role', Moderator::ROLE_NAME)
+            ->withWhereHas('entryGroup');
     }
 
     public function memberOf(): HasMany
     {
         return$this->hasMany(Member::class, 'user_id', 'user_id')
-            ->where('role', Member::ROLE_NAME);
+            ->where('role', Member::ROLE_NAME)
+            ->withWhereHas('entryGroup');
     }
 
     /**
@@ -93,9 +97,9 @@ class User extends Authenticatable
     public function userOf(): Collection
     {
         $groups = new Collection();
-        $groups = $groups->merge($this->adminOf()->with('entryGroup')->get());
-        $groups = $groups->merge($this->moderatorOf()->with('entryGroup')->get());
-        return    $groups->merge($this->memberOf()->with('entryGroup')->get());
+        $groups = $groups->merge($this->adminOf()->get());
+        $groups = $groups->merge($this->moderatorOf()->get());
+        return    $groups->merge($this->memberOf()->get());
     }
 
     public function addAsAdminOf(EntryGroup $entryGroup, string $encrypted_aes_password): void
