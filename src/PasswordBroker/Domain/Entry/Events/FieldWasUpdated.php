@@ -41,6 +41,14 @@ class FieldWasUpdated extends DomainEvent
      */
     public function broadcastOn(): PrivateChannel
     {
-        return new PrivateChannel(self::CHANNEL_DOMAIN_EVENTS);
+        return new PrivateChannel(self::CHANNEL_DOMAIN_EVENTS . '.' . $this->getName());
+    }
+
+    /**
+     * @return string
+     */
+    public function broadcastAs(): string
+    {
+        return 'field.updated';
     }
 }

@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Auth;
 use PasswordBroker\Domain\Entry\Models\Attributes\MaterializedPath;
 use PasswordBroker\Domain\Entry\Models\EntryGroup;
 use PasswordBroker\Domain\Entry\Models\Fields\Field;
+use PasswordBroker\Domain\Entry\Models\Fields\FieldEditLog;
 use RuntimeException;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
@@ -201,6 +202,27 @@ class EntryGroupService
         );
         return $this->encryptionService->decrypt(
             data_encrypted: $field->value_encrypted->getValue(),
+            decrypted_aes_password: $decryptedAesPassword,
+            iv: $field->initialization_vector->getValue()
+        );
+    }
+    /**
+     * @param Field $field
+     * @param string $master_password
+     * @return string
+     */
+    public function decryptFieldEditLog(FieldEditLog $fieldEditLog, string $master_password): string
+    {
+        /**
+         * @var Field $field
+         */
+        $field = $fieldEditLog->field()->firstOrFail();
+        $decryptedAesPassword = $this->getDecryptedAesPassword(
+            master_password: $master_password,
+            entryGroup: $field->entry()->firstOrFail()->entryGroup()->firstOrFail()
+        );
+        return $this->encryptionService->decrypt(
+            data_encrypted: $fieldEditLog->value_encrypted->getValue(),
             decrypted_aes_password: $decryptedAesPassword,
             iv: $field->initialization_vector->getValue()
         );

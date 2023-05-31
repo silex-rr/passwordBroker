@@ -16,6 +16,7 @@ class UserId extends AbstractValue
     public function __construct(?string $userId = null)
     {
         if (is_null($userId)) {
+//            throw new \RuntimeException(123);
             $userId = Uuid::uuid4()->toString();
         }
 

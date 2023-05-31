@@ -13,6 +13,7 @@ use PasswordBroker\Application\Services\EncryptionService;
 use PasswordBroker\Application\Services\EntryGroupService;
 use PasswordBroker\Domain\Entry\Models\Entry;
 use PasswordBroker\Domain\Entry\Models\EntryGroup;
+use PasswordBroker\Domain\Entry\Models\Fields\FieldEditLog;
 use PasswordBroker\Domain\Entry\Models\Fields\File;
 use PasswordBroker\Domain\Entry\Models\Fields\Password;
 use PasswordBroker\Domain\Entry\Services\AddEntry;
@@ -648,6 +649,7 @@ class EntryFieldsTest extends TestCase
 
     public function test_admin_can_update_an_entry_field_belonged_to_their_group(): void
     {
+        $this->withoutExceptionHandling();
         /**
          * @var EntryGroup $entryGroup
          * @var User $admin
@@ -660,7 +662,6 @@ class EntryFieldsTest extends TestCase
         $entryGroupService = app(EntryGroupService::class);
 
         $entryGroupService->addUserToGroupAsAdmin($admin, $entryGroup);
-
         $this->actingAs($admin);
         dispatch_sync(new AddEntry($entry, $entryGroup, new EntryValidationHandler()));
         /**
@@ -690,6 +691,8 @@ class EntryFieldsTest extends TestCase
         $password_str_updated = $entryGroupService->decryptField($password_updated, UserFactory::MASTER_PASSWORD);
 
         $this->assertEquals($password_str_new, $password_str_updated);
+        $this->assertEquals(1, $password_updated->fieldEditLogs()->count());
+        $this->assertEquals($password_str_new, $entryGroupService->decryptFieldEditLog($password_updated->fieldEditLogs()->first(), UserFactory::MASTER_PASSWORD));
 
     }
 

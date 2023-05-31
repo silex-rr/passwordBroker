@@ -2,6 +2,8 @@
 
 namespace PasswordBroker\Domain\Entry\Services;
 
+use Identity\Domain\User\Models\Attributes\UserId;
+use Identity\Domain\User\Models\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -22,6 +24,7 @@ class UpdateField implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
     public function __construct(
+        protected User       $user,
         protected Entry      $entry,
         protected EntryGroup $entryGroup,
         protected Field      $field,
@@ -65,6 +68,7 @@ class UpdateField implements ShouldQueue
         }
 
         if (!empty($fields_for_update)) {
+            $fields_for_update['updated_by'] = $this->user->user_id;
             $this->field->update($fields_for_update);
             event(new FieldWasUpdated($this->entry, $this->field));
         }

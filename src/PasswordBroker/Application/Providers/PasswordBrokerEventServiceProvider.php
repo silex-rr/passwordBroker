@@ -1,13 +1,14 @@
 <?php
 
-namespace App\Providers;
+namespace PasswordBroker\Application\Providers;
 
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
-use Illuminate\Support\Facades\Event;
+use PasswordBroker\Application\Events\FieldUpdated;
+use PasswordBroker\Application\Listeners\LogFieldChanges;
 
-class EventServiceProvider extends ServiceProvider
+class PasswordBrokerEventServiceProvider extends ServiceProvider
 {
     /**
      * The event to listener mappings for the application.
@@ -15,8 +16,8 @@ class EventServiceProvider extends ServiceProvider
      * @var array<class-string, array<int, class-string>>
      */
     protected $listen = [
-        Registered::class => [
-            SendEmailVerificationNotification::class,
+        FieldUpdated::class => [
+            LogFieldChanges::class,
         ],
     ];
 
@@ -43,9 +44,7 @@ class EventServiceProvider extends ServiceProvider
     public function discoverEventsWithin()
     {
         return [
-                $this->app->basePath('Listeners'),
-//                $this->app->basePath(base_path('src/PasswordBroker/Application/Listeners')),
-                $this->app->basePath(base_path('src/Identity/Application/Listeners'))
+            $this->app->basePath(base_path('src/PasswordBroker/Application/Listeners')),
         ];
     }
 }

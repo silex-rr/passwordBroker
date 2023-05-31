@@ -68,6 +68,6 @@ class RsaService
 
     public function getUserPublicKey(User $user): \phpseclib3\Crypt\Common\PublicKey
     {
-        return PublicKeyLoader::loadPublicKey($user->public_key);
+        return PublicKeyLoader::loadPublicKey($user->public_key->getValue());
     }
 }

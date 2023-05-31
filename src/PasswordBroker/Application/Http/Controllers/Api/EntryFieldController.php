@@ -3,6 +3,7 @@
 namespace PasswordBroker\Application\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use Identity\Domain\User\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
 use PasswordBroker\Application\Http\Requests\EntryFieldDecryptedRequest;
@@ -99,6 +100,7 @@ class EntryFieldController extends Controller
     public function update(EntryGroup $entryGroup, Entry $entry, Field $field, EntryFieldUpdateRequest $request): JsonResponse
     {
         $result = $this->dispatchSync(new UpdateField(
+            user: auth()->user(),
             entry: $entry,
             entryGroup: $entryGroup,
             field: $field,

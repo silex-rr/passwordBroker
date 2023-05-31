@@ -11,25 +11,19 @@ return new class extends Migration
      *
      * @return void
      */
-    public function up(): void
+    public function up()
     {
-        Schema::create('password_broker_entry_fields', static function (Blueprint $table) {
-            $table->uuid('field_id')->primary();
-            $table->foreignUuid('entry_id')
-                ->references('entry_id')
-                ->on('password_broker_entries')
+        Schema::create('password_broker_entry_field_edit_logs', static function (Blueprint $table) {
+            $table->uuid('field_edit_log_id')->primary();
+            $table->foreignUuid('field_id')
+                ->references('field_id')
+                ->on('password_broker_entry_fields')
                 ->cascadeOnDelete()
                 ->cascadeOnUpdate();
-            $table->string('type');
             $table->string('title');
+            $table->string('type');
             $table->binary('value_encrypted');
-            $table->binary('initialization_vector');
-            $table->foreignUuid('created_by')
-                ->nullable()
-                ->references('user_id')
-                ->on('identity_users')
-                ->cascadeOnUpdate()
-                ->nullOnDelete();
+            $table->boolean('is_deleted');
             $table->foreignUuid('updated_by')
                 ->nullable()
                 ->references('user_id')
@@ -45,8 +39,8 @@ return new class extends Migration
      *
      * @return void
      */
-    public function down(): void
+    public function down()
     {
-        Schema::dropIfExists('password_broker_entry_fields');
+        Schema::dropIfExists('password_broker_entry_fields_edit_logs');
     }
 };

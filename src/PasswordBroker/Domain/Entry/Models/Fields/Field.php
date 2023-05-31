@@ -10,8 +10,11 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use PasswordBroker\Application\Events\FieldSave;
+use PasswordBroker\Application\Events\FieldUpdated;
 use PasswordBroker\Domain\Entry\Models\Attributes\EntryId as EntryIdAttribute;
 use PasswordBroker\Domain\Entry\Models\Casts\EntryId;
 use PasswordBroker\Domain\Entry\Models\Entry;
@@ -37,6 +40,10 @@ use Symfony\Component\Mime\Encoder\Base64Encoder;
  */
 abstract class Field extends Model
 {
+    use HasUuids;
+    use ModelDomainConstructor;
+    use SoftDeletes;
+
     public const TYPE = '';
     protected static array $related = [
         Password::TYPE => Password::class,
@@ -45,7 +52,6 @@ abstract class Field extends Model
         File::TYPE => File::class
     ];
 
-    use HasUuids;
     public $table = 'entry_fields';
     public $incrementing = false;
     public $keyType = 'string';
@@ -60,11 +66,12 @@ abstract class Field extends Model
         'value_encrypted',
         'initialization_vector',
         'created_by',
-        'update_by'
+        'updated_by'
     ];
     public $guarded = [
         'type'
     ];
+
     public $casts = [
         'field_id' => FieldId::class,
         'entry_id' => EntryId::class,
@@ -93,11 +100,11 @@ abstract class Field extends Model
 
     protected $primaryKey = 'field_id';
     protected $dispatchesEvents = [
-        'saving' => FieldSave::class
+//        'saving' => FieldSave::class,
+        'updated' => FieldUpdated::class,
+        'trashed' => FieldUpdated::class,
+        'restored' => FieldUpdated::class,
     ];
-
-    use ModelDomainConstructor;
-    use SoftDeletes;
 
     public static function create(
         UserIdAttribute                 $userId,
@@ -142,6 +149,10 @@ abstract class Field extends Model
         return $this->belongsTo(Entry::class, 'entry_id', 'entry_id');
     }
 
+    public function fieldEditLogs(): MorphMany
+    {
+        return $this->morphMany(FieldEditLog::class, 'field', 'type', 'field_id');
+    }
     public function createdBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by', 'user_id');

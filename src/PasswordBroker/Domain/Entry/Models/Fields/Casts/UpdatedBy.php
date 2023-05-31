@@ -27,7 +27,7 @@ class UpdatedBy implements CastsAttributes
         }
 
         return [
-            'created_by' => $value->getValue()
+            'updated_by' => $value->getValue()
         ];
     }
 }

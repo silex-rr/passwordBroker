@@ -101,7 +101,7 @@ class Entry extends Model
             'value_encrypted' => ValueEncrypted::fromNative($password_encrypted),
             'initialization_vector' => InitializationVector::fromNative($initializing_vector),
             'created_by' => $userId,
-            'update_by' => $userId
+            'updated_by' => $userId
         ]);
         $password->field_id;
         $password->save();
@@ -121,7 +121,7 @@ class Entry extends Model
             'value_encrypted' => ValueEncrypted::fromNative($link_encrypted),
             'initialization_vector' => InitializationVector::fromNative($initializing_vector),
             'created_by' => $userId,
-            'update_by' => $userId
+            'updated_by' => $userId
         ]);
         $link->field_id;
         $link->save();
@@ -147,7 +147,7 @@ class Entry extends Model
             'value_encrypted' => ValueEncrypted::fromNative($file_encrypted),
             'initialization_vector' => InitializationVector::fromNative($initializing_vector),
             'created_by' => $userId,
-            'update_by' => $userId
+            'updated_by' => $userId
         ]);
         $file->field_id;
         $file->save();
@@ -167,7 +167,7 @@ class Entry extends Model
             'value_encrypted' => ValueEncrypted::fromNative($note_encrypted),
             'initialization_vector' => InitializationVector::fromNative($initializing_vector),
             'created_by' => $userId,
-            'update_by' => $userId
+            'updated_by' => $userId
         ]);
         $note->field_id;
         $note->save();

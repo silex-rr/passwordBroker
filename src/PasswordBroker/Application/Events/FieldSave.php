@@ -26,13 +26,4 @@ class FieldSave
         $this->field = $field;
     }
 
-    /**
-     * Get the channels the event should broadcast on.
-     *
-     * @return PrivateChannel
-     */
-    public function broadcastOn(): PrivateChannel
-    {
-        return new PrivateChannel('channel-name');
-    }
 }
