@@ -25,7 +25,7 @@ class EntryFieldUpdateRequest extends FormRequest
                 'nullable',
                 'string',
                 'min:1',
-                new EntryFieldTitleDoesNotExistInEntryFields($this->entry),
+                new EntryFieldTitleDoesNotExistInEntryFields($this->entry, $this->field),
             ],
             'value_encrypted' => 'required_with:initialization_vector|string|min:1',
             'initialization_vector' => 'required_with:value_encrypted|string|min:1',

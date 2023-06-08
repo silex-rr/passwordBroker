@@ -18,7 +18,6 @@ class EntryGroupTest extends TestCase
     use WithFaker;
     use EntryGroupRandomAttributes;
 
-
     public function test_a_guest_cannot_create_an_entry_group(): void
     {
         $attributes = $this->getEntryGroupRandomAttributes();
@@ -83,10 +82,8 @@ class EntryGroupTest extends TestCase
 
         $this->getJson(route('entryGroups'))->assertStatus(200)
             ->assertJson(
-                fn (AssertableJson $entries)
-                    => $entries->has(1)->first(
-                        fn (AssertableJson $entry)
-                            => $entry->where('entry_group_id', $entryGroup->entry_group_id->getValue())->etc()
+                fn(AssertableJson $entries) => $entries->has(1)->first(
+                    fn(AssertableJson $entry) => $entry->where('entry_group_id', $entryGroup->entry_group_id->getValue())->etc()
                 )
             );
     }
@@ -170,7 +167,7 @@ class EntryGroupTest extends TestCase
                                 $this->fail('Miss child 0_1_3');
                             }
                             $this->assertCount(2, $group_0_1_3['children']);
-                            $needed_children = [$entryGroup_0_1_3_5->entry_group_id->getValue()=>null, $entryGroup_0_1_3_6->entry_group_id->getValue() => null];
+                            $needed_children = [$entryGroup_0_1_3_5->entry_group_id->getValue() => null, $entryGroup_0_1_3_6->entry_group_id->getValue() => null];
                             foreach ($group_0_1_3['children'] as $child) {
                                 if (array_key_exists($child['entry_group_id'], $needed_children)) {
                                     unset($needed_children[$child['entry_group_id']]);
@@ -245,15 +242,14 @@ class EntryGroupTest extends TestCase
          */
         [$user_1, $user_2] = User::factory()->count(2)->create();
 
-        $entryGroup_1->addAdmin($user_1, $this->faker()->password(128,128));
-        $entryGroup_2->addAdmin($user_2, $this->faker()->password(128,128));
+        $entryGroup_1->addAdmin($user_1, $this->faker()->password(128, 128));
+        $entryGroup_2->addAdmin($user_2, $this->faker()->password(128, 128));
 
         $this->actingAs($user_1);
 
         $this->getJson(route('entryGroups'))->assertStatus(200)->assertJson(
             fn(AssertableJson $entries) => $entries->has(1)->first(
-                fn (AssertableJson $entry)
-                => $entry
+                fn(AssertableJson $entry) => $entry
                     ->where('entry_group_id', $entryGroup_1->entry_group_id->getValue())
                     ->where('user_id', $user_1->user_id->getValue())
                     ->etc()

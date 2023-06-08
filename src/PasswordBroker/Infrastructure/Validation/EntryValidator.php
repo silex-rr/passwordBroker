@@ -22,14 +22,15 @@ class EntryValidator extends AbstractValidator
         /**
          * @var EntryGroup $entryGroup;
          */
-        $entryGroup = $this->entry->entryGroup()->first();
+        $entryGroup = $this->entry->entryGroup;
         if (is_null($entryGroup)) {
             $this->handleError('missingAnEntryGroup');
         }
 //        dd([$this->entry->title->getValue(),
 //            $entryGroup->entries()->first()
 //            ]);
-        if ($entryGroup->entries()->where('title', $this->entry->title)->exists()) {
+//        dd($this->entry, $this->entry->entryGroup);
+        if ($entryGroup->entries()->where('title', $this->entry->title)->count()) {
             $this->handleError('titleAlreadyTaken');
         }
 

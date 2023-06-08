@@ -10,10 +10,8 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use PasswordBroker\Application\Events\FieldSave;
 use PasswordBroker\Application\Events\FieldUpdated;
 use PasswordBroker\Domain\Entry\Models\Attributes\EntryId as EntryIdAttribute;
 use PasswordBroker\Domain\Entry\Models\Casts\EntryId;
@@ -24,6 +22,7 @@ use PasswordBroker\Domain\Entry\Models\Fields\Casts\FileMime;
 use PasswordBroker\Domain\Entry\Models\Fields\Casts\FileName;
 use PasswordBroker\Domain\Entry\Models\Fields\Casts\FileSize;
 use PasswordBroker\Domain\Entry\Models\Fields\Casts\InitializationVector;
+use PasswordBroker\Domain\Entry\Models\Fields\Casts\Login;
 use PasswordBroker\Domain\Entry\Models\Fields\Casts\Title;
 use PasswordBroker\Domain\Entry\Models\Fields\Casts\UpdatedBy;
 use PasswordBroker\Domain\Entry\Models\Fields\Casts\ValueEncrypted;
@@ -63,6 +62,7 @@ abstract class Field extends Model
         'file_name',
         'file_size',
         'file_mime',
+        'login',
         'value_encrypted',
         'initialization_vector',
         'created_by',
@@ -79,6 +79,7 @@ abstract class Field extends Model
         'file_name' => FileName::class,
         'file_mime' => FileMime::class,
         'file_size' => FileSize::class,
+        'login' => Login::class,
         'value_encrypted' => ValueEncrypted::class,
         'initialization_vector' => InitializationVector::class,
         'created_by' => CreatedBy::class,
@@ -90,7 +91,8 @@ abstract class Field extends Model
         'initialization_vector',
         'file_name',
         'file_size',
-        'file_mime'
+        'file_mime',
+        'login'
     ];
 
     protected $appends = [
@@ -113,7 +115,8 @@ abstract class Field extends Model
         Attributes\ValueEncrypted       $value_encrypted,
         Attributes\InitializationVector $initialization_vector,
         ?Attributes\FileName            $file_name = null,
-        ?Attributes\FileSize            $file_size = null
+        ?Attributes\FileSize            $file_size = null,
+        Attributes\Login                $login = null
     ): self
     {
         $field = new static([
@@ -121,6 +124,7 @@ abstract class Field extends Model
             'title' => $title,
             'file_name' => $file_name,
             'file_size' => $file_size,
+            'login' => $login,
             'value_encrypted' => $value_encrypted,
             'initialization_vector' => $initialization_vector,
             'created_by' => $userId,

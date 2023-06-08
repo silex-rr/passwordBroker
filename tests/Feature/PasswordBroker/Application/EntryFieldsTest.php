@@ -111,11 +111,13 @@ class EntryFieldsTest extends TestCase
          */
         $entry = Entry::where('title', $entry->title)->firstOrFail();
         $password_str = $this->faker->password(12, 32);
+        $login = $this->faker->word();
 
         $this->postJson(
             route('entryFields', ['entryGroup' => $entryGroup, 'entry' => $entry]),
             [
                 'type' => Password::TYPE,
+                'login' => $login,
                 'value' => $password_str,
                 'master_password' => UserFactory::MASTER_PASSWORD
             ]
@@ -545,6 +547,7 @@ class EntryFieldsTest extends TestCase
          */
         $entry = Entry::where('title', $entry->title)->firstOrFail();
         $password_str = $this->faker->password(12, 32);
+        $login = $this->faker->word();
 
         $entryNumOriginal = Entry::where('entry_id', $entry->entry_id)->firstOrFail()->fields()->count();
 
@@ -553,6 +556,7 @@ class EntryFieldsTest extends TestCase
             [
                 'type' => Password::TYPE,
                 'value' => $password_str,
+                'login' => $login,
                 'title' => '',
                 'master_password' => UserFactory::MASTER_PASSWORD
             ]
@@ -588,6 +592,7 @@ class EntryFieldsTest extends TestCase
          */
         $entry = Entry::where('title', $entry->title)->firstOrFail();
         $password_str = $this->faker->password(12, 32);
+        $login = $this->faker->word();
 
         $entryNumOriginal = Entry::where('entry_id', $entry->entry_id)->firstOrFail()->fields()->count();
 
@@ -595,6 +600,7 @@ class EntryFieldsTest extends TestCase
             route('entryFields', ['entryGroup' => $entryGroup, 'entry' => $entry]),
             [
                 'type' => Password::TYPE,
+                'login' => $login,
                 'value' => $password_str,
                 'master_password' => UserFactory::MASTER_PASSWORD
             ]
@@ -630,14 +636,15 @@ class EntryFieldsTest extends TestCase
          */
         $entry = Entry::where('title', $entry->title)->firstOrFail();
         $password_str = $this->faker->password(12, 32);
+        $login = $this->faker->word();
 
         $entryNumOriginal = Entry::where('entry_id', $entry->entry_id)->firstOrFail()->fields()->count();
-
         $this->postJson(
             route('entryFields', ['entryGroup' => $entryGroup, 'entry' => $entry]),
             [
                 'type' => Password::TYPE,
                 'value' => $password_str,
+                'login' => $login,
                 'master_password' => UserFactory::MASTER_PASSWORD
             ]
         )->assertStatus(403);

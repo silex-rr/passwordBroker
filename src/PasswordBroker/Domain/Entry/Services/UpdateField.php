@@ -2,7 +2,6 @@
 
 namespace PasswordBroker\Domain\Entry\Services;
 
-use Identity\Domain\User\Models\Attributes\UserId;
 use Identity\Domain\User\Models\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -16,9 +15,11 @@ use PasswordBroker\Domain\Entry\Events\FieldWasUpdated;
 use PasswordBroker\Domain\Entry\Models\Entry;
 use PasswordBroker\Domain\Entry\Models\EntryGroup;
 use PasswordBroker\Domain\Entry\Models\Fields\Attributes\InitializationVector;
+use PasswordBroker\Domain\Entry\Models\Fields\Attributes\Login;
 use PasswordBroker\Domain\Entry\Models\Fields\Attributes\Title;
 use PasswordBroker\Domain\Entry\Models\Fields\Attributes\ValueEncrypted;
 use PasswordBroker\Domain\Entry\Models\Fields\Field;
+use PasswordBroker\Domain\Entry\Models\Fields\Password;
 
 class UpdateField implements ShouldQueue
 {
@@ -31,6 +32,7 @@ class UpdateField implements ShouldQueue
         protected ?string    $title,
         protected ?string    $value_encrypted,
         protected ?string    $initialization_vector,
+        protected ?string    $login,
         protected ?string    $value,
         protected ?string    $master_password
     )
@@ -65,6 +67,11 @@ class UpdateField implements ShouldQueue
            && $this->field->title->getValue() !== $this->title
         ) {
             $fields_for_update['title'] = Title::fromNative($this->title);
+        }
+        if ($this->field->getType() === Password::TYPE
+            && $this->field->login->getValue() !== $this->login
+        ) {
+            $fields_for_update['login'] = Login::fromNative($this->login);
         }
 
         if (!empty($fields_for_update)) {

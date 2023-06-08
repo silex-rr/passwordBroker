@@ -14,6 +14,7 @@ use PasswordBroker\Application\Services\EntryGroupService;
 use PasswordBroker\Domain\Entry\Models\Entry;
 use PasswordBroker\Domain\Entry\Models\EntryGroup;
 use PasswordBroker\Domain\Entry\Models\Fields\Field;
+use PasswordBroker\Domain\Entry\Models\Fields\Password;
 use PasswordBroker\Domain\Entry\Services\AddFieldToEntry;
 use PasswordBroker\Domain\Entry\Services\DestroyEntryField;
 use PasswordBroker\Domain\Entry\Services\UpdateField;
@@ -80,8 +81,12 @@ class EntryFieldController extends Controller
                 title: $request->get('title', ''),
                 value_encrypted: $request->get('value_encrypted'),
                 initialization_vector: $request->get('initialization_vector'),
-                value: $request->get('value'),
+                value: base64_encode($request->get('value')),
                 file: $request->file('file'),
+                file_name: null,
+                file_size: null,
+                file_mime: null,
+                login: $request->get('login'),
                 master_password: $request->get('master_password'),
             ));
         } catch (NoKeyLoadedException $exception) {
@@ -107,6 +112,7 @@ class EntryFieldController extends Controller
             title: $request->get('title'),
             value_encrypted: $request->get('value_encrypted'),
             initialization_vector: $request->get('initialization_vector'),
+            login: $field->getType() === Password::TYPE ? $request->get('login'): null,
             value: $request->get('value'),
             master_password: $request->get('master_password'),
         ));

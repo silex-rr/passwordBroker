@@ -3,19 +3,19 @@
 namespace PasswordBroker\Domain\Entry\Services;
 
 use Identity\Domain\User\Models\User;
-use Illuminate\Bus\Queueable;
+use Illuminate\Bus\Batchable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Support\Facades\Auth;
+use InvalidArgumentException;
 use PasswordBroker\Application\Services\EncryptionService;
 use PasswordBroker\Application\Services\EntryGroupService;
 use PasswordBroker\Domain\Entry\Events\FieldWasAddedToEntry;
 use PasswordBroker\Domain\Entry\Models\Entry;
 use PasswordBroker\Domain\Entry\Models\EntryGroup;
 use PasswordBroker\Domain\Entry\Models\Fields\Field;
-use InvalidArgumentException;
 use PasswordBroker\Domain\Entry\Models\Fields\File;
 use PasswordBroker\Domain\Entry\Models\Fields\Link;
 use PasswordBroker\Domain\Entry\Models\Fields\Note;
@@ -24,7 +24,7 @@ use RuntimeException;
 
 class AddFieldToEntry implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue;
+    use Batchable, Dispatchable, InteractsWithQueue;
 
     //, SerializesModels;
     public function __construct(
@@ -36,6 +36,10 @@ class AddFieldToEntry implements ShouldQueue
         protected ?string       $initialization_vector,
         protected ?string       $value,
         protected ?UploadedFile $file,
+        protected ?string       $file_name,
+        protected ?int          $file_size,
+        protected ?string       $file_mime,
+        protected ?string       $login,
         protected ?string       $master_password
     )
     {
@@ -46,6 +50,7 @@ class AddFieldToEntry implements ShouldQueue
         $this->validate();
 
         if (is_null($this->value_encrypted)) {
+            $this->value = base64_decode($this->value);
             /**
              * @var EntryGroupService $entryGroupService
              */
@@ -85,12 +90,20 @@ class AddFieldToEntry implements ShouldQueue
                     file_encrypted: $this->value_encrypted,
                     initializing_vector: $this->initialization_vector,
                     title: $this->title ?: '',
-                    file_size: (int)$this->file->getSize(),
-                    file_name: $this->file->getClientOriginalName(),
-                    file_mime: $this->file->getMimeType()
+                    file_size: $this->file ? (int)$this->file->getSize() : $this->file_size,
+                    file_name: $this->file ? $this->file->getClientOriginalName() : $this->file_name,
+                    file_mime: $this->file ? $this->file->getMimeType() : $this->file_mime
                 );
                 break;
             case Password::TYPE:
+                $field = $this->entry->addPassword(
+                    userId: $user->user_id,
+                    password_encrypted: $this->value_encrypted,
+                    initializing_vector: $this->initialization_vector,
+                    login: $this->login,
+                    title: $this->title ?: '',
+                );
+                break;
             case Link::TYPE:
             case Note::TYPE:
                 $field = $this->entry->$method(

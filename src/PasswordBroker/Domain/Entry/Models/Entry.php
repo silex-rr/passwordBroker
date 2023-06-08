@@ -16,6 +16,7 @@ use PasswordBroker\Domain\Entry\Models\Fields\Attributes\FileMime;
 use PasswordBroker\Domain\Entry\Models\Fields\Attributes\FileName;
 use PasswordBroker\Domain\Entry\Models\Fields\Attributes\FileSize;
 use PasswordBroker\Domain\Entry\Models\Fields\Attributes\InitializationVector;
+use PasswordBroker\Domain\Entry\Models\Fields\Attributes\Login;
 use PasswordBroker\Domain\Entry\Models\Fields\Attributes\Title;
 use PasswordBroker\Domain\Entry\Models\Fields\Attributes\ValueEncrypted;
 use PasswordBroker\Domain\Entry\Models\Fields\File;
@@ -27,7 +28,7 @@ use PasswordBroker\Infrastructure\Validation\Handlers\EntryValidationHandler;
 
 /**
  * @property Attributes\EntryId $entry_id
- * @property Title $title
+ * @property Attributes\Title $title
  */
 class Entry extends Model
 {
@@ -41,7 +42,7 @@ class Entry extends Model
     protected $guarded = ['entry_id'];
     protected $casts = [
         'entry_id' => EntryId::class,
-        'title' => Fields\Casts\Title::class
+        'title' => Casts\Title::class
     ];
 
 //    public function newUniqueId(): UserIdAttribute
@@ -92,12 +93,14 @@ class Entry extends Model
         UserIdAttribute $userId,
         string          $password_encrypted,
         string          $initializing_vector,
+        string          $login,
         string          $title = ""
     ): Password
     {
         $password = new Password([
             'entry_id' => $this->entry_id,
             'title' => Title::fromNative($title),
+            'login' => Login::fromNative($login),
             'value_encrypted' => ValueEncrypted::fromNative($password_encrypted),
             'initialization_vector' => InitializationVector::fromNative($initializing_vector),
             'created_by' => $userId,

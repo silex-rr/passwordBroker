@@ -5,8 +5,8 @@ namespace PasswordBroker\Infrastructure\Factories\Entry;
 use App\Common\Domain\Abstractions\FactoryDomain;
 use PasswordBroker\Domain\Entry\Models\Attributes\EntryGroupId;
 use PasswordBroker\Domain\Entry\Models\Attributes\EntryId as EntryIdAttribute;
+use PasswordBroker\Domain\Entry\Models\Attributes\Title;
 use PasswordBroker\Domain\Entry\Models\EntryGroup;
-use PasswordBroker\Domain\Entry\Models\Fields\Attributes\Title;
 
 
 class EntryFactory extends FactoryDomain

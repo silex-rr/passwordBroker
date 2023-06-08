@@ -4,8 +4,10 @@ namespace PasswordBroker\Application\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\RequiredIf;
 use PasswordBroker\Domain\Entry\Models\Entry;
 use PasswordBroker\Domain\Entry\Models\Fields\Field;
+use PasswordBroker\Domain\Entry\Models\Fields\Password;
 use PasswordBroker\Infrastructure\Validation\Rules\EntryFieldTitleDoesNotExistInEntryFields;
 
 /**
@@ -28,6 +30,7 @@ class EntryFieldStoreRequest extends FormRequest
                 new EntryFieldTitleDoesNotExistInEntryFields($this->entry),
             ],
             'type' => Rule::in(array_keys(Field::getRelated())),
+            'login' => [new RequiredIf(fn () => $this->get('type') === Password::TYPE), 'string', 'min:1'],
             'value_encrypted' => 'required_without:master_password|string|min:1',
             'initialization_vector' => 'required_without:master_password|string|min:1',
             'master_password' => 'required_without:value_encrypted|string|min:1',

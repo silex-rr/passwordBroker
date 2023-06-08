@@ -50,6 +50,10 @@ class PasswordBrokerServiceProvider extends ServiceProvider
             require $this->base_path . $this->configs_dir . DIRECTORY_SEPARATOR . 'database.connections.php',
             'database.connections'
         );
+        $this->mergeConfigRecursion(
+            require $this->base_path . $this->configs_dir . DIRECTORY_SEPARATOR . 'filesystems.disks.php',
+            'filesystems.disks'
+        );
 //        dd(config('database.connections'));
     }
 

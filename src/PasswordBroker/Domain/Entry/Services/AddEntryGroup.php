@@ -2,6 +2,7 @@
 
 namespace PasswordBroker\Domain\Entry\Services;
 
+use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -14,7 +15,7 @@ use PasswordBroker\Infrastructure\Validation\Handlers\EntryGroupValidationHandle
 
 class AddEntryGroup implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable;//, SerializesModels;
+    use Batchable, Dispatchable, InteractsWithQueue, Queueable;//, SerializesModels;
 
     public function __construct(
         protected EntryGroup $entryGroup,
@@ -36,15 +37,15 @@ class AddEntryGroup implements ShouldQueue
     public function handle(): void
     {
         $this->validate();
-        $this->entryGroup->entry_group_id;
 
         /**
          * @var EntryGroupService $entryGroupService
          */
         $entryGroupService = app(EntryGroupService::class);
+
         $entryGroupService->rebuildMaterializedPath($this->entryGroup);
         $entryGroupService->addUserToGroupAsAdmin(Auth::user(), $this->entryGroup);
-
+//        var_dump( $this->entryGroup->name->getValue());
 
         event(new EntryGroupWasCreated($this->entryGroup));
     }

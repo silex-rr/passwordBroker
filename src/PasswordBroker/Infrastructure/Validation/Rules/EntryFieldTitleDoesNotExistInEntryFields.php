@@ -4,19 +4,18 @@ namespace PasswordBroker\Infrastructure\Validation\Rules;
 
 use Illuminate\Contracts\Validation\Rule;
 use PasswordBroker\Domain\Entry\Models\Entry;
+use PasswordBroker\Domain\Entry\Models\Fields\Field;
 
 class EntryFieldTitleDoesNotExistInEntryFields implements Rule
 {
 
-    protected Entry $entry;
     /**
      * Create a new rule instance.
      *
      * @return void
      */
-    public function __construct(Entry $entry)
+    public function __construct(protected Entry $entry, protected ?Field $field = null)
     {
-        $this->entry = $entry;
     }
 
     /**
@@ -28,6 +27,11 @@ class EntryFieldTitleDoesNotExistInEntryFields implements Rule
      */
     public function passes($attribute, $value): bool
     {
+        if ($this->field) {
+            return !$this->entry->fields()
+                ->where('field_id', "<>", $this->field->field_id->getValue())
+                ->contains('title', $value);
+        }
 
         return !$this->entry->fields()->contains('title', $value);
     }
