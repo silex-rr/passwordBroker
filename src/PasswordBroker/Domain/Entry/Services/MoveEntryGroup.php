@@ -24,6 +24,14 @@ class MoveEntryGroup implements ShouldQueue
 
     public function handle(): void
     {
+        if ($this->entryGroupService->isSecondGroupChildOfFirst(
+            fistGroup: $this->entryGroup,
+            secondGroup: $this->entryGroupTarget
+        )
+        ) {
+            return;
+        }
+
         if (is_null($this->entryGroupTarget)) {
             $this->entryGroup->parentEntryGroup()->dissociate();
         } else {

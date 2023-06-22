@@ -128,6 +128,7 @@ class EntryGroupService
                             collect([
                                 'entry_group_id' => $id,
                                 'title' => $entryGroupsById[$id]['entryGroup']->name->getValue(),
+                                'materialized_path' => $entryGroupsById[$id]['entryGroup']->materialized_path->getValue(),
                                 'role' => $entryGroupsById[$id]['role'],
                                 'children' => $children
                             ])
@@ -140,6 +141,7 @@ class EntryGroupService
                 $children = collect([[
                     'entry_group_id' => $id,
                     'title' => $entryGroupsById[$id]['entryGroup']->name->getValue(),
+                    'materialized_path' => $entryGroupsById[$id]['entryGroup']->materialized_path->getValue(),
                     'role' => $entryGroupsById[$id]['role'],
                     'children' => $treeChildren[$id]
                 ]]);
@@ -206,8 +208,9 @@ class EntryGroupService
             iv: $field->initialization_vector->getValue()
         );
     }
+
     /**
-     * @param Field $field
+     * @param FieldEditLog $fieldEditLog
      * @param string $master_password
      * @return string
      */
@@ -226,5 +229,18 @@ class EntryGroupService
             decrypted_aes_password: $decryptedAesPassword,
             iv: $field->initialization_vector->getValue()
         );
+    }
+
+    /**
+     * @param EntryGroup $fistGroup
+     * @param EntryGroup|null $secondGroup
+     * @return bool
+     */
+    public function isSecondGroupChildOfFirst(EntryGroup $fistGroup, ?EntryGroup $secondGroup = null): bool
+    {
+        if (is_null($secondGroup)) {
+            return false;
+        }
+        return str_contains($secondGroup->materialized_path->getValue(), $fistGroup->entry_group_id->getValue());
     }
 }

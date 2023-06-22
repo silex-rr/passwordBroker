@@ -1004,7 +1004,12 @@ class EntryFieldsTest extends TestCase
 
         $password_str_encrypted = $encryptionService->encrypt($password_str, $decrypted_aes_password, $iv);
 
-        $password = $entry->addPassword($admin->user_id, $password_str_encrypted, $iv);
+        $password = $entry->addPassword(
+            userId: $admin->user_id,
+            password_encrypted: $password_str_encrypted,
+            initializing_vector: $iv,
+            login: 'test_login'
+        );
 
         $this->assertCount(1,
             Entry::where('entry_id', $entry->entry_id)->firstOrFail()->fields()

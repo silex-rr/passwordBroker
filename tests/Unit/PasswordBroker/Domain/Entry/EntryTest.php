@@ -82,9 +82,10 @@ class EntryTest extends TestCase
         $user = User::factory()->create();
 
         $password = $entry->addPassword(
-            $user->user_id,
-            $this->faker->password(16, 16),
-            $this->faker->password(128, 128)
+            userId: $user->user_id,
+            password_encrypted: $this->faker->password(16, 16),
+            initializing_vector: $this->faker->password(128, 128),
+            login: 'test_login'
         );
 
         $this->assertEquals(
