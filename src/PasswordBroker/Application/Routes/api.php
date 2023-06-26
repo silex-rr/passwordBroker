@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use PasswordBroker\Application\Http\Controllers\Api\EntryController;
 use PasswordBroker\Application\Http\Controllers\Api\EntryFieldController;
+use PasswordBroker\Application\Http\Controllers\Api\EntryFieldHistoryController;
 use PasswordBroker\Application\Http\Controllers\Api\EntryGroupController;
 use PasswordBroker\Application\Http\Controllers\Api\EntryGroupUserController;
 use PasswordBroker\Application\Http\Controllers\Api\ImportController;
@@ -61,6 +62,10 @@ Route::middleware('api')->group(function (){
         [EntryFieldController::class, 'update']);
     Route::delete('/entryGroups/{entryGroup:entry_group_id}/entries/{entry:entry_id}/fields/{field:field_id}',
         [EntryFieldController::class, 'destroy']);
+
+    Route::get('/entryGroups/{entryGroup:entry_group_id}/entries/{entry:entry_id}/fields/{field:field_id}/history',
+        [EntryFieldHistoryController::class, 'index']
+    )->name('entryFieldHistory');
 
     Route::post('/import', [ImportController::class, 'store'])
         ->name('import');

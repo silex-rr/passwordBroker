@@ -13,6 +13,7 @@ use PasswordBroker\Domain\Entry\Models\Fields\Attributes\Login;
 use PasswordBroker\Domain\Entry\Models\Fields\Casts\FieldEditLog\EventType;
 use PasswordBroker\Domain\Entry\Models\Fields\Casts\FieldEditLogId;
 use PasswordBroker\Domain\Entry\Models\Fields\Casts\FieldId;
+use PasswordBroker\Domain\Entry\Models\Fields\Casts\InitializationVector;
 use PasswordBroker\Domain\Entry\Models\Fields\Casts\IsDeleted;
 use PasswordBroker\Domain\Entry\Models\Fields\Casts\Title;
 use PasswordBroker\Domain\Entry\Models\Fields\Casts\UpdatedBy;
@@ -25,6 +26,7 @@ use PasswordBroker\Domain\Entry\Models\Fields\Casts\ValueEncrypted;
  * @property string $type - Class of Field type to what the log belong to
  * @property Attributes\FieldEditLog\EventType $event_type
  * @property Attributes\ValueEncrypted $value_encrypted
+ * @property Attributes\InitializationVector $initialization_vector
  * @property Attributes\IsDeleted $is_deleted
  * @property UserIdAttribute $updated_by
  * @property Login|null $login
@@ -49,6 +51,7 @@ class FieldEditLog extends Model
         'login',
         'event_type',
         'value_encrypted',
+        'initialization_vector',
         'is_deleted',
         'updated_by'
     ];
@@ -60,11 +63,13 @@ class FieldEditLog extends Model
         'login' => Casts\Login::class,
         'event_type' => EventType::class,
         'value_encrypted' => ValueEncrypted::class,
+        'initialization_vector' => InitializationVector::class,
         'is_deleted' => IsDeleted::class,
         'updated_by' => UpdatedBy::class,
     ];
     protected $hidden = [
         'value_encrypted',
+        'initialization_vector'
     ];
 
     public function field(): BelongsTo

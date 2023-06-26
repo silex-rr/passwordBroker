@@ -227,7 +227,7 @@ class EntryGroupService
         return $this->encryptionService->decrypt(
             data_encrypted: $fieldEditLog->value_encrypted->getValue(),
             decrypted_aes_password: $decryptedAesPassword,
-            iv: $field->initialization_vector->getValue()
+            iv: $fieldEditLog->initialization_vector->getValue()
         );
     }
 

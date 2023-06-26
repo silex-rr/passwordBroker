@@ -40,12 +40,13 @@ class LogFieldChanges
         $fieldEditLog->title = $event->field->title;
         $fieldEditLog->type = Field::getRelated()[$event->field->getType()];
         $fieldEditLog->event_type = EventType::fromNative($event->getEventType());
-        $fieldEditLog->login = Login::fromNative(
-            $event->field->getType() === Password::TYPE
+        $fieldEditLog->login = $event->field->getType() === Password::TYPE
                 ? $event->field->login
-                : null
-        );
-        $fieldEditLog->value_encrypted = $event->field->getType() !== File::TYPE ? $event->field->value_encrypted : new ValueEncrypted('');
+                : Login::fromNative(null);
+        $fieldEditLog->value_encrypted = $event->field->getType() !== File::TYPE
+            ? $event->field->value_encrypted
+            : new ValueEncrypted('');
+        $fieldEditLog->initialization_vector = $event->field->initialization_vector;
         $fieldEditLog->is_deleted = new IsDeleted($event->field->trashed());
         $fieldEditLog->updated_by = $event->field->updated_by;
         $fieldEditLog->save();

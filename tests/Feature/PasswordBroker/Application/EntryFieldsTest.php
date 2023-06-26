@@ -2,19 +2,16 @@
 
 namespace Tests\Feature\PasswordBroker\Application;
 
-use Identity\Application\Services\RsaService;
 use Identity\Domain\User\Models\User;
 use Identity\Infrastructure\Factories\User\UserFactory;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Testing\Fluent\AssertableJson;
-use PasswordBroker\Application\Events\FieldUpdated;
 use PasswordBroker\Application\Services\EncryptionService;
 use PasswordBroker\Application\Services\EntryGroupService;
 use PasswordBroker\Domain\Entry\Models\Entry;
 use PasswordBroker\Domain\Entry\Models\EntryGroup;
-use PasswordBroker\Domain\Entry\Models\Fields\FieldEditLog;
 use PasswordBroker\Domain\Entry\Models\Fields\File;
 use PasswordBroker\Domain\Entry\Models\Fields\Password;
 use PasswordBroker\Domain\Entry\Services\AddEntry;
@@ -26,6 +23,7 @@ class EntryFieldsTest extends TestCase
 {
     use RefreshDatabase;
     use WithFaker;
+    use PasswordHelper;
 
     public function test_guest_cannot_see_entry_fields(): void
     {
@@ -701,16 +699,6 @@ class EntryFieldsTest extends TestCase
         $password_str_updated = $entryGroupService->decryptField($password_updated, UserFactory::MASTER_PASSWORD);
 
         $this->assertEquals($password_str_new, $password_str_updated);
-        $fieldEditLogsQuery = $password_updated->fieldEditLogs()->where('event_type', FieldUpdated::EVENT_TYPE);
-        $this->assertEquals(1, $fieldEditLogsQuery->count());
-        /**
-         * @var FieldEditLog $fieldEditLog
-         */
-        $fieldEditLog = $fieldEditLogsQuery->first();
-        $this->assertEquals($fieldEditLog->login->getValue(), $login_new);
-        $this->assertEquals($password_str_new,
-            $entryGroupService->decryptFieldEditLog($fieldEditLog,
-                UserFactory::MASTER_PASSWORD));
 
     }
 
@@ -990,43 +978,5 @@ class EntryFieldsTest extends TestCase
         $this->assertEquals(base64_decode($resp), $content);
 
     }
-
-
-    /**
-     * @param User $admin
-     * @param EntryGroup $entryGroup
-     * @param Entry $entry
-     * @return Password
-     */
-    public function getPasswordHelper(User $admin, EntryGroup $entryGroup, Entry $entry, string $password_str): Password
-    {
-        /**
-         * @var EncryptionService $encryptionService
-         */
-        $encryptionService = app(EncryptionService::class);
-        /**
-         * @var RsaService $rsaService
-         */
-        $rsaService = app(RsaService::class);
-        $iv = $encryptionService->generateInitializationVector();
-        $encrypted_aes_password = $admin->userOf()->where('entry_group_id', $entryGroup->entry_group_id)->firstOrFail()->encrypted_aes_password;
-        $privateKey = $rsaService->getUserPrivateKey($admin->user_id, UserFactory::MASTER_PASSWORD);
-        $decrypted_aes_password = $privateKey->decrypt($encrypted_aes_password);
-
-        $password_str_encrypted = $encryptionService->encrypt($password_str, $decrypted_aes_password, $iv);
-
-        $password = $entry->addPassword(
-            userId: $admin->user_id,
-            password_encrypted: $password_str_encrypted,
-            initializing_vector: $iv,
-            login: 'test_login'
-        );
-
-        $this->assertCount(1,
-            Entry::where('entry_id', $entry->entry_id)->firstOrFail()->fields()
-        );
-        return $password;
-    }
-
 
 }
