@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use PasswordBroker\Domain\Entry\Models\Fields\Attributes\Login;
+use PasswordBroker\Domain\Entry\Models\Fields\Casts\FieldEditLog\EventType;
 use PasswordBroker\Domain\Entry\Models\Fields\Casts\FieldEditLogId;
 use PasswordBroker\Domain\Entry\Models\Fields\Casts\FieldId;
 use PasswordBroker\Domain\Entry\Models\Fields\Casts\IsDeleted;
@@ -22,10 +23,11 @@ use PasswordBroker\Domain\Entry\Models\Fields\Casts\ValueEncrypted;
  * @property Attributes\FieldId $field_id
  * @property Attributes\Title $title
  * @property string $type - Class of Field type to what the log belong to
+ * @property Attributes\FieldEditLog\EventType $event_type
  * @property Attributes\ValueEncrypted $value_encrypted
  * @property Attributes\IsDeleted $is_deleted
  * @property UserIdAttribute $updated_by
- * @property Login $login
+ * @property Login|null $login
  */
 class FieldEditLog extends Model
 {
@@ -45,6 +47,7 @@ class FieldEditLog extends Model
         'field_id',
         'title',
         'login',
+        'event_type',
         'value_encrypted',
         'is_deleted',
         'updated_by'
@@ -55,6 +58,7 @@ class FieldEditLog extends Model
         'field_id' => FieldId::class,
         'title' => Title::class,
         'login' => Casts\Login::class,
+        'event_type' => EventType::class,
         'value_encrypted' => ValueEncrypted::class,
         'is_deleted' => IsDeleted::class,
         'updated_by' => UpdatedBy::class,

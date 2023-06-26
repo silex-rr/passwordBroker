@@ -2,9 +2,8 @@
 
 namespace PasswordBroker\Application\Providers;
 
-use Illuminate\Auth\Events\Registered;
-use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
+use PasswordBroker\Application\Events\FieldCreated;
 use PasswordBroker\Application\Events\FieldUpdated;
 use PasswordBroker\Application\Listeners\LogFieldChanges;
 
@@ -19,6 +18,9 @@ class PasswordBrokerEventServiceProvider extends ServiceProvider
         FieldUpdated::class => [
             LogFieldChanges::class,
         ],
+        FieldCreated::class => [
+            LogFieldChanges::class
+        ]
     ];
 
     /**

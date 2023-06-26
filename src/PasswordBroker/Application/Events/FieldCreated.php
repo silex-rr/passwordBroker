@@ -3,24 +3,23 @@
 namespace PasswordBroker\Application\Events;
 
 use Illuminate\Broadcasting\Channel;
-use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
-use PasswordBroker\Domain\Entry\Models\Fields\Field;
 
-class FieldUpdated extends FieldEvent
+class FieldCreated extends FieldEvent
 {
     use Dispatchable, SerializesModels;
 
-    public const EVENT_TYPE = 'updated';
+    public const EVENT_TYPE = 'created';
+
     public function broadcastOn(): Channel
     {
-        return new Channel('field-changes.' . $this->field->field_id);
+        return new Channel('field-created.' . $this->field->field_id);
     }
 
     public function broadcastAs(): string
     {
-        return 'field.updated';
+        return 'field.created';
     }
 
     public function handle(): void

@@ -9,6 +9,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Testing\Fluent\AssertableJson;
+use PasswordBroker\Application\Events\FieldUpdated;
 use PasswordBroker\Application\Services\EncryptionService;
 use PasswordBroker\Application\Services\EntryGroupService;
 use PasswordBroker\Domain\Entry\Models\Entry;
@@ -700,11 +701,12 @@ class EntryFieldsTest extends TestCase
         $password_str_updated = $entryGroupService->decryptField($password_updated, UserFactory::MASTER_PASSWORD);
 
         $this->assertEquals($password_str_new, $password_str_updated);
-        $this->assertEquals(1, $password_updated->fieldEditLogs()->count());
+        $fieldEditLogsQuery = $password_updated->fieldEditLogs()->where('event_type', FieldUpdated::EVENT_TYPE);
+        $this->assertEquals(1, $fieldEditLogsQuery->count());
         /**
          * @var FieldEditLog $fieldEditLog
          */
-        $fieldEditLog = $password_updated->fieldEditLogs()->first();
+        $fieldEditLog = $fieldEditLogsQuery->first();
         $this->assertEquals($fieldEditLog->login->getValue(), $login_new);
         $this->assertEquals($password_str_new,
             $entryGroupService->decryptFieldEditLog($fieldEditLog,

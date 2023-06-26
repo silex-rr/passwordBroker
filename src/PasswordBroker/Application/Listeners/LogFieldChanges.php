@@ -4,8 +4,11 @@ namespace PasswordBroker\Application\Listeners;
 
 use Identity\Domain\User\Models\User;
 use Illuminate\Support\Facades\Auth;
+use PasswordBroker\Application\Events\FieldEvent;
 use PasswordBroker\Application\Events\FieldUpdated;
+use PasswordBroker\Domain\Entry\Models\Fields\Attributes\FieldEditLog\EventType;
 use PasswordBroker\Domain\Entry\Models\Fields\Attributes\IsDeleted;
+use PasswordBroker\Domain\Entry\Models\Fields\Attributes\Login;
 use PasswordBroker\Domain\Entry\Models\Fields\Attributes\ValueEncrypted;
 use PasswordBroker\Domain\Entry\Models\Fields\Field;
 use PasswordBroker\Domain\Entry\Models\Fields\FieldEditLog;
@@ -30,13 +33,18 @@ class LogFieldChanges
      * @param FieldUpdated $event
      * @return void
      */
-    public function handle(FieldUpdated $event): void
+    public function handle(FieldEvent $event): void
     {
         $fieldEditLog = new FieldEditLog();
         $fieldEditLog->field_id = $event->field->field_id;
         $fieldEditLog->title = $event->field->title;
         $fieldEditLog->type = Field::getRelated()[$event->field->getType()];
-        $fieldEditLog->login = $event->field->getType() === Password::TYPE ? $event->field->login : null;
+        $fieldEditLog->event_type = EventType::fromNative($event->getEventType());
+        $fieldEditLog->login = Login::fromNative(
+            $event->field->getType() === Password::TYPE
+                ? $event->field->login
+                : null
+        );
         $fieldEditLog->value_encrypted = $event->field->getType() !== File::TYPE ? $event->field->value_encrypted : new ValueEncrypted('');
         $fieldEditLog->is_deleted = new IsDeleted($event->field->trashed());
         $fieldEditLog->updated_by = $event->field->updated_by;
