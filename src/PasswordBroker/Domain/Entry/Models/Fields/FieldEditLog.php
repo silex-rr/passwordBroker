@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
+use PasswordBroker\Domain\Entry\Models\Fields\Attributes\Login;
 use PasswordBroker\Domain\Entry\Models\Fields\Casts\FieldEditLogId;
 use PasswordBroker\Domain\Entry\Models\Fields\Casts\FieldId;
 use PasswordBroker\Domain\Entry\Models\Fields\Casts\IsDeleted;
@@ -24,6 +25,7 @@ use PasswordBroker\Domain\Entry\Models\Fields\Casts\ValueEncrypted;
  * @property Attributes\ValueEncrypted $value_encrypted
  * @property Attributes\IsDeleted $is_deleted
  * @property UserIdAttribute $updated_by
+ * @property Login $login
  */
 class FieldEditLog extends Model
 {
@@ -42,6 +44,7 @@ class FieldEditLog extends Model
         'field_edit_log_id',
         'field_id',
         'title',
+        'login',
         'value_encrypted',
         'is_deleted',
         'updated_by'
@@ -51,6 +54,7 @@ class FieldEditLog extends Model
         'field_edit_log_id' => FieldEditLogId::class,
         'field_id' => FieldId::class,
         'title' => Title::class,
+        'login' => Casts\Login::class,
         'value_encrypted' => ValueEncrypted::class,
         'is_deleted' => IsDeleted::class,
         'updated_by' => UpdatedBy::class,

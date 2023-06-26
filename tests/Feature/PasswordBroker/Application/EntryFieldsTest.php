@@ -678,9 +678,11 @@ class EntryFieldsTest extends TestCase
         $password_str = $this->faker->password(12, 32);
         $password = $this->getPasswordHelper($admin, $entryGroup, $entry, $password_str);
         $password_str_new = $password_str . '_new';
+        $login_new = $this->faker->word();
         $this->putJson(
             route('entryField', ['entryGroup' => $entryGroup, 'entry' => $entry, 'field' => $password]),
             [
+                'login' => $login_new,
                 'value' => $password_str_new,
                 'master_password' => UserFactory::MASTER_PASSWORD
             ]
@@ -699,7 +701,14 @@ class EntryFieldsTest extends TestCase
 
         $this->assertEquals($password_str_new, $password_str_updated);
         $this->assertEquals(1, $password_updated->fieldEditLogs()->count());
-        $this->assertEquals($password_str_new, $entryGroupService->decryptFieldEditLog($password_updated->fieldEditLogs()->first(), UserFactory::MASTER_PASSWORD));
+        /**
+         * @var FieldEditLog $fieldEditLog
+         */
+        $fieldEditLog = $password_updated->fieldEditLogs()->first();
+        $this->assertEquals($fieldEditLog->login->getValue(), $login_new);
+        $this->assertEquals($password_str_new,
+            $entryGroupService->decryptFieldEditLog($fieldEditLog,
+                UserFactory::MASTER_PASSWORD));
 
     }
 

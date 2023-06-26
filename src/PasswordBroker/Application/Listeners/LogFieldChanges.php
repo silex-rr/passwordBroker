@@ -36,6 +36,7 @@ class LogFieldChanges
         $fieldEditLog->field_id = $event->field->field_id;
         $fieldEditLog->title = $event->field->title;
         $fieldEditLog->type = Field::getRelated()[$event->field->getType()];
+        $fieldEditLog->login = $event->field->getType() === Password::TYPE ? $event->field->login : null;
         $fieldEditLog->value_encrypted = $event->field->getType() !== File::TYPE ? $event->field->value_encrypted : new ValueEncrypted('');
         $fieldEditLog->is_deleted = new IsDeleted($event->field->trashed());
         $fieldEditLog->updated_by = $event->field->updated_by;
