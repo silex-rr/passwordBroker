@@ -10,6 +10,7 @@ use PasswordBroker\Application\Observers\EntryGroupObserver;
 use PasswordBroker\Domain\Entry\Models\Entry;
 use PasswordBroker\Domain\Entry\Models\EntryGroup;
 use PasswordBroker\Domain\Entry\Models\Fields\Field;
+use PasswordBroker\Domain\Entry\Models\Fields\FieldEditLog;
 
 class PasswordBrokerServiceProvider extends ServiceProvider
 {
@@ -65,6 +66,7 @@ class PasswordBrokerServiceProvider extends ServiceProvider
 
         Route::bind('entry', fn(string $entry_id) => Entry::where('entry_id', $entry_id)->firstOrFail());
         Route::bind('field', fn(string $field_id) => Field::getFiledByFieldId($field_id));
+        Route::bind('fieldEditLog', fn(string $field_edit_log_id) => FieldEditLog::where('field_edit_log_id', $field_edit_log_id)->firstOrFail());
     }
 
 }

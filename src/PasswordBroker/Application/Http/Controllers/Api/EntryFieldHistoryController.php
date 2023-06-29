@@ -28,7 +28,7 @@ class EntryFieldHistoryController extends Controller
 
     public function index(EntryGroup $entryGroup, Entry $entry, Field $field): JsonResponse
     {
-        return new JsonResponse($field->fieldEditLogs()->get(), 200);
+        return new JsonResponse($field->fieldEditLogs()->with('User')->orderByDesc('created_at')->get(), 200);
     }
 
     public function showDecrypted(

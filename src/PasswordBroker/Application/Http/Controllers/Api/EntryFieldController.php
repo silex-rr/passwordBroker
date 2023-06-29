@@ -6,11 +6,13 @@ use App\Http\Controllers\Controller;
 use Identity\Domain\User\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
+use PasswordBroker\Application\Events\FieldDecrypted;
 use PasswordBroker\Application\Http\Requests\EntryFieldDecryptedRequest;
 use PasswordBroker\Application\Http\Requests\EntryFieldStoreRequest;
 use PasswordBroker\Application\Http\Requests\EntryFieldUpdateRequest;
 use PasswordBroker\Application\Services\EncryptionService;
 use PasswordBroker\Application\Services\EntryGroupService;
+use PasswordBroker\Domain\Entry\Events\FieldWasDecrypted;
 use PasswordBroker\Domain\Entry\Models\Entry;
 use PasswordBroker\Domain\Entry\Models\EntryGroup;
 use PasswordBroker\Domain\Entry\Models\Fields\Field;
@@ -49,15 +51,20 @@ class EntryFieldController extends Controller
         return new JsonResponse($field, 200);
     }
 
-    public function showDecrypted(EntryGroup $entryGroup, Entry $entry, Field $field, EntryFieldDecryptedRequest $request): JsonResponse|Response
+    public function showDecrypted(EntryGroup $entryGroup, Entry $entry, Field $field, EntryFieldDecryptedRequest $request)
+        : JsonResponse|Response
     {
         try {
+            $encodeString = $this->base64Encoder->encodeString(
+                $this->entryGroupService->decryptField(field: $field, master_password: $request->getMasterPassword())
+            );
+
+            event(new FieldDecrypted(field: $field));
+
             return new Response(
 //                [
 //                    'value_decrypted_base64' =>
-                    $this->base64Encoder->encodeString(
-                        $this->entryGroupService->decryptField($field, $request->getMasterPassword())
-                    )//,
+                    $encodeString//,
 //                    'field' => $field
 //                ]
                 , 200);

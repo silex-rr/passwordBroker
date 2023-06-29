@@ -66,6 +66,10 @@ Route::middleware('api')->group(function (){
     Route::get('/entryGroups/{entryGroup:entry_group_id}/entries/{entry:entry_id}/fields/{field:field_id}/history',
         [EntryFieldHistoryController::class, 'index']
     )->name('entryFieldHistory');
+    Route::post('/entryGroups/{entryGroup:entry_group_id}/entries/{entry:entry_id}/fields/{field:field_id}/history/'
+        . '{fieldEditLog:field_edit_log_id}/decrypted',
+        [EntryFieldHistoryController::class, 'showDecrypted'])
+        ->name('entryFieldHistoryDecrypted');
 
     Route::post('/import', [ImportController::class, 'store'])
         ->name('import');

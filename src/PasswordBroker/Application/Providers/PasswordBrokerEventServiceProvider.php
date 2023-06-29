@@ -4,6 +4,7 @@ namespace PasswordBroker\Application\Providers;
 
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 use PasswordBroker\Application\Events\FieldCreated;
+use PasswordBroker\Application\Events\FieldDecrypted;
 use PasswordBroker\Application\Events\FieldUpdated;
 use PasswordBroker\Application\Listeners\LogFieldChanges;
 
@@ -19,6 +20,9 @@ class PasswordBrokerEventServiceProvider extends ServiceProvider
             LogFieldChanges::class,
         ],
         FieldCreated::class => [
+            LogFieldChanges::class
+        ],
+        FieldDecrypted::class => [
             LogFieldChanges::class
         ]
     ];

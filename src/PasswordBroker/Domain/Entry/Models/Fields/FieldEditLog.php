@@ -69,7 +69,8 @@ class FieldEditLog extends Model
     ];
     protected $hidden = [
         'value_encrypted',
-        'initialization_vector'
+        'initialization_vector',
+        'type'
     ];
 
     public function field(): BelongsTo
@@ -77,7 +78,7 @@ class FieldEditLog extends Model
         return $this->morphTo(__FUNCTION__, 'type', 'field_id', 'field_id');
     }
 
-    public function updatedBy(): BelongsTo
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class, 'updated_by', 'user_id');
     }
