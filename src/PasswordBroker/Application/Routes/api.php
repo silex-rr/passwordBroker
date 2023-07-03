@@ -5,6 +5,7 @@ use PasswordBroker\Application\Http\Controllers\Api\EntryController;
 use PasswordBroker\Application\Http\Controllers\Api\EntryFieldController;
 use PasswordBroker\Application\Http\Controllers\Api\EntryFieldHistoryController;
 use PasswordBroker\Application\Http\Controllers\Api\EntryGroupController;
+use PasswordBroker\Application\Http\Controllers\Api\EntryGroupHistoryController;
 use PasswordBroker\Application\Http\Controllers\Api\EntryGroupUserController;
 use PasswordBroker\Application\Http\Controllers\Api\ImportController;
 
@@ -27,6 +28,9 @@ Route::middleware('api')->group(function (){
     Route::post('/entryGroups', [EntryGroupController::class, 'store']);
     Route::get('/entryGroups/{entryGroup:entry_group_id}', [EntryGroupController::class, 'show'])
         ->name('entryGroup');
+    Route::get('/entryGroups/{entryGroup:entry_group_id}/history', [EntryGroupHistoryController::class, 'index'])
+        ->name('entryGroupHistory');
+
     Route::put('/entryGroups/{entryGroup:entry_group_id}', [EntryGroupController::class, 'update']);
     Route::patch('/entryGroups/{entryGroup:entry_group_id}', [EntryGroupController::class, 'move']);
     Route::delete('/entryGroups/{entryGroup:entry_group_id}', [EntryGroupController::class, 'destroy']);

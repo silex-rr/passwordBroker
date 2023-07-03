@@ -20,6 +20,7 @@ use PasswordBroker\Application\Events\FieldUpdated;
 use PasswordBroker\Domain\Entry\Models\Attributes\EntryId as EntryIdAttribute;
 use PasswordBroker\Domain\Entry\Models\Casts\EntryId;
 use PasswordBroker\Domain\Entry\Models\Entry;
+use PasswordBroker\Domain\Entry\Models\EntryGroup;
 use PasswordBroker\Domain\Entry\Models\Fields\Casts\CreatedBy;
 use PasswordBroker\Domain\Entry\Models\Fields\Casts\FieldId;
 use PasswordBroker\Domain\Entry\Models\Fields\Casts\FileMime;
@@ -202,4 +203,8 @@ abstract class Field extends Model
         );
     }
 
+//    public function scopeBelongToGroup(Builder $query, EntryGroup $entryGroup): void
+//    {
+//        $query->where('')
+//    }
 }
