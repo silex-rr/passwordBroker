@@ -11,7 +11,7 @@ use PasswordBroker\Application\Services\EntryGroupService;
 use PasswordBroker\Domain\Entry\Models\Entry;
 use PasswordBroker\Domain\Entry\Models\EntryGroup;
 use PasswordBroker\Domain\Entry\Models\Fields\Field;
-use PasswordBroker\Domain\Entry\Models\Fields\FieldEditLog;
+use PasswordBroker\Domain\Entry\Models\Fields\EntryFieldHistory;
 use phpseclib3\Exception\NoKeyLoadedException;
 use Symfony\Component\Mime\Encoder\Base64Encoder;
 
@@ -28,21 +28,21 @@ class EntryFieldHistoryController extends Controller
 
     public function index(EntryGroup $entryGroup, Entry $entry, Field $field): JsonResponse
     {
-        return new JsonResponse($field->fieldEditLogs()->with('User')->orderByDesc('created_at')->get(), 200);
+        return new JsonResponse($field->fieldHistories()->with('User')->orderByDesc('created_at')->get(), 200);
     }
 
     public function showDecrypted(
-        EntryGroup $entryGroup,
-        Entry $entry,
-        Field $field,
-        FieldEditLog $fieldEditLog,
+        EntryGroup                 $entryGroup,
+        Entry                      $entry,
+        Field                      $field,
+        EntryFieldHistory          $fieldHistory,
         EntryFieldDecryptedRequest $request
     ): JsonResponse|Response
     {
         try {
             return new Response(
                 $this->base64Encoder->encodeString(
-                    $this->entryGroupService->decryptFieldEditLog($fieldEditLog, $request->getMasterPassword())
+                    $this->entryGroupService->decryptFieldEditLog($fieldHistory, $request->getMasterPassword())
                 )
                 , 200);
         } catch (NoKeyLoadedException $exception) {

@@ -11,19 +11,19 @@ use PasswordBroker\Application\Events\FieldUpdated;
 use PasswordBroker\Application\Services\EntryGroupService;
 use PasswordBroker\Domain\Entry\Models\Entry;
 use PasswordBroker\Domain\Entry\Models\EntryGroup;
-use PasswordBroker\Domain\Entry\Models\Fields\FieldEditLog;
+use PasswordBroker\Domain\Entry\Models\Fields\EntryFieldHistory;
 use PasswordBroker\Domain\Entry\Models\Fields\Password;
 use PasswordBroker\Domain\Entry\Services\AddEntry;
 use PasswordBroker\Infrastructure\Validation\Handlers\EntryValidationHandler;
 use Tests\Feature\PasswordBroker\Application\PasswordHelper;
 use Tests\TestCase;
 
-class FieldEditLogTest extends TestCase
+class FieldHistoryTest extends TestCase
 {
     use RefreshDatabase;
     use WithFaker;
     use PasswordHelper;
-    public function test_a_user_can_see_field_edit_logs(): void
+    public function test_a_user_can_see_field_history(): void
     {
         /**
          * @var EntryGroup $entryGroup
@@ -69,10 +69,10 @@ class FieldEditLogTest extends TestCase
         $password_str_updated = $entryGroupService->decryptField($password_updated, UserFactory::MASTER_PASSWORD);
 
         $this->assertEquals($password_str_new, $password_str_updated);
-        $fieldEditLogsQuery = $password_updated->fieldEditLogs()->where('event_type', FieldUpdated::EVENT_TYPE);
+        $fieldEditLogsQuery = $password_updated->fieldHistories()->where('event_type', FieldUpdated::EVENT_TYPE);
         $this->assertEquals(1, $fieldEditLogsQuery->count());
         /**
-         * @var FieldEditLog $fieldEditLog
+         * @var EntryFieldHistory $fieldEditLog
          */
         $fieldEditLog = $fieldEditLogsQuery->first();
         $this->assertEquals($fieldEditLog->login->getValue(), $login_new);

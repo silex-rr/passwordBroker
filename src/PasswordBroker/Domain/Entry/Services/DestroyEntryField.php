@@ -19,6 +19,7 @@ class DestroyEntryField implements ShouldQueue
         protected Field $field,
         protected Entry $entry,
         protected EntryGroup $entryGroup,
+        protected string $master_password
     )
     {
     }
@@ -26,6 +27,7 @@ class DestroyEntryField implements ShouldQueue
 
     public function handle(): void
     {
+
         $this->field->delete();
         event(new FieldWasDestroyed(field: $this->field, entry: $this->entry, entryGroup: $this->entryGroup));
     }

@@ -13,6 +13,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use PasswordBroker\Application\Events\FieldCreated;
+use PasswordBroker\Application\Events\FieldForceDeleted;
+use PasswordBroker\Application\Events\FieldRestored;
+use PasswordBroker\Application\Events\FieldTrashed;
 use PasswordBroker\Application\Events\FieldUpdated;
 use PasswordBroker\Domain\Entry\Models\Attributes\EntryId as EntryIdAttribute;
 use PasswordBroker\Domain\Entry\Models\Casts\EntryId;
@@ -106,8 +109,9 @@ abstract class Field extends Model
 //        'saving' => FieldSave::class,
         'created' => FieldCreated::class,
         'updated' => FieldUpdated::class,
-        'trashed' => FieldUpdated::class,
-        'restored' => FieldUpdated::class,
+        'trashed' => FieldTrashed::class,
+        'restored' => FieldRestored::class,
+        'forceDeleted' => FieldForceDeleted::class,
     ];
 
     public static function create(
@@ -155,9 +159,9 @@ abstract class Field extends Model
         return $this->belongsTo(Entry::class, 'entry_id', 'entry_id');
     }
 
-    public function fieldEditLogs(): MorphMany
+    public function fieldHistories(): MorphMany
     {
-        return $this->morphMany(FieldEditLog::class, 'field', 'type', 'field_id');
+        return $this->morphMany(EntryFieldHistory::class, 'field', 'type', 'field_id');
     }
 
     public function createdBy(): BelongsTo

@@ -11,7 +11,7 @@ use PasswordBroker\Domain\Entry\Models\Fields\Attributes\IsDeleted;
 use PasswordBroker\Domain\Entry\Models\Fields\Attributes\Login;
 use PasswordBroker\Domain\Entry\Models\Fields\Attributes\ValueEncrypted;
 use PasswordBroker\Domain\Entry\Models\Fields\Field;
-use PasswordBroker\Domain\Entry\Models\Fields\FieldEditLog;
+use PasswordBroker\Domain\Entry\Models\Fields\EntryFieldHistory;
 use PasswordBroker\Domain\Entry\Models\Fields\File;
 use PasswordBroker\Domain\Entry\Models\Fields\Password;
 
@@ -35,7 +35,7 @@ class LogFieldChanges
      */
     public function handle(FieldEvent $event): void
     {
-        $fieldEditLog = new FieldEditLog();
+        $fieldEditLog = new EntryFieldHistory();
         $fieldEditLog->field_id = $event->field->field_id;
         $fieldEditLog->title = $event->field->title;
         $fieldEditLog->type = Field::getRelated()[$event->field->getType()];

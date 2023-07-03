@@ -3,16 +3,15 @@
 namespace PasswordBroker\Application\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use Identity\Domain\User\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
 use PasswordBroker\Application\Events\FieldDecrypted;
 use PasswordBroker\Application\Http\Requests\EntryFieldDecryptedRequest;
+use PasswordBroker\Application\Http\Requests\EntryFieldDestroyRequest;
 use PasswordBroker\Application\Http\Requests\EntryFieldStoreRequest;
 use PasswordBroker\Application\Http\Requests\EntryFieldUpdateRequest;
 use PasswordBroker\Application\Services\EncryptionService;
 use PasswordBroker\Application\Services\EntryGroupService;
-use PasswordBroker\Domain\Entry\Events\FieldWasDecrypted;
 use PasswordBroker\Domain\Entry\Models\Entry;
 use PasswordBroker\Domain\Entry\Models\EntryGroup;
 use PasswordBroker\Domain\Entry\Models\Fields\Field;
@@ -127,12 +126,24 @@ class EntryFieldController extends Controller
         return new JsonResponse($result, 200);
     }
 
-    public function destroy(EntryGroup $entryGroup, Entry $entry, Field $field): JsonResponse
+    public function destroy(EntryGroup $entryGroup, Entry $entry, Field $field, EntryFieldDestroyRequest $request): JsonResponse
     {
+        try {
+                $this->entryGroupService->decryptField(field: $field, master_password: $request->getMasterPassword());
+        } catch (NoKeyLoadedException $exception) {
+            return new JsonResponse([
+                'message' => "MasterPassword is invalid",
+                'errors' => [
+                    'master_password' => 'invalid',
+                ]
+            ], 422);
+        }
+
         $result = $this->dispatchSync(new DestroyEntryField(
             field: $field,
             entry: $entry,
-            entryGroup: $entryGroup
+            entryGroup: $entryGroup,
+            master_password: $request->master_password
         ));
 
         return new JsonResponse($result, 200);

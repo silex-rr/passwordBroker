@@ -31,12 +31,12 @@ use PasswordBroker\Domain\Entry\Models\Fields\Casts\ValueEncrypted;
  * @property UserIdAttribute $updated_by
  * @property Login|null $login
  */
-class FieldEditLog extends Model
+class EntryFieldHistory extends Model
 {
     use ModelDomainConstructor;
     use HasUuids;
 
-    public $table = 'entry_field_edit_logs';
+    public $table = 'entry_field_history';
     public $incrementing = false;
     public $keyType = 'string';
     protected $primaryKey = 'field_edit_log_id';

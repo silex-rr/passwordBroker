@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Auth;
 use PasswordBroker\Domain\Entry\Models\Attributes\MaterializedPath;
 use PasswordBroker\Domain\Entry\Models\EntryGroup;
 use PasswordBroker\Domain\Entry\Models\Fields\Field;
-use PasswordBroker\Domain\Entry\Models\Fields\FieldEditLog;
+use PasswordBroker\Domain\Entry\Models\Fields\EntryFieldHistory;
 use RuntimeException;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
@@ -210,11 +210,11 @@ class EntryGroupService
     }
 
     /**
-     * @param FieldEditLog $fieldEditLog
+     * @param EntryFieldHistory $fieldEditLog
      * @param string $master_password
      * @return string
      */
-    public function decryptFieldEditLog(FieldEditLog $fieldEditLog, string $master_password): string
+    public function decryptFieldEditLog(EntryFieldHistory $fieldEditLog, string $master_password): string
     {
         /**
          * @var Field $field
