@@ -11,6 +11,6 @@ class EntryGroupHistoryController extends Controller
 {
     public function index(EntryGroup $entryGroup): JsonResponse
     {
-        return new JsonResponse(EntryFieldHistory::with('field')->belongToEntryGroup($entryGroup)->get());
+        return new JsonResponse(EntryFieldHistory::with(['field.entry', 'user'])->belongToEntryGroup($entryGroup)->get());
     }
 }
