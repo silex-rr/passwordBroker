@@ -16,8 +16,7 @@ use Illuminate\Support\Facades\Route;
 */
 
 //Route::get('/', [User::class, 'index']);
-
-Route::middleware('api')->group(function () {
+$routes = static function () {
     Route::post('/login', [UserAuthController::class, 'login'])
         ->name('login');
     Route::get('/logout', [UserAuthController::class, 'logout'])
@@ -28,6 +27,10 @@ Route::middleware('api')->group(function () {
 
     Route::get('/user/{user:user_id}', [UserController::class, 'show'])
         ->name('user');
+
+    Route::post('/token', [UserAuthController::class, 'getToken'])
+        ->name('user_get_token');
+
     Route::delete('/user/{user:user_id}', [UserController::class, 'destroy']);
     Route::put('/user/{user:user_id}', [UserController::class, 'update']);
 
@@ -36,5 +39,9 @@ Route::middleware('api')->group(function () {
 
     Route::get('/me', [UserAuthController::class, 'show'])
         ->name('show_me');
-});
+};
+
+//Route::middleware('api')->group($routes);
+//Route::middleware('auth:sanctum')->group($routes);
+Route::middleware('auth.sanctum.cookie')->group($routes);
 

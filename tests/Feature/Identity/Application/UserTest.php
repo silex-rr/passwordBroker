@@ -224,6 +224,57 @@ class UserTest extends TestCase
         $this->assertTrue($user_target->name->equals($user_targetDB->name));
     }
 
+    public function test_a_user_can_get_a_token(): void
+    {
+        /**
+         * @var User $user_1
+         * @var User $user_2
+         */
+        $user_1 = User::factory()->create(['name' => new UserName('user_john')]);
+        $user_2 = User::factory()->create(['name' => new UserName('user_alex')]);
+
+        $entryGroup = EntryGroup::factory()->create();
+        $entryGroup->addAdmin($user_1, $this->faker->password(128,128));
+
+        $this->actingAs($user_1);
+        $token = '';
+        $this->postJson(
+            route('user_get_token', ['token_name' => 'win_adadadq32343r'])
+        )->assertStatus(200)
+            ->assertJson(function (AssertableJson $json) use(&$token) {
+                $json->has('token');
+                $token = $json->toArray()['token'];
+            });
+        $this->get(route('logout'));
+        $this->assertGuest();
+//array:2 [ // vendor\laravel\framework\src\Illuminate\Testing\Fluent\Concerns\Debugging.php:28
+//  "message" => "guest"
+//  "user" => null
+
+        $this->getJson(route('show_me'))->assertStatus(200)
+            ->assertJson(fn (AssertableJson $json)
+                => $json->where('message', 'guest')->etc()
+            );
+
+        $this->getJson(route('show_me'),
+            [
+                'Authorization' => 'Bearer ' . $token
+            ]
+        )->assertStatus(200)
+            ->assertJson(fn (AssertableJson $json)
+            => $json->where('message', 'loggedIn')->etc()
+            );
+
+        $this->getJson(
+            route('entryGroup', ['entryGroup' => $entryGroup->entry_group_id->getValue()]),
+            [
+                'Bearer ' . $token
+            ]
+        )
+            ->assertStatus(200);
+    }
+
+
     public function test_search(): void
     {
         /**

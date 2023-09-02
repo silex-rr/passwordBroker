@@ -5,9 +5,11 @@ namespace Identity\Application\Providers;
 use App\Common\Application\Traits\ProviderMergeConfigRecursion;
 use Identity\Application\Http\Sessions\DatabaseSessionHandler;
 use Identity\Domain\User\Models\User;
+use Identity\Domain\User\Models\UserAccessToken;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\ServiceProvider;
+use Laravel\Sanctum\Sanctum;
 
 class IdentityServiceProvider extends ServiceProvider
 {
@@ -70,6 +72,7 @@ class IdentityServiceProvider extends ServiceProvider
 
 
         $this->loadMigrationsFrom($this->base_path . $this->migrations_dir);
+        Sanctum::usePersonalAccessTokenModel(UserAccessToken::class);
     }
 
     public function bindRoutes(): void

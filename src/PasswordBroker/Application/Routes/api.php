@@ -19,7 +19,8 @@ use PasswordBroker\Application\Http\Controllers\Api\ImportController;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
-Route::middleware('api')->group(function (){
+//Route::middleware('api')->group(function () {
+Route::middleware('auth.sanctum.cookie')->group(function (){
 
     Route::get('/entryGroups', [EntryGroupController::class, 'index'])
         ->name('entryGroups');

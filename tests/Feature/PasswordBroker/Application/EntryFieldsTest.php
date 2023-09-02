@@ -824,7 +824,12 @@ class EntryFieldsTest extends TestCase
         );
 
         $this->deleteJson(
-            route('entryField', ['entryGroup' => $entryGroup, 'entry' => $entry, 'field' => $password]),
+            route('entryField', [
+                'entryGroup' => $entryGroup,
+                'entry' => $entry,
+                'field' => $password,
+                'master_password' => UserFactory::MASTER_PASSWORD,
+                ]),
         )->assertStatus(200);
 
         $this->assertFalse(
@@ -864,7 +869,12 @@ class EntryFieldsTest extends TestCase
         );
 
         $this->deleteJson(
-            route('entryField', ['entryGroup' => $entryGroup, 'entry' => $entry, 'field' => $password]),
+            route('entryField', [
+                'entryGroup' => $entryGroup,
+                'entry' => $entry,
+                'field' => $password,
+                'master_password' => UserFactory::MASTER_PASSWORD,
+                ]),
         )->assertStatus(200);
 
         $this->assertFalse(

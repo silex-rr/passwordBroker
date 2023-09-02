@@ -3,7 +3,9 @@
 namespace Identity\Application\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use Identity\Application\Http\Requests\GetOrCreateTokenRequest;
 use Identity\Domain\User\Models\User;
+use Identity\Domain\User\Services\GetUserToken;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -33,6 +35,26 @@ class UserAuthController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
         return new JsonResponse(['message' => 'Logged Out'], 200);
+    }
+
+    public function getToken(GetOrCreateTokenRequest $request): JsonResponse
+    {
+//        /**
+//         * @var User $user
+//         */
+////        $user = Auth::user();
+//
+//        return new JsonResponse([
+////            $user,
+//        $request->user()]);
+
+
+        $token = $this->dispatchSync(new GetUserToken(
+            user: $request->user(),
+            token_name: $request->get('token_name'),
+        ));
+
+        return new JsonResponse(['token' => $token]);
     }
 
     public function show(): JsonResponse
