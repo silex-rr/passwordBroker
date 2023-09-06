@@ -88,7 +88,7 @@ abstract class BaseRepository implements RepositoryInterface, CriteriaHandlerInt
     public function paginate(int $perPage = 1, array $columns = ['*'], $pageName = 'page', int $page = 1): Paginator
     {
         $this->applyCriteria();
-        return $this->builder->simplePaginate($perPage, ['*'], $pageName, $page);
+        return $this->builder->paginate($perPage, ['*'], $pageName, $page);
     }
 
     public function find(int $id, array $columns)
