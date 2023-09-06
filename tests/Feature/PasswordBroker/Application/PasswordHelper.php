@@ -18,7 +18,7 @@ trait PasswordHelper
      * @param string $password_str
      * @return Password
      */
-    public function getPasswordHelper(User $admin, EntryGroup $entryGroup, Entry $entry, string $password_str): Password
+    public function getPasswordHelper(User $admin, EntryGroup $entryGroup, Entry $entry, string $password_str, string $title = ''): Password
     {
         /**
          * @var EncryptionService $encryptionService
@@ -39,7 +39,8 @@ trait PasswordHelper
             userId: $admin->user_id,
             password_encrypted: $password_str_encrypted,
             initializing_vector: $iv,
-            login: 'test_login'
+            login: 'test_login',
+            title: $title
         );
 
         $this->assertCount(1,
@@ -47,4 +48,6 @@ trait PasswordHelper
         );
         return $password;
     }
+
+
 }

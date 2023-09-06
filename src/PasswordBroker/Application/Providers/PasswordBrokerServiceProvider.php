@@ -3,14 +3,16 @@
 namespace PasswordBroker\Application\Providers;
 
 use App\Common\Application\Traits\ProviderMergeConfigRecursion;
-use Illuminate\Support\Facades\DB;
+use Identity\Domain\User\Models\User;
+use Illuminate\Auth\Access\Response;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 use PasswordBroker\Application\Observers\EntryGroupObserver;
 use PasswordBroker\Domain\Entry\Models\Entry;
 use PasswordBroker\Domain\Entry\Models\EntryGroup;
-use PasswordBroker\Domain\Entry\Models\Fields\Field;
 use PasswordBroker\Domain\Entry\Models\Fields\EntryFieldHistory;
+use PasswordBroker\Domain\Entry\Models\Fields\Field;
 
 class PasswordBrokerServiceProvider extends ServiceProvider
 {
@@ -35,6 +37,7 @@ class PasswordBrokerServiceProvider extends ServiceProvider
     {
         $this->loadMigrationsFrom($this->base_path . $this->migrations_dir);
         $this->bindRoutes();
+        $this->defineGates();
 
         EntryGroup::observe(EntryGroupObserver::class);
         //Clean domain table prefix
@@ -61,6 +64,15 @@ class PasswordBrokerServiceProvider extends ServiceProvider
     public function bindRoutes(): void
     {
         Route::bind('entryGroup', fn(string $entry_group_id) => EntryGroup::where('entry_group_id', $entry_group_id)->firstOrFail());
+//        Route::bind('entryGroup', function (string $entry_group_id) {
+//
+//            try{
+//                return EntryGroup::where('entry_group_id', $entry_group_id)->firstOrFail();
+//            } catch (\Exception $exception) {
+//                dd(Route::current());
+//            }
+//
+//        });
         Route::bind('entryGroupExclude', fn(string $entry_group_id) => EntryGroup::where('entry_group_id', $entry_group_id)->firstOrFail());
         Route::bind('entryGroupInclude', fn(string $entry_group_id) => EntryGroup::where('entry_group_id', $entry_group_id)->firstOrFail());
 
@@ -69,4 +81,12 @@ class PasswordBrokerServiceProvider extends ServiceProvider
         Route::bind('fieldEditLog', fn(string $field_edit_log_id) => EntryFieldHistory::where('field_edit_log_id', $field_edit_log_id)->firstOrFail());
     }
 
+    public function defineGates(): void
+    {
+        Gate::define('field-history-search-any', static fn(User $user) =>
+            $user->is_admin->getValue()
+                ? Response::allow()
+                : Response::deny('You must be a system administrator')
+        );
+    }
 }
