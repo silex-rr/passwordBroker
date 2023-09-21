@@ -18,6 +18,7 @@ use PasswordBroker\Domain\Entry\Services\RemoveAdminFromEntryGroup;
 use PasswordBroker\Domain\Entry\Services\RemoveMemberFromEntryGroup;
 use PasswordBroker\Domain\Entry\Services\RemoveModeratorFromEntryGroup;
 use PasswordBroker\Infrastructure\Validation\Handlers\EntryGroupUserValidationHandler;
+use phpseclib3\Exception\NoKeyLoadedException;
 use RuntimeException;
 
 class EntryGroupUserController extends Controller
@@ -66,11 +67,21 @@ class EntryGroupUserController extends Controller
                 $job = new AddMemberToEntryGroup(...$params);
                 break;
         }
+
         if (!isset($job)) {
             throw new RuntimeException("Undefined Role Service");
         }
 
-        $this->dispatchSync($job);
+        try {
+            $this->dispatchSync($job);
+        }  catch (NoKeyLoadedException $exception) {
+            return new JsonResponse([
+                'message' => "MasterPassword is invalid",
+                'errors' => [
+                    'master_password' => 'invalid',
+                ]
+            ], 422);
+        }
         return new JsonResponse(null, 200);
     }
 
