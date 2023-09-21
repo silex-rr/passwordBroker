@@ -52,6 +52,7 @@ class UserController extends Controller
     public function update(User $user, UpdateUserRequest $request): JsonResponse
     {
 //        $all = $request->all();
+//        dd($request->get('username'));
 
         $this->dispatchSync(new UpdateUser(
             userTarget: $user,

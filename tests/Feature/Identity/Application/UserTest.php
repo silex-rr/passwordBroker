@@ -81,14 +81,14 @@ class UserTest extends TestCase
         $system_admin->is_admin = new IsAdmin(true);
         $system_admin->save();
 
-        $this->putJson(route('user', ['user' => $user]), ['user' => $attributes])->assertStatus(200);
+        $this->putJson(route('user', ['user' => $user]), $attributes)->assertStatus(200);
 
         /**
          * @var User $userDB
          */
         $userDB = User::where('user_id', $user->user_id->getValue())->firstOrFail();
 
-        $this->assertEquals($userDB->name->getValue(), $attributes['name']);
+        $this->assertEquals($userDB->name->getValue(), $attributes['username']);
     }
 
 

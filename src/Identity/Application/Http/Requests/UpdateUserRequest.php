@@ -23,18 +23,19 @@ class UpdateUserRequest extends FormRequest
         $userTarget = request()?->route('user');
 
         return [
-            'user.email' => [
+            'email' => [
                 'required',
                 'email',
                 Rule::unique($userTarget->getTableFullName(), 'email')->ignore($userTarget)
             ],
 
-            'user.username' => [
-                    'required',
-                    'min:1',
-                    Rule::unique($userTarget->getTableFullName(), 'name')->ignore($userTarget)
-                ],
-            'user.password' => [
+            'username' => [
+                'required',
+                'min:1',
+                Rule::unique($userTarget->getTableFullName(), 'name')->ignore($userTarget)
+            ],
+
+            'password' => [
                 'nullable',
                 'confirmed',
                 Password::min(5)->letters()->numbers()
