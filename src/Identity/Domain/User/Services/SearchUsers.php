@@ -5,6 +5,7 @@ namespace Identity\Domain\User\Services;
 use Identity\Domain\User\Models\User;
 use Identity\Infrastructure\Criteria\CriteriaInEntryGroups;
 use Identity\Infrastructure\Criteria\CriteriaNameContains;
+use Identity\Infrastructure\Criteria\CriteriaNameOrEmailContains;
 use Identity\Infrastructure\Criteria\CriteriaNotInEntryGroups;
 use Identity\Infrastructure\Repository\UserRepository;
 use Illuminate\Contracts\Pagination\Paginator;
@@ -38,7 +39,7 @@ class SearchUsers implements ShouldQueue
     {
         $userRepository = new UserRepository(app());
         if (!empty($this->query)) {
-            $userRepository->pushCriteria(new CriteriaNameContains($this->query));
+            $userRepository->pushCriteria(new CriteriaNameOrEmailContains($this->query));
         }
         if ($this->entryGroupExclude) {
             $userRepository->pushCriteria(new CriteriaNotInEntryGroups([$this->entryGroupExclude]));
