@@ -9,6 +9,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Testing\Fluent\AssertableJson;
 use PasswordBroker\Application\Services\EntryGroupService;
+use PasswordBroker\Domain\Entry\Models\Attributes\Title;
 use PasswordBroker\Domain\Entry\Models\Entry;
 use PasswordBroker\Domain\Entry\Models\EntryGroup;
 use PasswordBroker\Domain\Entry\Services\AddEntry;
@@ -37,9 +38,11 @@ class EntryGroupHistoryTest extends TestCase
         $entryGroupAnother = EntryGroup::factory()->create();
         $system_admin = User::factory()->create(['is_admin' => new IsAdmin(true)]);
         $admin = User::factory()->create();
-        $entry1 = Entry::factory()->make(['entry_group_id' => null]);
-        $entry2 = Entry::factory()->make(['entry_group_id' => null]);
-        $entry3 = Entry::factory()->make(['entry_group_id' => null]);
+        $entryTitle = 'entry_' . $this->faker->word;
+        $entryFieldTitle = 'field_' . $this->faker->word;
+        $entry1 = Entry::factory()->make(['entry_group_id' => null, 'title' => new Title($entryTitle . '_1')]);
+        $entry2 = Entry::factory()->make(['entry_group_id' => null, 'title' => new Title($entryTitle . '_2')]);
+        $entry3 = Entry::factory()->make(['entry_group_id' => null, 'title' => new Title($entryTitle . '_3')]);
         $entryGroupService = app(EntryGroupService::class);
 
         $entryGroupService->addUserToGroupAsAdmin($admin, $entryGroup);
@@ -53,7 +56,7 @@ class EntryGroupHistoryTest extends TestCase
          */
         $entry1 = Entry::where('title', $entry1->title)->firstOrFail();
         $password_1_str = $this->faker->password(12, 32);
-        $password_1 = $this->getPasswordHelper($admin, $entryGroup, $entry1, $password_1_str, $this->faker->word);
+        $password_1 = $this->getPasswordHelper($admin, $entryGroup, $entry1, $password_1_str, $entryFieldTitle . '_1');
         $password_1_str_new = $password_1_str . '_new';
         $login_new = $this->faker->word();
         $this->putJson(
@@ -70,7 +73,7 @@ class EntryGroupHistoryTest extends TestCase
          */
         $entry2 = Entry::where('title', $entry2->title)->firstOrFail();
         $password_2_str = $this->faker->password(12, 32);
-        $password_2 = $this->getPasswordHelper($admin, $entryGroup, $entry2, $password_2_str, $this->faker->word);
+        $password_2 = $this->getPasswordHelper($admin, $entryGroup, $entry2, $password_2_str, $entryFieldTitle . '_2');
         $password_2_str_new = $password_2_str . '_new';
         $login_new = $this->faker->word();
         $this->putJson(
@@ -115,6 +118,16 @@ class EntryGroupHistoryTest extends TestCase
                     => $history->where('field.entry_id', $filedIdValidator)
                     ->etc()
                 )->etc()
+            );
+
+        $q = $password_1->title->getValue();
+        $this->getJson(route('entryFieldHistorySearch', ['q' => $q]))
+            ->assertStatus(200)
+            ->assertJson(fn (AssertableJson $json)
+            => $json->has('data', 2, fn (AssertableJson $history)
+            => $history->where('field.entry_id', $entry1->entry_id->getValue())
+                ->etc()
+            )->etc()
             );
     }
 

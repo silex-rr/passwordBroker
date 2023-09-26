@@ -2,10 +2,6 @@
 
 namespace PasswordBroker\Application\Services;
 
-use Identity\Infrastructure\Criteria\CriteriaInEntryGroups;
-use Identity\Infrastructure\Criteria\CriteriaNameContains;
-use Identity\Infrastructure\Criteria\CriteriaNotInEntryGroups;
-use Identity\Infrastructure\Repository\UserRepository;
 use Illuminate\Contracts\Pagination\Paginator;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -46,6 +42,7 @@ class SearchEntryFieldHistory implements ShouldQueue
 //        }
 //        $userRepository->applyCriteria();
 //        $userRepository->query()->dd();
+
         return $repository->paginate(perPage: $this->perPage, columns: ['*'], pageName: 'page', page: $this->page);
 
 //        $builder = User::query();

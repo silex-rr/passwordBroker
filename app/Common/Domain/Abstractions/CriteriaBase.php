@@ -2,11 +2,9 @@
 
 namespace App\Common\Domain\Abstractions;
 
-use App\Common\Domain\Contracts\CriteriaHandlerInterface;
 use App\Common\Domain\Contracts\CriteriaInterface;
 use App\Common\Domain\Contracts\RepositoryInterface;
 use Illuminate\Database\Eloquent\Model;
-use Ramsey\Uuid\Uuid;
 
 abstract class CriteriaBase implements CriteriaInterface
 {
@@ -14,6 +12,8 @@ abstract class CriteriaBase implements CriteriaInterface
 
     protected function makeTableAlias(): string
     {
-        return Uuid::uuid4();
+        return 'A' . bin2hex(random_bytes(10)) . 'S';
+
+//        return str_replace('-', '_', Uuid::uuid4());
     }
 }

@@ -68,7 +68,7 @@ Route::middleware('auth.sanctum.cookie')->group(function (){
     Route::delete('/entryGroups/{entryGroup:entry_group_id}/entries/{entry:entry_id}/fields/{field:field_id}',
         [EntryFieldController::class, 'destroy']);
 
-    Route::get('/entryGroupAAAA/history', [EntryGroupHistoryController::class, 'search'])
+    Route::get('/entryGroup/history', [EntryGroupHistoryController::class, 'search'])
         ->can('field-history-search-any')
         ->name('entryFieldHistorySearch');
 

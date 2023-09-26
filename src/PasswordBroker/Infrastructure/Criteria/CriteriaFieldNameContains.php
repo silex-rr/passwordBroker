@@ -2,11 +2,9 @@
 
 namespace PasswordBroker\Infrastructure\Criteria;
 
-use App\Common\Domain\Abstractions\CriteriaBase;
 use App\Common\Domain\Contracts\RepositoryInterface;
 use Illuminate\Database\Eloquent\Model;
 use PasswordBroker\Domain\Entry\Models\Fields\EntryFieldHistory;
-use PasswordBroker\Infrastructure\Repositories\EntryFieldHistoryRepository;
 
 class CriteriaFieldNameContains extends CriteriaEntryField
 {
@@ -29,6 +27,7 @@ class CriteriaFieldNameContains extends CriteriaEntryField
          */
 
         $builder = $repository->query();
+
         $builder->join(
             $this->entryFieldTable . ' as ' . $this->entryFieldTableAlias,
                 $this->entryFieldTableAlias . '.field_id',
