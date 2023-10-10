@@ -39,6 +39,10 @@ $routes = static function () {
 
     Route::get('/me', [UserAuthController::class, 'show'])
         ->name('show_me');
+
+    Route::get('/getPrivateRsa', [UserController::class, 'getPrivateRsa'])
+        ->can('get-self-rsa-private-key')
+        ->name('user_get_rsa_private_key');
 };
 
 //Route::middleware('api')->group($routes);

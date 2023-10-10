@@ -3,6 +3,7 @@
 namespace Identity\Application;
 
 use Doctrine\DBAL\Schema\Sequence;
+use Identity\Application\Services\RsaService;
 use Identity\Domain\User\Models\Attributes\IsAdmin;
 use Identity\Domain\User\Models\Attributes\UserName;
 use Identity\Domain\User\Models\User;
@@ -11,6 +12,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Testing\Fluent\AssertableJson;
 use PasswordBroker\Domain\Entry\Models\EntryGroup;
+use Symfony\Component\Mime\Encoder\Base64Encoder;
 use Tests\TestCase;
 use function Psy\debug;
 
@@ -362,16 +364,29 @@ class UserTest extends TestCase
             ->create();
 
         $this->actingAs($admin);
-        
-        $this->getJson('user_get_rsa_private_key')
+
+        /**
+         * @var RsaService $rsaService
+         */
+        $rsaService = app(RsaService::class);
+        $userPrivateKeyString = $rsaService->getUserPrivateKeyString($admin->user_id);
+        /**
+         * @var Base64Encoder $base64Encoder
+         */
+        $base64Encoder = app(Base64Encoder::class);
+        $userPrivateKeyStringBase64 = $base64Encoder->encodeString($userPrivateKeyString);
+
+
+        $this->getJson(route('user_get_rsa_private_key'))
             ->assertStatus(200)
-            ->assertJson(fn (AssertableJson $json) 
-                => $json->where('rsa_private_key_base64', '')
+            ->assertJson(fn (AssertableJson $json)
+                => $json->where('rsa_private_key_base64', $userPrivateKeyStringBase64)
+                    ->etc()
             );
-        
+
         $this->actingAs($user);
-        
-        $this->getJson('user_get_rsa_private_key')
+
+        $this->getJson(route('user_get_rsa_private_key'))
             ->assertStatus(403);
     }
 }
