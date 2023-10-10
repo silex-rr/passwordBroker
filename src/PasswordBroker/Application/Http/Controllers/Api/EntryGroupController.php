@@ -46,6 +46,12 @@ class EntryGroupController extends Controller
 
         return new JsonResponse($user->userOf(), 200);
     }
+
+    public function indexWithFields(): JsonResponse
+    {
+
+        return new JsonResponse($this->entryGroupService->groupsWithFields(), 200);
+    }
     public function indexAsTree(): JsonResponse
     {
         /**

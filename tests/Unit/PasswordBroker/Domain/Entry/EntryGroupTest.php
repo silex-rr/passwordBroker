@@ -118,7 +118,7 @@ class EntryGroupTest extends TestCase
          * @var EntryGroup $entryGroup
          */
         $entryGroup = EntryGroup::factory()->create();
-        $entry = Entry::factory()->create();
+        $entry = Entry::factory()->withEntryGroup()->create();
         $this->assertInstanceOf(HasMany::class, $entryGroup->entries());
 
         $entryGroup->entries()->save($entry);

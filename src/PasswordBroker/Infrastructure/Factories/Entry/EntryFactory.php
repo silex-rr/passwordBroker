@@ -18,14 +18,22 @@ class EntryFactory extends FactoryDomain
      */
     public function definition(): array
     {
-        /**
-         * @var EntryGroup $entryGroup
-         */
-        $entryGroup = EntryGroup::factory()->create();
         return [
             'entry_id' => EntryIdAttribute::fromNative($this->faker->uuid()),
-            'entry_group_id' => EntryGroupId::fromNative($entryGroup->entry_group_id),
             'title' => Title::fromNative($this->faker->word())
         ];
+    }
+
+    public function withEntryGroup(?EntryGroup $entryGroup = null): EntryFactory
+    {
+        if (is_null($entryGroup)) {
+            /**
+             * @var EntryGroup $entryGroup
+             */
+            $entryGroup = EntryGroup::factory()->create();
+        }
+        return $this->state(fn ($attributes) => [
+            'entry_group_id' => EntryGroupId::fromNative($entryGroup->entry_group_id)
+        ]);
     }
 }

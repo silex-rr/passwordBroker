@@ -54,7 +54,8 @@ class AuthSanctumAndCookie
         if (Auth::guard('api')->check()) {
             return $next($request);
         }
+
         Auth::guest();
-        return  $next($request);
+        return $next($request);
     }
 }

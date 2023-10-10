@@ -62,7 +62,7 @@ class EntryTest extends TestCase
          * @var Entry $entry
          * @var EntryGroup $entryGroup
          */
-        $entry = Entry::factory()->create();
+        $entry = Entry::factory()->withEntryGroup()->create();
         $entryGroup = EntryGroup::factory()->create();
         $entry->entryGroup()->dissociate();
         $this->assertNull($entry->entryGroup()->first());
@@ -78,7 +78,7 @@ class EntryTest extends TestCase
          * @var Entry $entry
          * @var User $user
          */
-        $entry = Entry::factory()->create();
+        $entry = Entry::factory()->withEntryGroup()->create();
         $user = User::factory()->create();
 
         $password = $entry->addPassword(
@@ -100,7 +100,7 @@ class EntryTest extends TestCase
          * @var Entry $entry
          * @var User $user
          */
-        $entry = Entry::factory()->create();
+        $entry = Entry::factory()->withEntryGroup()->create();
         $user = User::factory()->create();
 
         $note = $entry->addNote(
@@ -121,7 +121,7 @@ class EntryTest extends TestCase
          * @var Entry $entry
          * @var User $user
          */
-        $entry = Entry::factory()->create();
+        $entry = Entry::factory()->withEntryGroup()->create();
         $user = User::factory()->create();
 
         $link = $entry->addLink(
@@ -141,7 +141,7 @@ class EntryTest extends TestCase
          * @var Entry $entry
          * @var User $user
          */
-        $entry = Entry::factory()->create();
+        $entry = Entry::factory()->withEntryGroup()->create();
         $user = User::factory()->create();
 
         $file = $entry->addFile(

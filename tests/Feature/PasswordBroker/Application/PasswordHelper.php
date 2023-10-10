@@ -12,13 +12,14 @@ use PasswordBroker\Domain\Entry\Models\Fields\Password;
 trait PasswordHelper
 {
     /**
-     * @param User $admin
+     * Add a password field to the EntryGroup
+     * @param User $owner
      * @param EntryGroup $entryGroup
      * @param Entry $entry
      * @param string $password_str
      * @return Password
      */
-    public function getPasswordHelper(User $admin, EntryGroup $entryGroup, Entry $entry, string $password_str, string $title = ''): Password
+    public function getPasswordHelper(User $owner, EntryGroup $entryGroup, Entry $entry, string $password_str, string $title = ''): Password
     {
         /**
          * @var EncryptionService $encryptionService
@@ -29,14 +30,14 @@ trait PasswordHelper
          */
         $rsaService = app(RsaService::class);
         $iv = $encryptionService->generateInitializationVector();
-        $encrypted_aes_password = $admin->userOf()->where('entry_group_id', $entryGroup->entry_group_id)->firstOrFail()->encrypted_aes_password;
-        $privateKey = $rsaService->getUserPrivateKey($admin->user_id, UserFactory::MASTER_PASSWORD);
+        $encrypted_aes_password = $owner->userOf()->where('entry_group_id', $entryGroup->entry_group_id)->firstOrFail()->encrypted_aes_password;
+        $privateKey = $rsaService->getUserPrivateKey($owner->user_id, UserFactory::MASTER_PASSWORD);
         $decrypted_aes_password = $privateKey->decrypt($encrypted_aes_password);
 
         $password_str_encrypted = $encryptionService->encrypt($password_str, $decrypted_aes_password, $iv);
 
         $password = $entry->addPassword(
-            userId: $admin->user_id,
+            userId: $owner->user_id,
             password_encrypted: $password_str_encrypted,
             initializing_vector: $iv,
             login: 'test_login',

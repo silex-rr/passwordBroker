@@ -35,7 +35,7 @@ class EntryFieldsTest extends TestCase
          */
         $entryGroup = EntryGroup::factory()->create();
         $admin = User::factory()->create();
-        $entry = Entry::factory()->make(['entry_group_id' => null]);
+        $entry = Entry::factory()->make();
         $entryGroupService = app(EntryGroupService::class);
 
         $entryGroupService->addUserToGroupAsAdmin($admin, $entryGroup);
@@ -68,7 +68,7 @@ class EntryFieldsTest extends TestCase
          */
         $entryGroup = EntryGroup::factory()->create();
         $admin = User::factory()->create();
-        $entry = Entry::factory()->make(['entry_group_id' => null]);
+        $entry = Entry::factory()->make();
         $entryGroupService = app(EntryGroupService::class);
 
         $entryGroupService->addUserToGroupAsAdmin($admin, $entryGroup);
@@ -97,7 +97,7 @@ class EntryFieldsTest extends TestCase
          */
         $entryGroup = EntryGroup::factory()->create();
         $admin = User::factory()->create();
-        $entry = Entry::factory()->make(['entry_group_id' => null]);
+        $entry = Entry::factory()->make();
         $entryGroupService = app(EntryGroupService::class);
 
         $entryGroupService->addUserToGroupAsAdmin($admin, $entryGroup);
@@ -137,7 +137,7 @@ class EntryFieldsTest extends TestCase
          */
         $entryGroup = EntryGroup::factory()->create();
         $admin = User::factory()->create();
-        $entry = Entry::factory()->make(['entry_group_id' => null]);
+        $entry = Entry::factory()->make();
         $entryGroupService = app(EntryGroupService::class);
 
         $entryGroupService->addUserToGroupAsAdmin($admin, $entryGroup);
@@ -180,7 +180,7 @@ class EntryFieldsTest extends TestCase
          */
         $entryGroup = EntryGroup::factory()->create();
         $admin = User::factory()->create();
-        $entry = Entry::factory()->make(['entry_group_id' => null]);
+        $entry = Entry::factory()->make();
         $entryGroupService = app(EntryGroupService::class);
 
         $entryGroupService->addUserToGroupAsAdmin($admin, $entryGroup);
@@ -215,7 +215,7 @@ class EntryFieldsTest extends TestCase
          */
         $entryGroup = EntryGroup::factory()->create();
         $admin = User::factory()->create();
-        $entry = Entry::factory()->make(['entry_group_id' => null]);
+        $entry = Entry::factory()->make();
         $entryGroupService = app(EntryGroupService::class);
 
         $entryGroupService->addUserToGroupAsAdmin($admin, $entryGroup);
@@ -260,7 +260,7 @@ class EntryFieldsTest extends TestCase
          */
         $entryGroup = EntryGroup::factory()->create();
         [$admin, $moderator] = User::factory()->count(2)->create();
-        $entry = Entry::factory()->make(['entry_group_id' => null]);
+        $entry = Entry::factory()->make();
         $entryGroupService = app(EntryGroupService::class);
 
         $entryGroupService->addUserToGroupAsAdmin($admin, $entryGroup);
@@ -304,7 +304,7 @@ class EntryFieldsTest extends TestCase
          */
         $entryGroup = EntryGroup::factory()->create();
         [$admin, $member] = User::factory()->count(2)->create();
-        $entry = Entry::factory()->make(['entry_group_id' => null]);
+        $entry = Entry::factory()->make();
         $entryGroupService = app(EntryGroupService::class);
 
         $entryGroupService->addUserToGroupAsAdmin($admin, $entryGroup);
@@ -348,7 +348,7 @@ class EntryFieldsTest extends TestCase
          */
         $entryGroup = EntryGroup::factory()->create();
         $admin = User::factory()->create();
-        $entry = Entry::factory()->make(['entry_group_id' => null]);
+        $entry = Entry::factory()->make();
         $entryGroupService = app(EntryGroupService::class);
 
         $entryGroupService->addUserToGroupAsAdmin($admin, $entryGroup);
@@ -388,7 +388,7 @@ class EntryFieldsTest extends TestCase
          */
         $entryGroup = EntryGroup::factory()->create();
         [$admin, $moderator] = User::factory()->count(2)->create();
-        $entry = Entry::factory()->make(['entry_group_id' => null]);
+        $entry = Entry::factory()->make();
         $entryGroupService = app(EntryGroupService::class);
 
         $entryGroupService->addUserToGroupAsAdmin($admin, $entryGroup);
@@ -430,7 +430,7 @@ class EntryFieldsTest extends TestCase
          */
         $entryGroup = EntryGroup::factory()->create();
         [$admin, $member] = User::factory()->count(2)->create();
-        $entry = Entry::factory()->make(['entry_group_id' => null]);
+        $entry = Entry::factory()->make();
         $entryGroupService = app(EntryGroupService::class);
 
         $entryGroupService->addUserToGroupAsAdmin($admin, $entryGroup);
@@ -475,8 +475,7 @@ class EntryFieldsTest extends TestCase
          */
         $entryGroup = EntryGroup::factory()->create();
         [$admin, $member] = User::factory()->count(2)->create();
-        $entry = Entry::factory()->make(['entry_group_id' => null]);
-        $entryGroupService = app(EntryGroupService::class);
+        $entry = Entry::factory()->make();
         /**
          * @var EncryptionService $encryptionService
          */
@@ -534,7 +533,7 @@ class EntryFieldsTest extends TestCase
          */
         $entryGroup = EntryGroup::factory()->create();
         $admin = User::factory()->create();
-        $entry = Entry::factory()->make(['entry_group_id' => null]);
+        $entry = Entry::factory()->make();
         $entryGroupService = app(EntryGroupService::class);
 
         $entryGroupService->addUserToGroupAsAdmin($admin, $entryGroup);
@@ -577,7 +576,7 @@ class EntryFieldsTest extends TestCase
          */
         $entryGroup = EntryGroup::factory()->create();
         [$admin, $moderator] = User::factory()->count(2)->create();
-        $entry = Entry::factory()->make(['entry_group_id' => null]);
+        $entry = Entry::factory()->make();
         $entryGroupService = app(EntryGroupService::class);
 
         $entryGroupService->addUserToGroupAsAdmin($admin, $entryGroup);
@@ -621,7 +620,7 @@ class EntryFieldsTest extends TestCase
          */
         $entryGroup = EntryGroup::factory()->create();
         [$admin, $member] = User::factory()->count(2)->create();
-        $entry = Entry::factory()->make(['entry_group_id' => null]);
+        $entry = Entry::factory()->make();
         $entryGroupService = app(EntryGroupService::class);
 
         $entryGroupService->addUserToGroupAsAdmin($admin, $entryGroup);
@@ -664,7 +663,7 @@ class EntryFieldsTest extends TestCase
          */
         $entryGroup = EntryGroup::factory()->create();
         $admin = User::factory()->create();
-        $entry = Entry::factory()->make(['entry_group_id' => null]);
+        $entry = Entry::factory()->make();
         $entryGroupService = app(EntryGroupService::class);
 
         $entryGroupService->addUserToGroupAsAdmin($admin, $entryGroup);
@@ -713,7 +712,7 @@ class EntryFieldsTest extends TestCase
          */
         $entryGroup = EntryGroup::factory()->create();
         [$admin, $moderator] = User::factory()->count(2)->create();
-        $entry = Entry::factory()->make(['entry_group_id' => null]);
+        $entry = Entry::factory()->make();
         $entryGroupService = app(EntryGroupService::class);
 
         $entryGroupService->addUserToGroupAsAdmin($admin, $entryGroup);
@@ -761,7 +760,7 @@ class EntryFieldsTest extends TestCase
          */
         $entryGroup = EntryGroup::factory()->create();
         [$admin, $member] = User::factory()->count(2)->create();
-        $entry = Entry::factory()->make(['entry_group_id' => null]);
+        $entry = Entry::factory()->make();
         $entryGroupService = app(EntryGroupService::class);
 
         $entryGroupService->addUserToGroupAsAdmin($admin, $entryGroup);
@@ -805,7 +804,7 @@ class EntryFieldsTest extends TestCase
          */
         $entryGroup = EntryGroup::factory()->create();
         $admin = User::factory()->create();
-        $entry = Entry::factory()->make(['entry_group_id' => null]);
+        $entry = Entry::factory()->make();
         $entryGroupService = app(EntryGroupService::class);
 
         $entryGroupService->addUserToGroupAsAdmin($admin, $entryGroup);
@@ -848,7 +847,7 @@ class EntryFieldsTest extends TestCase
          */
         $entryGroup = EntryGroup::factory()->create();
         [$admin, $moderator] = User::factory()->count(2)->create();
-        $entry = Entry::factory()->make(['entry_group_id' => null]);
+        $entry = Entry::factory()->make();
         $entryGroupService = app(EntryGroupService::class);
 
         $entryGroupService->addUserToGroupAsAdmin($admin, $entryGroup);
@@ -893,7 +892,7 @@ class EntryFieldsTest extends TestCase
          */
         $entryGroup = EntryGroup::factory()->create();
         [$admin, $member] = User::factory()->count(2)->create();
-        $entry = Entry::factory()->make(['entry_group_id' => null]);
+        $entry = Entry::factory()->make();
         $entryGroupService = app(EntryGroupService::class);
 
         $entryGroupService->addUserToGroupAsAdmin($admin, $entryGroup);
@@ -934,7 +933,7 @@ class EntryFieldsTest extends TestCase
         $entryGroup = EntryGroup::factory()->create();
         $admin = User::factory()->create();
         $moderator = User::factory()->create();
-        $entry = Entry::factory()->make(['entry_group_id' => null]);
+        $entry = Entry::factory()->make();
         $entryGroupService = app(EntryGroupService::class);
 
         $this->actingAs($admin);

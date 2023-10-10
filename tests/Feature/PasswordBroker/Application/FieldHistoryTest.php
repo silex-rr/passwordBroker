@@ -33,7 +33,7 @@ class FieldHistoryTest extends TestCase
          */
         $entryGroup = EntryGroup::factory()->create();
         $admin = User::factory()->create();
-        $entry = Entry::factory()->make(['entry_group_id' => null]);
+        $entry = Entry::factory()->make();
         $entryGroupService = app(EntryGroupService::class);
 
         $entryGroupService->addUserToGroupAsAdmin($admin, $entryGroup);

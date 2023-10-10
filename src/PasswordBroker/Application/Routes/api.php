@@ -24,6 +24,9 @@ Route::middleware('auth.sanctum.cookie')->group(function (){
 
     Route::get('/entryGroups', [EntryGroupController::class, 'index'])
         ->name('entryGroups');
+    Route::get('/entryGroupsWithFields', [EntryGroupController::class, 'indexWithFields'])
+        ->can('get-groups-with-fields')
+        ->name('allGroupsWithFields');
     Route::get('/entryGroupsAsTree', [EntryGroupController::class, 'indexAsTree'])
         ->name('entryGroupsAsTree');
     Route::post('/entryGroups', [EntryGroupController::class, 'store']);

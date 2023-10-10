@@ -4,6 +4,7 @@ namespace PasswordBroker\Application\Services;
 
 use Identity\Application\Services\RsaService;
 use Identity\Domain\User\Models\User;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use PasswordBroker\Domain\Entry\Models\Attributes\MaterializedPath;
@@ -87,6 +88,13 @@ class EntryGroupService
         $auth_encrypted_aes_password = $entryGroup->users()->where('user_id', $auth_user->user_id->getValue())
             ->firstOrFail()->encrypted_aes_password->getValue();
         return $privateKey->decrypt($auth_encrypted_aes_password);
+    }
+
+    public function groupsWithFields(): Collection
+    {
+        Field::appendEncryptedValueBase64();
+        Field::appendInitializationVectorBase64();
+        return EntryGroup::with('entries.links', 'entries.files', 'entries.passwords', 'entries.notes')->get();
     }
 
     /**

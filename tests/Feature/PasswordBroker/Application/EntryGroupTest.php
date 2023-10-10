@@ -2,14 +2,19 @@
 
 namespace Tests\Feature\PasswordBroker\Application;
 
+use Identity\Domain\User\Models\Attributes\IsAdmin;
 use Identity\Domain\User\Models\User;
 use Identity\Infrastructure\Factories\User\UserFactory;
+use Illuminate\Database\Eloquent\Factories\Sequence;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Testing\Fluent\AssertableJson;
 use PasswordBroker\Application\Services\EntryGroupService;
 use PasswordBroker\Domain\Entry\Models\Attributes\GroupName;
+use PasswordBroker\Domain\Entry\Models\Entry;
 use PasswordBroker\Domain\Entry\Models\EntryGroup;
+use phpDocumentor\Reflection\Types\Static_;
+use Symfony\Component\Mime\Encoder\Base64Encoder;
 use Tests\TestCase;
 
 class EntryGroupTest extends TestCase
@@ -17,6 +22,7 @@ class EntryGroupTest extends TestCase
     use RefreshDatabase;
     use WithFaker;
     use EntryGroupRandomAttributes;
+    use PasswordHelper;
 
     public function test_a_guest_cannot_create_an_entry_group(): void
     {
@@ -477,5 +483,91 @@ class EntryGroupTest extends TestCase
         $entryGroupFromDB = EntryGroup::where('entry_group_id', $entryGroup->entry_group_id->getValue())->firstOrFail();
 
         $this->assertTrue($entryGroupFromDB->parentEntryGroup()->doesntExist());
+    }
+
+    public function test_only_a_system_administrator_can_get_all_groups_with_all_fields(): void
+    {
+//        $this->withoutExceptionHandling();
+        /**
+         * @var EntryGroup $entryGroup_1
+         * @var EntryGroup $entryGroup_2
+         * @var EntryGroup $entryGroup_3
+         * @var EntryGroup $entryGroup_4
+         * @var EntryGroup $entryGroup_5
+         * @var User $admin
+         * @var User $member
+         * @var EntryGroupService $entryGroupService
+         */
+        [$entryGroup_1, $entryGroup_2, $entryGroup_3, $entryGroup_4, $entryGroup_5]
+            = EntryGroup::factory()
+            ->sequence(fn (Sequence $sequence) => ['name' => GroupName::fromNative('group_' . $sequence->index)])
+        ->count(5)->create();
+        [$admin, $member] = User::factory()->count(2)->create();
+        $admin->is_admin = IsAdmin::fromNative(true);
+        $admin->save();
+        /**
+         * @var EntryGroupService $entryGroupService
+         */
+        $entryGroupService = app(EntryGroupService::class);
+
+        $this->actingAs($admin);
+        $entryGroupService->addUserToGroupAsAdmin($admin, $entryGroup_1);
+        $entryGroupService->addUserToGroupAsAdmin($admin, $entryGroup_2);
+        $entryGroupService->addUserToGroupAsAdmin($admin, $entryGroup_3);
+        $entryGroupService->addUserToGroupAsAdmin($admin, $entryGroup_4);
+        $entryGroupService->addUserToGroupAsAdmin($admin, $entryGroup_5);
+
+        /**
+         * @var Entry $entry_3_1
+         */
+        $entry_3_1 = Entry::factory()->withEntryGroup($entryGroup_3)->create();
+
+
+        $password_3_1_1 = $this->getPasswordHelper(
+            owner: $admin,
+            entryGroup: $entryGroup_3,
+            entry: $entry_3_1,
+            password_str: $this->faker->password
+        );
+
+        $this->getJson(route('allGroupsWithFields'))
+            ->assertStatus(200)
+            ->assertJson(static fn(AssertableJson $json) =>
+                $json->has(5)
+                    ->each(static function (AssertableJson $group)
+                    use ($password_3_1_1, $entry_3_1, $entryGroup_3)
+                {
+                    if ($group->toArray()['entry_group_id'] === $entryGroup_3->entry_group_id->getValue()) {
+                        $group->has('entries', 1, static function (AssertableJson $entry)
+                            use ($password_3_1_1, $entry_3_1)
+                        {
+                            $entry->where('entry_id', $entry_3_1->entry_id->getValue());
+                            $entry->has('passwords', 1, static function (AssertableJson $password)
+                                use ($password_3_1_1)
+                            {
+                                /**
+                                 * @var Base64Encoder $base64Encoder
+                                 */
+                                $base64Encoder = app(Base64Encoder::class);
+                                $password->where('field_id', $password_3_1_1->field_id->getValue());
+                                $password->where('encrypted_value_base64', $base64Encoder->encodeString(
+                                    $password_3_1_1->value_encrypted->getValue())
+                                );
+                                $password->where('initialization_vector_base64', $base64Encoder->encodeString(
+                                    $password_3_1_1->initialization_vector->getValue())
+                                );
+                                $password->etc();
+                            });
+                            $entry->etc();
+                        });
+                    }
+                    $group->etc();
+                })
+            );
+
+        $this->actingAs($member);
+        $this->getJson(route('allGroupsWithFields'))
+            ->assertStatus(403);
+
     }
 }

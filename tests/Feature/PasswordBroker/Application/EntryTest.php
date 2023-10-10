@@ -26,7 +26,7 @@ class EntryTest extends TestCase
         /**
          * @var Entry $entry
          */
-        $entry = Entry::factory()->create();
+        $entry = Entry::factory()->withEntryGroup()->create();
 
         $this->getJson(
             route('entryGroupEntry',
@@ -60,7 +60,7 @@ class EntryTest extends TestCase
         /**
          * @var Entry $entry
          */
-        $entry = Entry::factory()->create();
+        $entry = Entry::factory()->withEntryGroup()->create();
         $titleOriginal = $entry->title;
         $entryAttributes = $entry->attributesToArray();
         $entryAttributes['title'] = new Title($titleOriginal->getValue() . '_new');
@@ -87,7 +87,7 @@ class EntryTest extends TestCase
         /**
          * @var Entry $entry
          */
-        $entry = Entry::factory()->create();
+        $entry = Entry::factory()->withEntryGroup()->create();
 
         $this->deleteJson(route('entryGroupEntry',
             [
@@ -255,7 +255,7 @@ class EntryTest extends TestCase
          * @var EntryGroupService $entryGroupService
          */
         $entryGroup = EntryGroup::factory()->create();
-        $entry = Entry::factory()->create();
+        $entry = Entry::factory()->withEntryGroup()->create();
         $moderator = User::factory()->create();
         $entryGroupService = app(EntryGroupService::class);
         $this->actingAs($moderator);
@@ -300,7 +300,7 @@ class EntryTest extends TestCase
          * @var EntryGroupService $entryGroupService
          */
         $entryGroup = EntryGroup::factory()->create();
-        $entry = Entry::factory()->create();
+        $entry = Entry::factory()->withEntryGroup()->create();
         $member = User::factory()->create();
         $entryGroupService = app(EntryGroupService::class);
         $this->actingAs($member);
@@ -346,7 +346,7 @@ class EntryTest extends TestCase
         $admin = User::factory()->create();
         $entryGroup = EntryGroup::factory()->create();
         $entryGroup->addAdmin($admin, $this->faker->password(128, 128));
-        $entry = Entry::factory()->create(['entry_group_id' => $entryGroup->entry_group_id]);
+        $entry = Entry::factory()->withEntryGroup($entryGroup)->create();
 
         $this->actingAs($admin);
         $this->assertEquals(1,
@@ -373,7 +373,7 @@ class EntryTest extends TestCase
         $moderator = User::factory()->create();
         $entryGroup = EntryGroup::factory()->create();
         $entryGroup->addModerator($moderator, $this->faker->password(128, 128));
-        $entry = Entry::factory()->create(['entry_group_id' => $entryGroup->entry_group_id]);
+        $entry = Entry::factory()->withEntryGroup($entryGroup)->create();
 
         $this->actingAs($moderator);
         $this->assertEquals(1,
@@ -400,7 +400,7 @@ class EntryTest extends TestCase
         $member = User::factory()->create();
         $entryGroup = EntryGroup::factory()->create();
         $entryGroup->addMember($member, $this->faker->password(128, 128));
-        $entry = Entry::factory()->create(['entry_group_id' => $entryGroup->entry_group_id]);
+        $entry = Entry::factory()->withEntryGroup($entryGroup)->create();
 
         $this->actingAs($member);
         $this->assertEquals(1,
@@ -427,7 +427,7 @@ class EntryTest extends TestCase
          * @var EntryGroupService $entryGroupService
          */
         [$entryGroupSource, $entryGroupTarget] = EntryGroup::factory()->count(2)->create();
-        $entry = Entry::factory()->create();
+        $entry = Entry::factory()->withEntryGroup()->create();
         $admin = User::factory()->create();
         $entryGroupService = app(EntryGroupService::class);
         $this->actingAs($admin);
@@ -486,7 +486,7 @@ class EntryTest extends TestCase
          * @var EntryGroupService $entryGroupService
          */
         [$entryGroupSource, $entryGroupTarget] = EntryGroup::factory()->count(2)->create();
-        $entry = Entry::factory()->create();
+        $entry = Entry::factory()->withEntryGroup()->create();
         [$admin, $moderator] = User::factory()->count(2)->create();
         $entryGroupService = app(EntryGroupService::class);
         $this->actingAs($admin);
@@ -550,7 +550,7 @@ class EntryTest extends TestCase
          * @var EntryGroupService $entryGroupService
          */
         [$entryGroupSource, $entryGroupTarget] = EntryGroup::factory()->count(2)->create();
-        $entry = Entry::factory()->create();
+        $entry = Entry::factory()->withEntryGroup()->create();
         [$admin, $member] = User::factory()->count(2)->create();
         $entryGroupService = app(EntryGroupService::class);
         $this->actingAs($admin);

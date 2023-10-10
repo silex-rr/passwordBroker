@@ -88,5 +88,11 @@ class PasswordBrokerServiceProvider extends ServiceProvider
                 ? Response::allow()
                 : Response::deny('You must be a system administrator')
         );
+
+        Gate::define('get-groups-with-fields', static fn (User $user) =>
+            $user->is_admin->getValue()
+                ? Response::allow()
+                : Response::deny('You must be a system administrator')
+        );
     }
 }
