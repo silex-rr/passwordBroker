@@ -2,6 +2,7 @@
 
 namespace Identity\Application;
 
+use Doctrine\DBAL\Schema\Sequence;
 use Identity\Domain\User\Models\Attributes\IsAdmin;
 use Identity\Domain\User\Models\Attributes\UserName;
 use Identity\Domain\User\Models\User;
@@ -339,5 +340,38 @@ class UserTest extends TestCase
                         ->etc()
                 )->etc()
             );
+    }
+
+    public function test_a_system_administrator_can_fetch_their_rsa_key(): void
+    {
+        /**
+         * @var User $admin
+         * @var User $user
+         */
+        [$admin, $user] = User::factory()->sequence(
+                [
+                    'name' => new UserName('admin'),
+                    'is_admin' => IsAdmin::fromNative(true)
+                ],
+                [
+                    'name' => new UserName('user'),
+                    'is_admin' => IsAdmin::fromNative(false)
+                ]
+            )
+            ->count(2)
+            ->create();
+
+        $this->actingAs($admin);
+        
+        $this->getJson('user_get_rsa_private_key')
+            ->assertStatus(200)
+            ->assertJson(fn (AssertableJson $json) 
+                => $json->where('rsa_private_key_base64', '')
+            );
+        
+        $this->actingAs($user);
+        
+        $this->getJson('user_get_rsa_private_key')
+            ->assertStatus(403);
     }
 }
