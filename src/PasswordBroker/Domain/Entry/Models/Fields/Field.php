@@ -2,6 +2,7 @@
 
 namespace PasswordBroker\Domain\Entry\Models\Fields;
 
+use App\Common\Domain\Traits\AppendGlobal;
 use App\Common\Domain\Traits\ModelDomainConstructor;
 use Identity\Domain\User\Models\Attributes\UserId as UserIdAttribute;
 use Identity\Domain\User\Models\User;
@@ -47,6 +48,7 @@ abstract class Field extends Model
     use HasUuids;
     use ModelDomainConstructor;
     use SoftDeletes;
+    use AppendGlobal;
 
     public const TYPE = '';
     protected static array $related = [
@@ -100,14 +102,10 @@ abstract class Field extends Model
         'login'
     ];
 
-    public static array $appendsGlobal = [
-
-    ];
     protected $appends = [
 //        'encrypted_value_base64',
 //        'initialization_vector_base64'
     ];
-
     protected $primaryKey = 'field_id';
     protected $dispatchesEvents = [
 //        'saving' => FieldSave::class,
@@ -118,13 +116,7 @@ abstract class Field extends Model
         'forceDeleted' => FieldForceDeleted::class,
     ];
 
-    private static function appendField($field): void
-    {
-        if (in_array($field, static::$appendsGlobal, true)) {
-            return;
-        }
-        static::$appendsGlobal[] = $field;
-    }
+
     public static function appendEncryptedValueBase64(): void
     {
         static::appendField('encrypted_value_base64');
@@ -132,15 +124,6 @@ abstract class Field extends Model
     public static function appendInitializationVectorBase64(): void
     {
         static::appendField('initialization_vector_base64');
-    }
-
-    public static function boot(): void
-    {
-        parent::boot();
-
-        static::retrieved(static fn (Field $field)
-            => $field->appends = array_unique(array_merge($field->appends, static::$appendsGlobal))
-        );
     }
 
     public static function create(
