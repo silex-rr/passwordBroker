@@ -5,12 +5,14 @@ namespace PasswordBroker\Application\Services;
 use Identity\Application\Services\RsaService;
 use Identity\Domain\User\Models\User;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use PasswordBroker\Domain\Entry\Models\Attributes\MaterializedPath;
 use PasswordBroker\Domain\Entry\Models\EntryGroup;
 use PasswordBroker\Domain\Entry\Models\Fields\Field;
 use PasswordBroker\Domain\Entry\Models\Fields\EntryFieldHistory;
+use PasswordBroker\Domain\Entry\Models\Groups\Role;
 use RuntimeException;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
@@ -90,11 +92,14 @@ class EntryGroupService
         return $privateKey->decrypt($auth_encrypted_aes_password);
     }
 
-    public function groupsWithFields(): Collection
+    public function groupsWithFields(User $user): Collection
     {
         Field::appendEncryptedValueBase64();
         Field::appendInitializationVectorBase64();
-        return EntryGroup::with('entries.links', 'entries.files', 'entries.passwords', 'entries.notes')->get();
+        Role::appendEncryptedAesPasswordBase64();
+        return EntryGroup::with('entries.links', 'entries.files', 'entries.passwords', 'entries.notes')
+            ->with('admins', static fn (HasMany $builder) => $builder->where('user_id', $user->user_id->getValue()))
+            ->get();
     }
 
     /**

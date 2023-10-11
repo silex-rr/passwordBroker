@@ -2,6 +2,7 @@
 
 namespace PasswordBroker\Domain\Entry\Models\Groups;
 
+use App\Common\Domain\Traits\AppendGlobal;
 use App\Common\Domain\Traits\ModelDomainConstructor;
 use Identity\Domain\User\Models\Casts\UserId;
 use Identity\Domain\User\Models\User;
@@ -23,6 +24,9 @@ use Symfony\Component\Mime\Encoder\Base64Encoder;
 abstract class Role extends Model
     implements RoleInterface
 {
+
+    use AppendGlobal;
+    use ModelDomainConstructor;
     public const ROLE_NAME = '';
 
     public $table = 'entry_group_user';
@@ -48,7 +52,10 @@ abstract class Role extends Model
         'encrypted_aes_password' => EncryptedAesPassword::class
     ];
 
-    use ModelDomainConstructor;
+    public static function appendEncryptedAesPasswordBase64(): void
+    {
+        static::appendField('encrypted_aes_password_base64');
+    }
 
     public static function create(User $user, EntryGroup $entryGroup): self
     {
@@ -89,6 +96,13 @@ abstract class Role extends Model
     {
         return new Attribute(
             get: fn () => app(Base64Encoder::class)->encodeString($this->user_id->getValue())
+        );
+    }
+
+    protected function encryptedAesPasswordBase64(): Attribute
+    {
+        return new Attribute(
+            get: fn () => app(Base64Encoder::class)->encodeString($this->encrypted_aes_password->getValue())
         );
     }
 }

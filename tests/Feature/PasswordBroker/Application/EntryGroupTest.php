@@ -535,7 +535,7 @@ class EntryGroupTest extends TestCase
             ->assertJson(static fn(AssertableJson $json) =>
                 $json->has(5)
                     ->each(static function (AssertableJson $group)
-                    use ($password_3_1_1, $entry_3_1, $entryGroup_3)
+                    use ($password_3_1_1, $entry_3_1, $entryGroup_3, $admin)
                 {
                     if ($group->toArray()['entry_group_id'] === $entryGroup_3->entry_group_id->getValue()) {
                         $group->has('entries', 1, static function (AssertableJson $entry)
@@ -561,6 +561,8 @@ class EntryGroupTest extends TestCase
                             $entry->etc();
                         });
                     }
+                    $group->has('admins', 1);
+                    $group->where('admins.0.user_id', $admin->user_id->getValue());
                     $group->etc();
                 })
             );
