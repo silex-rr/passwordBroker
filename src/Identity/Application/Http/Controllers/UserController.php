@@ -88,6 +88,7 @@ class UserController extends Controller
 
     public function getPrivateRsa(RsaService $rsaService, Base64Encoder $base64Encoder): JsonResponse
     {
+        $timestamp = time();
         /**
          * @var User $authUser
          */
@@ -95,6 +96,7 @@ class UserController extends Controller
         $userPrivateKeyString = $rsaService->getUserPrivateKeyString($authUser->user_id);
 
         return new JsonResponse([
+            'timestamp' => $timestamp,
             'rsa_private_key_base64' => $base64Encoder->encodeString($userPrivateKeyString)
         ], 200);
     }

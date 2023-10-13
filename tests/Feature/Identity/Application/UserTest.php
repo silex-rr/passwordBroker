@@ -376,12 +376,11 @@ class UserTest extends TestCase
         $base64Encoder = app(Base64Encoder::class);
         $userPrivateKeyStringBase64 = $base64Encoder->encodeString($userPrivateKeyString);
 
-
         $this->getJson(route('user_get_rsa_private_key'))
             ->assertStatus(200)
             ->assertJson(fn (AssertableJson $json)
                 => $json->where('rsa_private_key_base64', $userPrivateKeyStringBase64)
-                    ->etc()
+                    ->where('timestamp', static fn ($timestamp) => is_numeric($timestamp))
             );
 
         $this->actingAs($user);
