@@ -53,7 +53,11 @@ class EntryGroupController extends Controller
          * @var User $user
          */
         $user = Auth::user();
-        return new JsonResponse($this->entryGroupService->groupsWithFields($user), 200);
+        $timestamp = time();
+        return new JsonResponse([
+            'timestamp' => $timestamp,
+            'data' => $this->entryGroupService->groupsWithFields($user)
+        ], 200);
     }
     public function indexAsTree(): JsonResponse
     {

@@ -8,6 +8,7 @@ use Identity\Infrastructure\Factories\User\UserFactory;
 use Illuminate\Database\Eloquent\Factories\Sequence;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Support\Collection;
 use Illuminate\Testing\Fluent\AssertableJson;
 use PasswordBroker\Application\Services\EntryGroupService;
 use PasswordBroker\Domain\Entry\Models\Attributes\GroupName;
@@ -533,38 +534,39 @@ class EntryGroupTest extends TestCase
         $this->getJson(route('allGroupsWithFields'))
             ->assertStatus(200)
             ->assertJson(static fn(AssertableJson $json) =>
-                $json->has(5)
-                    ->each(static function (AssertableJson $group)
-                    use ($password_3_1_1, $entry_3_1, $entryGroup_3, $admin)
+                $json->where('timestamp', static fn($timestamp) => is_numeric($timestamp))
+                ->has('data', static function (AssertableJson $data)
+                use ($password_3_1_1, $entry_3_1, $entryGroup_3, $admin)
                 {
-                    if ($group->toArray()['entry_group_id'] === $entryGroup_3->entry_group_id->getValue()) {
-                        $group->has('entries', 1, static function (AssertableJson $entry)
-                            use ($password_3_1_1, $entry_3_1)
-                        {
-                            $entry->where('entry_id', $entry_3_1->entry_id->getValue());
-                            $entry->has('passwords', 1, static function (AssertableJson $password)
-                                use ($password_3_1_1)
-                            {
-                                /**
-                                 * @var Base64Encoder $base64Encoder
-                                 */
-                                $base64Encoder = app(Base64Encoder::class);
-                                $password->where('field_id', $password_3_1_1->field_id->getValue());
-                                $password->where('encrypted_value_base64', $base64Encoder->encodeString(
-                                    $password_3_1_1->value_encrypted->getValue())
-                                );
-                                $password->where('initialization_vector_base64', $base64Encoder->encodeString(
-                                    $password_3_1_1->initialization_vector->getValue())
-                                );
-                                $password->etc();
-                            });
-                            $entry->etc();
+                    $data->has(5)->each(static function (AssertableJson $group)
+                        use ($password_3_1_1, $entry_3_1, $entryGroup_3, $admin) {
+                            if ($group->toArray()['entry_group_id'] === $entryGroup_3->entry_group_id->getValue()) {
+                                $group->has('entries', 1, static function (AssertableJson $entry)
+                                use ($password_3_1_1, $entry_3_1) {
+                                    $entry->where('entry_id', $entry_3_1->entry_id->getValue());
+                                    $entry->has('passwords', 1, static function (AssertableJson $password)
+                                    use ($password_3_1_1) {
+                                        /**
+                                         * @var Base64Encoder $base64Encoder
+                                         */
+                                        $base64Encoder = app(Base64Encoder::class);
+                                        $password->where('field_id', $password_3_1_1->field_id->getValue());
+                                        $password->where('encrypted_value_base64', $base64Encoder->encodeString(
+                                            $password_3_1_1->value_encrypted->getValue())
+                                        );
+                                        $password->where('initialization_vector_base64', $base64Encoder->encodeString(
+                                            $password_3_1_1->initialization_vector->getValue())
+                                        );
+                                        $password->etc();
+                                    });
+                                    $entry->etc();
+                                });
+                            }
+                            $group->has('admins', 1);
+                            $group->where('admins.0.user_id', $admin->user_id->getValue());
+                            $group->etc();
                         });
-                    }
-                    $group->has('admins', 1);
-                    $group->where('admins.0.user_id', $admin->user_id->getValue());
-                    $group->etc();
-                })
+                    })
             );
 
         $this->actingAs($member);
