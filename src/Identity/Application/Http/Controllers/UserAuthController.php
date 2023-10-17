@@ -10,7 +10,6 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
-use Laravel\Sanctum\Guard;
 
 class UserAuthController extends Controller
 {
@@ -47,7 +46,6 @@ class UserAuthController extends Controller
 //        return new JsonResponse([
 ////            $user,
 //        $request->user()]);
-
 
         $token = $this->dispatchSync(new GetUserToken(
             user: $request->user(),

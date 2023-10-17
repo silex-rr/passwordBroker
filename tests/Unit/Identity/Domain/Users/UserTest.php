@@ -2,6 +2,7 @@
 
 namespace Tests\Unit\Identity\Domain\Users;
 
+use Identity\Domain\User\Models\Attributes\IsAdmin;
 use Identity\Domain\User\Models\User;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -14,6 +15,21 @@ class UserTest extends TestCase
 {
     use RefreshDatabase;
     use WithFaker;
+    public function test_a_user_can_be_a_system_administrator(): void
+    {
+        /**
+         * @var User $user
+         */
+        $user = User::factory()->create();
+        $user->is_admin = IsAdmin::fromNative(true);
+        $user->save();
+
+        /**
+         * @var User $userDb
+         */
+        $userDb = User::where('user_id', $user->user_id->getValue())->first();
+        $this->assertTrue($userDb->is_admin->getValue());
+    }
 
     public function test_a_user_can_be_an_administrator_of_an_entry_group(): void
     {

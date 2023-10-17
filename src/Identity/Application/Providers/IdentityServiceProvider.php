@@ -6,6 +6,8 @@ use App\Common\Application\Traits\ProviderMergeConfigRecursion;
 use Identity\Application\Http\Sessions\DatabaseSessionHandler;
 use Identity\Domain\User\Models\User;
 use Identity\Domain\User\Models\UserAccessToken;
+use Identity\Domain\UserApplication\Models\UserApplication;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\ServiceProvider;
@@ -70,7 +72,7 @@ class IdentityServiceProvider extends ServiceProvider
 //        });
 
 
-
+        $this->defineGates();
         $this->loadMigrationsFrom($this->base_path . $this->migrations_dir);
         Sanctum::usePersonalAccessTokenModel(UserAccessToken::class);
     }
@@ -78,5 +80,12 @@ class IdentityServiceProvider extends ServiceProvider
     public function bindRoutes(): void
     {
         Route::bind('user', fn (string $user_id) => User::where('user_id', $user_id)->firstOrFail());
+        Route::bind('userApplication', fn (string $user_application_id)
+            => UserApplication::where('user_application_id', $user_application_id)->firstOrFail());
+    }
+
+    private function defineGates(): void
+    {
+        Gate::define('get-self-rsa-private-key', static fn (User $user) => $user->is_admin->getValue());
     }
 }

@@ -3,7 +3,9 @@
 namespace PasswordBroker\Application\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use Carbon\Carbon;
 use Identity\Domain\User\Models\User;
+use Identity\Domain\User\Models\UserAccessToken;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 use PasswordBroker\Application\Http\Requests\EntryGroupMoveRequest;
@@ -53,9 +55,17 @@ class EntryGroupController extends Controller
          * @var User $user
          */
         $user = Auth::user();
-        $timestamp = time();
+        $carbon = Carbon::now();
+        /**
+         * @var UserAccessToken $accessToken
+         */
+        $accessToken = $user->currentAccessToken();
+        if ($accessToken) {
+            $accessToken->rsa_private_fetched_at = $carbon;
+            $accessToken->save();
+        }
         return new JsonResponse([
-            'timestamp' => $timestamp,
+            'timestamp' => $carbon->timestamp,
             'data' => $this->entryGroupService->groupsWithFields($user)
         ], 200);
     }
@@ -75,7 +85,6 @@ class EntryGroupController extends Controller
 
     public function store(EntryGroupRequest $request): JsonResponse
     {
-
         $entryGroup = EntryGroup::hydrate([$request->all()])->first();
         $entryGroup->exists = false;
         $response = $this->dispatchSync(
@@ -84,7 +93,6 @@ class EntryGroupController extends Controller
                 new EntryGroupValidationHandler()
             )
         );
-
         return new JsonResponse($response, 200);
     }
 

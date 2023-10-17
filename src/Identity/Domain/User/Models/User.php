@@ -11,6 +11,7 @@ use Identity\Domain\User\Models\Casts\IsAdmin;
 use Identity\Domain\User\Models\Casts\PublicKey;
 use Identity\Domain\User\Models\Casts\UserId;
 use Identity\Domain\User\Models\Casts\UserName;
+use Identity\Domain\UserApplication\Models\UserApplication;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -68,6 +69,11 @@ class User extends Authenticatable
     public function getId_UserAttribute(): Attributes\UserId
     {
         return $this->user_id;
+    }
+
+    public function applications(): HasMany
+    {
+        return $this->hasMany(UserApplication::class, 'user_id', 'user_id');
     }
 
     public function adminOf(): HasMany

@@ -3,12 +3,14 @@
 namespace Identity\Application\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use Carbon\Carbon;
 use Identity\Application\Http\Requests\RegisterUserRequest;
 use Identity\Application\Http\Requests\UpdateUserRequest;
 use Identity\Application\Http\Requests\UsersSearchRequest;
 use Identity\Application\Services\RsaService;
 use Identity\Application\Services\UserRegistrationService;
 use Identity\Domain\User\Models\User;
+use Identity\Domain\User\Models\UserAccessToken;
 use Identity\Domain\User\Services\DestroyUser;
 use Identity\Domain\User\Services\SearchUsers;
 use Identity\Domain\User\Services\UpdateUser;
@@ -85,18 +87,26 @@ class UserController extends Controller
         ));
     }
 
-
     public function getPrivateRsa(RsaService $rsaService, Base64Encoder $base64Encoder): JsonResponse
     {
-        $timestamp = time();
+        $carbon = Carbon::now();
         /**
          * @var User $authUser
          */
         $authUser = Auth::user();
         $userPrivateKeyString = $rsaService->getUserPrivateKeyString($authUser->user_id);
 
+        /**
+         * @var UserAccessToken $accessToken
+         */
+        $accessToken = $authUser->currentAccessToken();
+        if ($accessToken) {
+            $accessToken->rsa_private_fetched_at = $carbon;
+            $accessToken->save();
+        }
+
         return new JsonResponse([
-            'timestamp' => $timestamp,
+            'timestamp' => $carbon->timestamp,
             'rsa_private_key_base64' => $base64Encoder->encodeString($userPrivateKeyString)
         ], 200);
     }

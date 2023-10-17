@@ -2,8 +2,10 @@
 
 namespace Identity\Application\Providers;
 
+use Identity\Application\Policies\UserApplicationPolicy;
 use Identity\Application\Policies\UserPolicy;
 use Identity\Domain\User\Models\User;
+use Identity\Domain\UserApplication\Models\UserApplication;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider;
 
 class IdentityAuthServiceProvider extends AuthServiceProvider
@@ -15,6 +17,7 @@ class IdentityAuthServiceProvider extends AuthServiceProvider
      */
     protected $policies = [
         User::class => UserPolicy::class,
+        UserApplication::class => UserApplicationPolicy::class
     ];
 
     /**

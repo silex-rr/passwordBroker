@@ -2,7 +2,6 @@
 
 namespace Identity\Application;
 
-use Doctrine\DBAL\Schema\Sequence;
 use Identity\Application\Services\RsaService;
 use Identity\Domain\User\Models\Attributes\IsAdmin;
 use Identity\Domain\User\Models\Attributes\UserName;
@@ -14,7 +13,6 @@ use Illuminate\Testing\Fluent\AssertableJson;
 use PasswordBroker\Domain\Entry\Models\EntryGroup;
 use Symfony\Component\Mime\Encoder\Base64Encoder;
 use Tests\TestCase;
-use function Psy\debug;
 
 class UserTest extends TestCase
 {
@@ -229,30 +227,18 @@ class UserTest extends TestCase
 
     public function test_a_user_can_get_a_token(): void
     {
+        $this->withoutExceptionHandling();
         /**
          * @var User $user_1
-         * @var User $user_2
          */
         $user_1 = User::factory()->create(['name' => new UserName('user_john')]);
-        $user_2 = User::factory()->create(['name' => new UserName('user_alex')]);
 
         $entryGroup = EntryGroup::factory()->create();
         $entryGroup->addAdmin($user_1, $this->faker->password(128,128));
 
-        $this->actingAs($user_1);
-        $token = '';
-        $this->postJson(
-            route('user_get_token', ['token_name' => 'win_adadadq32343r'])
-        )->assertStatus(200)
-            ->assertJson(function (AssertableJson $json) use(&$token) {
-                $json->has('token');
-                $token = $json->toArray()['token'];
-            });
+        $token = $this->getToken($user_1);
         $this->get(route('logout'));
         $this->assertGuest();
-//array:2 [ // vendor\laravel\framework\src\Illuminate\Testing\Fluent\Concerns\Debugging.php:28
-//  "message" => "guest"
-//  "user" => null
 
         $this->getJson(route('show_me'))->assertStatus(200)
             ->assertJson(fn (AssertableJson $json)
@@ -260,19 +246,17 @@ class UserTest extends TestCase
             );
 
         $this->getJson(route('show_me'),
-            [
-                'Authorization' => 'Bearer ' . $token
-            ]
+            $this->getAuthHeaders($token)
         )->assertStatus(200)
             ->assertJson(fn (AssertableJson $json)
-            => $json->where('message', 'loggedIn')->etc()
+            => $json->where('message', 'loggedIn')
+                ->where('user.user_id', $user_1->user_id->getValue())
+                ->etc()
             );
 
         $this->getJson(
             route('entryGroup', ['entryGroup' => $entryGroup->entry_group_id->getValue()]),
-            [
-                'Bearer ' . $token
-            ]
+            $this->getAuthHeaders($token)
         )
             ->assertStatus(200);
     }
@@ -387,5 +371,35 @@ class UserTest extends TestCase
 
         $this->getJson(route('user_get_rsa_private_key'))
             ->assertStatus(403);
+    }
+
+    /**
+     * @param User $user
+     * @return string
+     */
+    public function getToken(User $user): string
+    {
+        $this->actingAs($user);
+        $token = '';
+        $this->postJson(
+            route('user_get_token', ['token_name' => 'win_adadadq32343r'])
+        )->assertStatus(200)
+            ->assertJson(function (AssertableJson $json) use (&$token) {
+                $json->has('token');
+                $token = $json->toArray()['token'];
+            });
+        $this->actingAsGuest();
+        return $token;
+    }
+
+    /**
+     * @param string $token
+     * @return string[]
+     */
+    public function getAuthHeaders(string $token): array
+    {
+        return [
+            'Authorization' => 'Bearer ' . $token
+        ];
     }
 }

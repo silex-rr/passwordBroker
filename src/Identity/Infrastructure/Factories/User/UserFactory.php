@@ -30,7 +30,7 @@ class UserFactory extends FactoryDomain
         $rsaService->storeUserPrivateKey($userId, $privateKey);
         return [
             'user_id' => $userId,
-            'is_admin' => IsAdmin::fromNative(false),
+//            'is_admin' => IsAdmin::fromNative(false),
             'name' => UserName::fromNative(fake()->name()),
             'email' => Email::fromNative(fake()->safeEmail()),
             'email_verified_at' => now(),
@@ -48,9 +48,16 @@ class UserFactory extends FactoryDomain
     public function unverified(): static
     {
         return $this->state(function (array $attributes) {
-            return [
-                'email_verified_at' => null,
-            ];
+            $attributes['email_verified_at'] = null;
+            return $attributes;
+        });
+    }
+
+    public function systemAdministrator(bool $isSystemAdministrator = true): static
+    {
+        return $this->state(function (array $attributes) use ($isSystemAdministrator) {
+            $attributes['is_admin'] = IsAdmin::fromNative($isSystemAdministrator);
+            return $attributes;
         });
     }
 }

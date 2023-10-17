@@ -20,7 +20,7 @@ class UserWasCreated extends DomainEvent
     }
 
     /**
-     * @return User
+     * @return string
      */
     public function getEventBody(): string
     {

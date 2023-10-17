@@ -1,5 +1,6 @@
 <?php
 
+use Identity\Application\Http\Controllers\UserApplicationController;
 use Identity\Application\Http\Controllers\UserAuthController;
 use Identity\Application\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
@@ -43,6 +44,16 @@ $routes = static function () {
     Route::get('/getPrivateRsa', [UserController::class, 'getPrivateRsa'])
         ->can('get-self-rsa-private-key')
         ->name('user_get_rsa_private_key');
+
+    ///UserApplication
+
+    Route::post('/userApplication/', [UserApplicationController::class, 'store'])
+        ->name('userApplication');
+    Route::get('/userApplication/{userApplication:user_application_id}', [UserApplicationController::class, 'show']);
+
+    Route::get('/userApplication/{userApplication:user_application_id}/offlineDatabaseMode', [UserApplicationController::class, 'getOfflineDatabaseStatus'])
+        ->name('userApplicationOfflineDatabaseMode');
+    Route::put('/userApplication/{userApplication:user_application_id}/offlineDatabaseMode', [UserApplicationController::class, 'setOfflineDatabaseStatus']);
 };
 
 //Route::middleware('api')->group($routes);
