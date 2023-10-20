@@ -3,11 +3,13 @@
 namespace Identity\Application;
 
 use Identity\Domain\User\Models\User;
+use Identity\Domain\UserApplication\Models\Attributes\ClientId;
 use Identity\Domain\UserApplication\Models\Attributes\UserApplicationId;
 use Identity\Domain\UserApplication\Models\UserApplication;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Testing\Fluent\AssertableJson;
+use Ramsey\Uuid\Uuid;
 use Tests\TestCase;
 
 class UserApplicationTest extends TestCase
@@ -43,7 +45,45 @@ class UserApplicationTest extends TestCase
             ->assertJson(fn (AssertableJson $json) => $json->where('status', true));
     }
 
-    public function test_a_user_can_create_a_user_application(): void
+    public function test_a_user_can_get_or_create_a_user_application(): void
+    {
+//        $this->withoutExceptionHandling();
+        /**
+         * @var User $user
+         */
+        $user = User::factory()->create();
+        $this->actingAs($user);
+        $clientId = new ClientId(Uuid::uuid4());
+
+        $application_id = null;
+
+        $this->postJson(route('userApplications'), ['clientId' => $clientId->getValue()])
+            ->assertStatus(200)
+            ->assertJson(static function (AssertableJson $json) use (&$application_id, $clientId) {
+                     $json
+                         ->where('userApplication.client_id', $clientId->getValue())
+                         ->where('userApplication.user_application_id',
+                            static function ($json_application_id) use (&$application_id) {
+                                $application_id = $json_application_id;
+                                return Uuid::isValid($application_id);
+                            });
+                    }
+            );
+
+        $this->assertEquals(
+            1,
+            $user->applications()->where('client_id', $clientId->getValue())->count()
+        );
+
+        $this->postJson(route('userApplications'), ['clientId' => $clientId->getValue()])
+            ->assertStatus(200)
+            ->assertJson(static fn (AssertableJson $json)
+                => $json->where('userApplication.client_id', $clientId->getValue())
+                    ->where('userApplication.user_application_id', $application_id)
+            );
+    }
+
+    public function test_a_user_can_get_a_user_application(): void
     {
         $this->withoutExceptionHandling();
         /**
@@ -51,16 +91,26 @@ class UserApplicationTest extends TestCase
          */
         $user = User::factory()->create();
         $this->actingAs($user);
-        $userApplicationId = new UserApplicationId();
+        $clientId = new ClientId(Uuid::uuid4());
+        /**
+         * @var UserApplication $userApplication
+         */
+        $userApplication = UserApplication::factory()->clientId($clientId)->belongToUser($user)->create();
 
-        $this->postJson(route('userApplication'), ['userApplicationId' => $userApplicationId->getValue()])
+        $this->getJson(route('userApplication', ['userApplication' => $userApplication->client_id->getValue()]))
             ->assertStatus(200)
-            ->assertJson(static fn (AssertableJson $json)
-                => $json->where('userApplication.user_application_id', $userApplicationId->getValue())
+            ->assertJson(fn (AssertableJson $json)
+                => $json->where('userApplication.client_id', $clientId->getValue())
+                    ->where('userApplication.user_application_id', $userApplication->user_application_id->getValue())
+                    ->etc()
             );
-        $this->assertEquals(
-            1,
-            $user->applications()->where('user_application_id', $userApplicationId->getValue())->count()
-        );
+
+        $this->getJson(route('userApplication', ['userApplication' => $userApplication->user_application_id->getValue()]))
+            ->assertStatus(200)
+            ->assertJson(fn (AssertableJson $json)
+                => $json->where('userApplication.client_id', $clientId->getValue())
+                    ->where('userApplication.client_id', $userApplication->client_id->getValue())
+                    ->etc()
+            );
     }
 }

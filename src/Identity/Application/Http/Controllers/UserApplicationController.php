@@ -7,6 +7,7 @@ use Identity\Application\Http\Requests\CreateUserApplicationRequest;
 use Identity\Application\Http\Requests\UpdateOfflineDatabaseModeRequest;
 use Identity\Domain\User\Models\User;
 use Identity\Domain\User\Models\UserAccessToken;
+use Identity\Domain\UserApplication\Models\Attributes\ClientId;
 use Identity\Domain\UserApplication\Models\Attributes\IsOfflineDatabaseMode;
 use Identity\Domain\UserApplication\Models\Attributes\UserApplicationId;
 use Identity\Domain\UserApplication\Models\UserApplication;
@@ -36,15 +37,19 @@ class UserApplicationController extends Controller
     }
     public function store(CreateUserApplicationRequest $request): JsonResponse
     {
-        $userApplicationId = new UserApplicationId($request->userApplicationId());
+        $clientId = new ClientId($request->clientId());
         /**
          * @var User $user
          */
         $user = Auth::user();
-        /**
-         * @var UserApplication $userApplication
-         */
-        $userApplication = $this->dispatchSync(new CreateUserApplication(user: $user, userApplicationId: $userApplicationId));
+        $userApplication = UserApplication::where('client_id', $clientId)->where('user_id', $user->user_id->getValue())
+            ->first();
+        if (!$userApplication) {
+            /**
+             * @var UserApplication $userApplication
+             */
+            $userApplication = $this->dispatchSync(new CreateUserApplication(user: $user, clientId: $clientId));
+        }
         return new JsonResponse(['userApplication' => $userApplication], 200);
     }
 

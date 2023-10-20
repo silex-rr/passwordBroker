@@ -5,6 +5,8 @@ namespace Identity\Infrastructure\Factories\UserApplication;
 use App\Common\Domain\Abstractions\FactoryDomain;
 use Identity\Domain\User\Models\User;
 use Identity\Domain\UserApplication\Models\Attributes\UserApplicationId;
+use Identity\Domain\UserApplication\Models\Attributes\ClientId;
+use Ramsey\Uuid\Uuid;
 
 class UserApplicationFactory extends FactoryDomain
 {
@@ -15,7 +17,7 @@ class UserApplicationFactory extends FactoryDomain
     public function definition(): array
     {
         return [
-
+            'client_id' => new ClientId(Uuid::uuid4())
         ];
     }
 
@@ -34,6 +36,15 @@ class UserApplicationFactory extends FactoryDomain
             return $attributes;
         });
     }
+
+    public function clientId(ClientId $clientId): static
+    {
+        return $this->state(function ($attributes) use ($clientId){
+           $attributes['client_id'] = $clientId;
+            return $attributes;
+        });
+    }
+
     public function createUser(): static
     {
         return $this->state(function ($attributes) {

@@ -6,6 +6,7 @@ use App\Common\Domain\Traits\HasFactoryDomain;
 use App\Common\Domain\Traits\ModelDomainConstructor;
 use Identity\Domain\User\Models\Casts\UserId;
 use Identity\Domain\User\Models\User;
+use Identity\Domain\UserApplication\Models\Casts\ClientId;
 use Identity\Domain\UserApplication\Models\Casts\IsOfflineDatabaseMode;
 use Identity\Domain\UserApplication\Models\Casts\IsOfflineDatabaseRequiredUpdate;
 use Identity\Domain\UserApplication\Models\Casts\IsRsaPrivateRequiredUpdate;
@@ -20,6 +21,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property int rsa_private_fetched_at
  * @property Attributes\IsOfflineDatabaseMode is_offline_database_mode
  * @property Attributes\UserApplicationId user_application_id
+ * @property Attributes\ClientId client_id
  * @property Attributes\IsOfflineDatabaseRequiredUpdate is_offline_database_required_update
  * @property Attributes\IsRsaPrivateRequiredUpdate is_rsa_private_required_update
  */
@@ -38,6 +40,7 @@ class UserApplication extends Model
     protected $casts = [
         'user_application_id' => UserApplicationId::class,
         'user_id' => UserId::class,
+        'client_id' => ClientId::class,
         'is_offline_database_mode' => IsOfflineDatabaseMode::class,
         'is_offline_database_required_update' => IsOfflineDatabaseRequiredUpdate::class,
         'is_rsa_private_required_update' => IsRsaPrivateRequiredUpdate::class,

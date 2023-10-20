@@ -14,15 +14,15 @@ class CreateUserApplicationRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'userApplicationId' => [
+            'clientId' => [
                 'nullable',
                 'uuid'
             ]
         ];
     }
 
-    public function userApplicationId(): ?string
+    public function clientId(): ?string
     {
-        return $this->get('userApplicationId');
+        return $this->get('clientId');
     }
 }

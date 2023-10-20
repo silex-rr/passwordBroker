@@ -4,6 +4,7 @@ namespace Identity\Domain\Users;
 
 use Carbon\Carbon;
 use Identity\Domain\User\Models\User;
+use Identity\Domain\UserApplication\Models\Attributes\ClientId;
 use Identity\Domain\UserApplication\Models\Attributes\IsOfflineDatabaseMode;
 use Identity\Domain\UserApplication\Models\Attributes\UserApplicationId;
 use Identity\Domain\UserApplication\Models\Attributes\IsOfflineDatabaseRequiredUpdate;
@@ -100,5 +101,15 @@ class UserApplicationTest extends TestCase
         $userApplication = UserApplication::factory()->createUser()->create();
         $this->assertInstanceOf(IsRsaPrivateRequiredUpdate::class,
             $userApplication->is_rsa_private_required_update);
+    }
+
+    public function test_a_user_application_has_client_id(): void
+    {
+        /**
+         * @var UserApplication $userApplication
+         */
+        $userApplication = UserApplication::factory()->createUser()->create();
+        $this->assertInstanceOf(ClientId::class,
+            $userApplication->client_id);
     }
 }

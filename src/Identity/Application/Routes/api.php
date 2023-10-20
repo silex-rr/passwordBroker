@@ -47,9 +47,10 @@ $routes = static function () {
 
     ///UserApplication
 
-    Route::post('/userApplication/', [UserApplicationController::class, 'store'])
+    Route::post('/userApplications/', [UserApplicationController::class, 'store'])
+        ->name('userApplications');
+    Route::get('/userApplication/{userApplication}', [UserApplicationController::class, 'show'])
         ->name('userApplication');
-    Route::get('/userApplication/{userApplication:user_application_id}', [UserApplicationController::class, 'show']);
 
     Route::get('/userApplication/{userApplication:user_application_id}/offlineDatabaseMode', [UserApplicationController::class, 'getOfflineDatabaseStatus'])
         ->name('userApplicationOfflineDatabaseMode');

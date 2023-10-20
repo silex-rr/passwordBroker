@@ -7,6 +7,7 @@ use Identity\Application\Http\Sessions\DatabaseSessionHandler;
 use Identity\Domain\User\Models\User;
 use Identity\Domain\User\Models\UserAccessToken;
 use Identity\Domain\UserApplication\Models\UserApplication;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Session;
@@ -80,8 +81,8 @@ class IdentityServiceProvider extends ServiceProvider
     public function bindRoutes(): void
     {
         Route::bind('user', fn (string $user_id) => User::where('user_id', $user_id)->firstOrFail());
-        Route::bind('userApplication', fn (string $user_application_id)
-            => UserApplication::where('user_application_id', $user_application_id)->firstOrFail());
+        Route::bind('userApplication', fn (string $uuid)
+            => UserApplication::where('user_application_id', $uuid)->orWhere('client_id', $uuid)->firstOrFail());
     }
 
     private function defineGates(): void
