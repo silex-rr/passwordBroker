@@ -57,6 +57,14 @@ class UserApplicationController extends Controller
     {
         return new JsonResponse(['status' => $userApplication->is_offline_database_mode->getValue()], 200);
     }
+    public function isOfflineDatabaseRequiredUpdate(UserApplication $userApplication): JsonResponse
+    {
+        return new JsonResponse(['status' => $userApplication->is_offline_database_required_update->getValue()], 200);
+    }
+    public function isRsaPrivateRequiredUpdate(UserApplication $userApplication): JsonResponse
+    {
+        return new JsonResponse(['status' => $userApplication->is_rsa_private_required_update->getValue()], 200);
+    }
 
     public function setOfflineDatabaseStatus(UserApplication $userApplication, UpdateOfflineDatabaseModeRequest $request): JsonResponse
     {

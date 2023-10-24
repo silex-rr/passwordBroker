@@ -4,6 +4,8 @@ namespace Identity\Application;
 
 use Identity\Domain\User\Models\User;
 use Identity\Domain\UserApplication\Models\Attributes\ClientId;
+use Identity\Domain\UserApplication\Models\Attributes\IsOfflineDatabaseRequiredUpdate;
+use Identity\Domain\UserApplication\Models\Attributes\IsRsaPrivateRequiredUpdate;
 use Identity\Domain\UserApplication\Models\Attributes\UserApplicationId;
 use Identity\Domain\UserApplication\Models\UserApplication;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -81,6 +83,62 @@ class UserApplicationTest extends TestCase
                 => $json->where('userApplication.client_id', $clientId->getValue())
                     ->where('userApplication.user_application_id', $application_id)
             );
+    }
+
+    public function test_a_user_can_check_is_their_offline_database_required_update(): void
+    {
+        /**
+         * @var UserApplication $userApplication
+         */
+        $userApplication = UserApplication::factory()->createUser()->create();
+
+        /**
+         * @var User $user
+         */
+        $user = $userApplication->user()->first();
+        $this->actingAs($user);
+
+        $userApplication->is_offline_database_required_update = new IsOfflineDatabaseRequiredUpdate(false);
+        $userApplication->save();
+
+        $this->getJson(route('userApplicationIsOfflineDatabaseRequiredUpdate', ['userApplication' => $userApplication]))
+            ->assertStatus(200)
+            ->assertJson(fn (AssertableJson $json) => $json->where('status', false));
+
+        $userApplication->is_offline_database_required_update = new IsOfflineDatabaseRequiredUpdate(true);
+        $userApplication->save();
+
+        $this->getJson(route('userApplicationIsOfflineDatabaseRequiredUpdate', ['userApplication' => $userApplication]))
+            ->assertStatus(200)
+            ->assertJson(fn (AssertableJson $json) => $json->where('status', true));
+    }
+
+    public function test_a_user_can_check_is_rsa_private_required_update(): void
+    {
+        /**
+         * @var UserApplication $userApplication
+         */
+        $userApplication = UserApplication::factory()->createUser()->create();
+
+        /**
+         * @var User $user
+         */
+        $user = $userApplication->user()->first();
+        $this->actingAs($user);
+
+        $userApplication->is_rsa_private_required_update = new IsRsaPrivateRequiredUpdate(false);
+        $userApplication->save();
+
+        $this->getJson(route('userApplicationIsRsaPrivateRequiredUpdate', ['userApplication' => $userApplication]))
+            ->assertStatus(200)
+            ->assertJson(fn (AssertableJson $json) => $json->where('status', false));
+
+        $userApplication->is_rsa_private_required_update = new IsRsaPrivateRequiredUpdate(true);
+        $userApplication->save();
+
+        $this->getJson(route('userApplicationIsRsaPrivateRequiredUpdate', ['userApplication' => $userApplication]))
+            ->assertStatus(200)
+            ->assertJson(fn (AssertableJson $json) => $json->where('status', true));
     }
 
     public function test_a_user_can_get_a_user_application(): void

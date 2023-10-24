@@ -55,6 +55,11 @@ $routes = static function () {
     Route::get('/userApplication/{userApplication:user_application_id}/offlineDatabaseMode', [UserApplicationController::class, 'getOfflineDatabaseStatus'])
         ->name('userApplicationOfflineDatabaseMode');
     Route::put('/userApplication/{userApplication:user_application_id}/offlineDatabaseMode', [UserApplicationController::class, 'setOfflineDatabaseStatus']);
+
+    Route::get('/userApplication/{userApplication:user_application_id}/isOfflineDatabaseRequiredUpdate', [UserApplicationController::class, 'isOfflineDatabaseRequiredUpdate'])
+        ->name('userApplicationIsOfflineDatabaseRequiredUpdate');
+    Route::get('/userApplication/{userApplication:user_application_id}/isRsaPrivateRequiredUpdate', [UserApplicationController::class, 'isRsaPrivateRequiredUpdate'])
+        ->name('userApplicationIsRsaPrivateRequiredUpdate');
 };
 
 //Route::middleware('api')->group($routes);
