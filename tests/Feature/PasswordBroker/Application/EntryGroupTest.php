@@ -535,7 +535,7 @@ class EntryGroupTest extends TestCase
             ->assertStatus(200)
             ->assertJson(static fn(AssertableJson $json) =>
                 $json->where('timestamp', static fn($timestamp) => is_numeric($timestamp))
-                ->has('data', static function (AssertableJson $data)
+                ->has('data.groups', static function (AssertableJson $data)
                 use ($password_3_1_1, $entry_3_1, $entryGroup_3, $admin)
                 {
                     $data->has(5)->each(static function (AssertableJson $group)
@@ -567,6 +567,7 @@ class EntryGroupTest extends TestCase
                             $group->etc();
                         });
                     })
+                    ->has('data.trees')
             );
 
         $this->actingAs($member);
