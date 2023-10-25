@@ -66,7 +66,10 @@ class EntryGroupController extends Controller
         }
         return new JsonResponse([
             'timestamp' => $carbon->timestamp,
-            'data' => $this->entryGroupService->groupsWithFields($user)
+            'data' => [
+                'groups' => $this->entryGroupService->groupsWithFields($user),
+                'trees' => $this->entryGroupService->groupsAsTree($user->userOf()),
+            ]
         ], 200);
     }
     public function indexAsTree(): JsonResponse
