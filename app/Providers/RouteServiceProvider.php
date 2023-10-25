@@ -43,7 +43,7 @@ class RouteServiceProvider extends ServiceProvider
     {
         $this->configureRateLimiting();
 
-        $this->routes(function () {
+        $routeServiceProvider = $this->routes(function () {
             Route::middleware('api')
                 ->prefix('api')
                 ->group(base_path('routes' . DIRECTORY_SEPARATOR . 'api.php'));
@@ -62,12 +62,13 @@ class RouteServiceProvider extends ServiceProvider
 
             Route::middleware('api')
                 ->prefix('identity/api')
-                ->namespace($this->identity_namespace )
+                ->namespace($this->identity_namespace)
                 ->group(base_path($this->identity_dir . 'api.php'));
         });
 
-
-
+        if (env('LOG_LEVEL') === 'debug') {
+            $routeServiceProvider->middleware('logRequest');
+        }
     }
 
     /**
