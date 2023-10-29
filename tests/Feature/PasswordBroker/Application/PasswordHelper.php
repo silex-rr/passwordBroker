@@ -33,6 +33,7 @@ trait PasswordHelper
         $encrypted_aes_password = $owner->userOf()->where('entry_group_id', $entryGroup->entry_group_id)->firstOrFail()->encrypted_aes_password;
         $privateKey = $rsaService->getUserPrivateKey($owner->user_id, UserFactory::MASTER_PASSWORD);
         $decrypted_aes_password = $privateKey->decrypt($encrypted_aes_password);
+//        dd($encrypted_aes_password, $decrypted_aes_password, $privateKey);
 
         $password_str_encrypted = $encryptionService->encrypt($password_str, $decrypted_aes_password, $iv);
 
