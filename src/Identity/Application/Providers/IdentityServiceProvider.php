@@ -88,5 +88,6 @@ class IdentityServiceProvider extends ServiceProvider
     private function defineGates(): void
     {
         Gate::define('get-self-rsa-private-key', static fn (User $user) => $user->is_admin->getValue());
+        Gate::define('get-cbc-salt', static fn (User $user) => $user->is_admin->getValue());
     }
 }

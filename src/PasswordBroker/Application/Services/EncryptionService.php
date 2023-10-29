@@ -2,12 +2,15 @@
 
 namespace PasswordBroker\Application\Services;
 
+use Illuminate\Support\Facades\Storage;
+use phpseclib3\Crypt\Common\BlockCipher;
 use phpseclib3\Crypt\Random;
 use phpseclib3\Crypt\Rijndael;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 class EncryptionService
 {
+    private string $cbcSalt = '';
     public function __construct(
         private readonly EventDispatcher $dispatcher
     )
@@ -24,6 +27,29 @@ class EncryptionService
         return Random::string(64);
     }
 
+    public function getCbcSalt(): string
+    {
+        if (empty($this->cbcSalt)) {
+            $this->loadCbcSalt();
+        }
+        return $this->cbcSalt;
+    }
+
+    private function loadCbcSalt(): void
+    {
+        $filesystem = Storage::disk('cbc_salt');
+        $fileName = 'salt';
+        if(!$filesystem->exists($fileName)) {
+            $filesystem->put($fileName, Random::string('32'));
+        }
+        $this->cbcSalt = $filesystem->get($fileName);
+    }
+
+    private function cipherSetPass(BlockCipher $cipher, string $pass): void
+    {
+        $cipher->setPassword($pass, 'pbkdf2', 'sha1', $this->getCbcSalt(), 1000, 16);
+    }
+
     /**
      * @param string $data
      * @param string $pass
@@ -32,9 +58,9 @@ class EncryptionService
      */
     public function encrypt(string $data, string $pass, string $iv): string
     {
-        $cipher = new Rijndael('ctr');
+        $cipher = new Rijndael('cbc');
         $cipher->setIV($iv);
-        $cipher->setPassword($pass);
+        $this->cipherSetPass($cipher, $pass);
         return $cipher->encrypt($data);
     }
 
@@ -46,9 +72,9 @@ class EncryptionService
      */
     public function decrypt(string $data_encrypted, string $decrypted_aes_password, string $iv): string
     {
-        $cipher = new Rijndael('ctr');
+        $cipher = new Rijndael('cbc');
         $cipher->setIV($iv);
-        $cipher->setPassword($decrypted_aes_password);
+        $this->cipherSetPass($cipher, $decrypted_aes_password);
         return $cipher->decrypt($data_encrypted);
     }
 }

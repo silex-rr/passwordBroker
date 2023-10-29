@@ -45,6 +45,10 @@ $routes = static function () {
         ->can('get-self-rsa-private-key')
         ->name('user_get_rsa_private_key');
 
+    Route::get('/getCbcSalt', [UserController::class, 'getCbcSalt'])
+        ->can('get-cbc-salt')
+        ->name('getCbcSalt');
+
     ///UserApplication
 
     Route::post('/userApplications/', [UserApplicationController::class, 'store'])

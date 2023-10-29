@@ -19,6 +19,7 @@ use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
+use PasswordBroker\Application\Services\EncryptionService;
 use Symfony\Component\Mime\Encoder\Base64Encoder;
 
 class UserController extends Controller
@@ -85,6 +86,15 @@ class UserController extends Controller
             password: $password,
             master_password: $master_password
         ));
+    }
+
+    public function getCbcSalt(EncryptionService $encryptionService, Base64Encoder $base64Encoder): JsonResponse
+    {
+        $carbon = Carbon::now();
+        return new JsonResponse([
+            'timestamp' => $carbon->timestamp,
+            'salt_base64' => $base64Encoder->encodeString($encryptionService->getCbcSalt())
+        ], 200);
     }
 
     public function getPrivateRsa(RsaService $rsaService, Base64Encoder $base64Encoder): JsonResponse

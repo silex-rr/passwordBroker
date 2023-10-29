@@ -5,7 +5,6 @@ namespace Identity\Application\Services;
 use Identity\Domain\User\Models\Attributes\UserId;
 use Identity\Domain\User\Models\User;
 use Illuminate\Support\Facades\Storage;
-use phpseclib3\Crypt\Common\AsymmetricKey;
 use phpseclib3\Crypt\PublicKeyLoader;
 use phpseclib3\Crypt\RSA;
 use phpseclib3\Crypt\RSA\PrivateKey;
