@@ -10,11 +10,13 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 use PasswordBroker\Application\Http\Requests\EntryGroupMoveRequest;
 use PasswordBroker\Application\Http\Requests\EntryGroupRequest;
+use PasswordBroker\Application\Services\EncryptionService;
 use PasswordBroker\Application\Services\EntryGroupService;
 use PasswordBroker\Domain\Entry\Models\EntryGroup;
 use PasswordBroker\Domain\Entry\Services\AddEntryGroup;
 use PasswordBroker\Domain\Entry\Services\MoveEntryGroup;
 use PasswordBroker\Infrastructure\Validation\Handlers\EntryGroupValidationHandler;
+use Symfony\Component\Mime\Encoder\Base64Encoder;
 
 class EntryGroupController extends Controller
 {
@@ -64,11 +66,13 @@ class EntryGroupController extends Controller
             $accessToken->rsa_private_fetched_at = $carbon;
             $accessToken->save();
         }
+        $encoder = app(Base64Encoder::class);
         return new JsonResponse([
             'timestamp' => $carbon->timestamp,
             'data' => [
                 'groups' => $this->entryGroupService->groupsWithFields($user),
                 'trees' => $this->entryGroupService->groupsAsTree($user->userOf()),
+                'cbcSaltBase64' => $encoder->encodeString(app(EncryptionService::class)->getCbcSalt())
             ]
         ], 200);
     }

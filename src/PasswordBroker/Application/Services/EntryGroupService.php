@@ -15,6 +15,7 @@ use PasswordBroker\Domain\Entry\Models\Fields\EntryFieldHistory;
 use PasswordBroker\Domain\Entry\Models\Groups\Role;
 use RuntimeException;
 use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Component\Mime\Encoder\Base64Encoder;
 
 class EntryGroupService
 {
@@ -215,6 +216,21 @@ class EntryGroupService
             master_password: $master_password,
             entryGroup: $field->entry()->firstOrFail()->entryGroup()->firstOrFail()
         );
+        $encoder = app(Base64Encoder::class);
+//        dd([
+//            'iv' => $encoder->encodeString($field->initialization_vector->getValue()),
+//            'decryptedAesPassword' => $decryptedAesPassword,
+//            'decryptedAesPassword_enc' => $encoder->encodeString($decryptedAesPassword),
+//            'value' => $encoder->encodeString($field->value_encrypted->getValue()),
+//            'decoded' => $this->encryptionService->decrypt(
+//                data_encrypted: $field->value_encrypted->getValue(),
+//                decrypted_aes_password: $decryptedAesPassword,
+//                iv: $field->initialization_vector->getValue()
+//            ),
+//            'salt' => $this->encryptionService->getCbcSalt(),
+//            'salt_en' => $encoder->encodeString($this->encryptionService->getCbcSalt()),
+//                ]
+//        );
         return $this->encryptionService->decrypt(
             data_encrypted: $field->value_encrypted->getValue(),
             decrypted_aes_password: $decryptedAesPassword,

@@ -6,7 +6,6 @@ use App\Common\Domain\Traits\HasFactoryDomain;
 use App\Common\Domain\Traits\ModelDomainConstructor;
 use App\Models\Abstracts\AbstractValue;
 use Identity\Domain\User\Models\User;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
@@ -14,11 +13,11 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use PasswordBroker\Application\Events\EntryGroupCreated;
 use PasswordBroker\Domain\Entry\Models\Casts\EntryGroupId;
 use PasswordBroker\Domain\Entry\Models\Casts\GroupName;
 use PasswordBroker\Domain\Entry\Models\Casts\MaterializedPath;
 use PasswordBroker\Domain\Entry\Models\Fields\Field;
-use PasswordBroker\Domain\Entry\Models\Fields\Password;
 use PasswordBroker\Domain\Entry\Models\Groups\Admin;
 use PasswordBroker\Domain\Entry\Models\Groups\Attributes\EncryptedAesPassword;
 use PasswordBroker\Domain\Entry\Models\Groups\Member;
@@ -27,7 +26,6 @@ use PasswordBroker\Infrastructure\Validation\EntryGroupUserValidator;
 use PasswordBroker\Infrastructure\Validation\EntryGroupValidator;
 use PasswordBroker\Infrastructure\Validation\Handlers\EntryGroupUserValidationHandler;
 use PasswordBroker\Infrastructure\Validation\Handlers\EntryGroupValidationHandler;
-use Psy\Util\Str;
 use Symfony\Component\Mime\Encoder\Base64Encoder;
 
 /**
@@ -52,6 +50,15 @@ class EntryGroup extends Model
         'entry_group_id' => EntryGroupId::class,
         'name' => GroupName::class,
         'materialized_path' => MaterializedPath::class
+    ];
+
+    protected $dispatchesEvents = [
+//        'saving' => FieldSave::class,
+        'created' => EntryGroupCreated::class,
+//        'updated' => FieldUpdated::class,
+//        'trashed' => FieldTrashed::class,
+//        'restored' => FieldRestored::class,
+//        'forceDeleted' => FieldForceDeleted::class,
     ];
 
     public function entries(): HasMany
