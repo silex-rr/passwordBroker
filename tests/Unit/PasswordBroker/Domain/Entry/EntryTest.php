@@ -43,13 +43,13 @@ class EntryTest extends TestCase
 
         $data_pass = $this->faker->sentence();
 
-        $cipher = new Rijndael('ctr');
+        $cipher = new Rijndael('cbc');
         $iv = Random::string(16);
         $cipher->setIV($iv);
         $cipher->setPassword($pass);
         $data_pass_encrypted = $cipher->encrypt($data_pass);
 
-        $cipher = new Rijndael('ctr');
+        $cipher = new Rijndael('cbc');
         $cipher->setIV($iv);
         $cipher->setPassword($pass);
 
