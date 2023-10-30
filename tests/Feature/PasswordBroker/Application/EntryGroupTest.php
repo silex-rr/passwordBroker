@@ -4,18 +4,23 @@ namespace Tests\Feature\PasswordBroker\Application;
 
 use Identity\Domain\User\Models\Attributes\IsAdmin;
 use Identity\Domain\User\Models\User;
+use Identity\Domain\User\Models\UserAccessToken;
+use Identity\Domain\UserApplication\Models\Attributes\ClientId;
+use Identity\Domain\UserApplication\Models\Attributes\IsOfflineDatabaseRequiredUpdate;
+use Identity\Domain\UserApplication\Models\UserApplication;
 use Identity\Infrastructure\Factories\User\UserFactory;
 use Illuminate\Database\Eloquent\Factories\Sequence;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
-use Illuminate\Support\Collection;
 use Illuminate\Testing\Fluent\AssertableJson;
 use PasswordBroker\Application\Services\EntryGroupService;
 use PasswordBroker\Domain\Entry\Models\Attributes\GroupName;
 use PasswordBroker\Domain\Entry\Models\Entry;
 use PasswordBroker\Domain\Entry\Models\EntryGroup;
-use phpDocumentor\Reflection\Types\Static_;
+use Ramsey\Uuid\Uuid;
 use Symfony\Component\Mime\Encoder\Base64Encoder;
+use Tests\Feature\Identity\Application\GetAuthTokenHeaders;
+use Tests\Feature\Identity\Application\GetUserToken;
 use Tests\TestCase;
 
 class EntryGroupTest extends TestCase
@@ -24,6 +29,8 @@ class EntryGroupTest extends TestCase
     use WithFaker;
     use EntryGroupRandomAttributes;
     use PasswordHelper;
+    use GetUserToken;
+    use GetAuthTokenHeaders;
 
     public function test_a_guest_cannot_create_an_entry_group(): void
     {
@@ -506,12 +513,54 @@ class EntryGroupTest extends TestCase
         [$admin, $member] = User::factory()->count(2)->create();
         $admin->is_admin = IsAdmin::fromNative(true);
         $admin->save();
+
+        $this->actingAs($member);
+        $this->getJson(route('allGroupsWithFields'))
+            ->assertStatus(403);
+        $this->actingAsGuest();
+
+        /**
+         * @var UserAccessToken $userToken
+         */
+        [$token, $userToken] = $this->getUserToken($admin);
+
+
+//        $this->actingAs($admin);
+
+        $clientId = new ClientId($userToken->name);
+
+        $application_id = null;
+
+        $headers = $this->getAuthTokenHeaders($token);
+        $this->postJson(
+            route('userApplications'),
+            ['clientId' => $clientId->getValue()],
+            $headers
+        )
+            ->assertStatus(200)
+            ->assertJson(static function (AssertableJson $json) use (&$application_id, $clientId) {
+                $json
+                    ->where('userApplication.client_id', $clientId->getValue())
+                    ->where('userApplication.user_application_id',
+                        static function ($json_application_id) use (&$application_id) {
+                            $application_id = $json_application_id;
+                            return Uuid::isValid($application_id);
+                        });
+            });
+
+        /**
+         * @var UserApplication $userApplication
+         */
+        $userApplication = UserApplication::where('user_application_id', $application_id)->firstOrFail();
+        $userApplication->is_offline_database_required_update = new IsOfflineDatabaseRequiredUpdate(true);
+        $userApplication->save();
+
         /**
          * @var EntryGroupService $entryGroupService
          */
         $entryGroupService = app(EntryGroupService::class);
 
-        $this->actingAs($admin);
+
         $entryGroupService->addUserToGroupAsAdmin($admin, $entryGroup_1);
         $entryGroupService->addUserToGroupAsAdmin($admin, $entryGroup_2);
         $entryGroupService->addUserToGroupAsAdmin($admin, $entryGroup_3);
@@ -531,7 +580,12 @@ class EntryGroupTest extends TestCase
             password_str: $this->faker->password
         );
 
-        $this->getJson(route('allGroupsWithFields'))
+        $this->assertDatabaseHas($userApplication->getTable(), [
+            'user_application_id' => $application_id,
+            'is_offline_database_required_update' => 1
+        ]);
+
+        $this->getJson(route('allGroupsWithFields'), $headers)
             ->assertStatus(200)
             ->assertJson(static fn(AssertableJson $json) =>
                 $json->where('timestamp', static fn($timestamp) => is_numeric($timestamp))
@@ -570,9 +624,10 @@ class EntryGroupTest extends TestCase
                     ->has('data.trees')
             );
 
-        $this->actingAs($member);
-        $this->getJson(route('allGroupsWithFields'))
-            ->assertStatus(403);
-
+        $this->assertDatabaseHas($userApplication->getTable(), [
+            'user_application_id' => $application_id,
+            'is_offline_database_required_update' => 0
+        ]);
+        dd(UserApplication::all()->first()->offline_database_fetched_at);
     }
 }

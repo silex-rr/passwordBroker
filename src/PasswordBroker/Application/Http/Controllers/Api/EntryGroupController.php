@@ -4,8 +4,11 @@ namespace PasswordBroker\Application\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use Carbon\Carbon;
+use Identity\Application\Services\UserService;
 use Identity\Domain\User\Models\User;
 use Identity\Domain\User\Models\UserAccessToken;
+use Identity\Domain\User\Services\UserApplicationChangeOfflineDatabaseRequiredUpdate;
+use Identity\Domain\UserApplication\Models\Attributes\IsOfflineDatabaseRequiredUpdate;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 use PasswordBroker\Application\Http\Requests\EntryGroupMoveRequest;
@@ -51,7 +54,7 @@ class EntryGroupController extends Controller
         return new JsonResponse($user->userOf(), 200);
     }
 
-    public function indexWithFields(): JsonResponse
+    public function indexWithFields(UserService $userService): JsonResponse
     {
         /**
          * @var User $user
@@ -63,16 +66,21 @@ class EntryGroupController extends Controller
          */
         $accessToken = $user->currentAccessToken();
         if ($accessToken) {
-            $accessToken->rsa_private_fetched_at = $carbon;
-            $accessToken->save();
+            $userApplication = $userService->getUserApplicationByToken($accessToken);
+            if ($userApplication) {
+                $this->dispatchSync(new UserApplicationChangeOfflineDatabaseRequiredUpdate(
+                    userApplication: $userApplication,
+                    isOfflineDatabaseRequiredUpdate: new IsOfflineDatabaseRequiredUpdate(false),
+                    carbon: $carbon
+                ));
+            }
         }
-        $encoder = app(Base64Encoder::class);
+
         return new JsonResponse([
             'timestamp' => $carbon->timestamp,
             'data' => [
                 'groups' => $this->entryGroupService->groupsWithFields($user),
-                'trees' => $this->entryGroupService->groupsAsTree($user->userOf()),
-                'cbcSaltBase64' => $encoder->encodeString(app(EncryptionService::class)->getCbcSalt())
+                'trees' => $this->entryGroupService->groupsAsTree($user->userOf())
             ]
         ], 200);
     }
