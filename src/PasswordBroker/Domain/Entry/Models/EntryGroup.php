@@ -14,6 +14,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use PasswordBroker\Application\Events\EntryGroupCreated;
+use PasswordBroker\Application\Events\EntryGroupForceDeleted;
+use PasswordBroker\Application\Events\EntryGroupRestored;
+use PasswordBroker\Application\Events\EntryGroupTrashed;
+use PasswordBroker\Application\Events\EntryGroupUpdated;
 use PasswordBroker\Domain\Entry\Models\Casts\EntryGroupId;
 use PasswordBroker\Domain\Entry\Models\Casts\GroupName;
 use PasswordBroker\Domain\Entry\Models\Casts\MaterializedPath;
@@ -53,12 +57,11 @@ class EntryGroup extends Model
     ];
 
     protected $dispatchesEvents = [
-//        'saving' => FieldSave::class,
         'created' => EntryGroupCreated::class,
-//        'updated' => FieldUpdated::class,
-//        'trashed' => FieldTrashed::class,
-//        'restored' => FieldRestored::class,
-//        'forceDeleted' => FieldForceDeleted::class,
+        'updated' => EntryGroupUpdated::class,
+        'trashed' => EntryGroupTrashed::class,
+        'restored' => EntryGroupRestored::class,
+        'forceDeleted' => EntryGroupForceDeleted::class,
     ];
 
     public function entries(): HasMany
