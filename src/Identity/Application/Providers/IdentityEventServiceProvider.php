@@ -4,10 +4,14 @@ namespace Identity\Application\Providers;
 
 use Identity\Application\Listeners\UserApplicationSetOfflineDatabaseRequiredUpdate;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
+use PasswordBroker\Application\Events\EntryCreated;
 use PasswordBroker\Application\Events\EntryGroupCreated;
 use PasswordBroker\Application\Events\EntryGroupRestored;
 use PasswordBroker\Application\Events\EntryGroupTrashed;
 use PasswordBroker\Application\Events\EntryGroupUpdated;
+use PasswordBroker\Application\Events\EntryRestored;
+use PasswordBroker\Application\Events\EntryTrashed;
+use PasswordBroker\Application\Events\EntryUpdated;
 use PasswordBroker\Application\Events\FieldCreated;
 use PasswordBroker\Application\Events\FieldRestored;
 use PasswordBroker\Application\Events\FieldTrashed;
@@ -62,7 +66,7 @@ class IdentityEventServiceProvider extends ServiceProvider
         //Entry Group Events
 //        EntryGroupCreated::class => [
 //            UserApplicationSetOfflineDatabaseRequiredUpdate::class,
-//        ]
+//        ],
         EntryGroupTrashed::class => [
             UserApplicationSetOfflineDatabaseRequiredUpdate::class,
         ],
@@ -70,6 +74,19 @@ class IdentityEventServiceProvider extends ServiceProvider
             UserApplicationSetOfflineDatabaseRequiredUpdate::class,
         ],
         EntryGroupUpdated::class => [
+            UserApplicationSetOfflineDatabaseRequiredUpdate::class,
+        ],
+        //Entry Events
+        EntryCreated::class => [
+            UserApplicationSetOfflineDatabaseRequiredUpdate::class,
+        ],
+        EntryTrashed::class => [
+            UserApplicationSetOfflineDatabaseRequiredUpdate::class,
+        ],
+        EntryRestored::class => [
+            UserApplicationSetOfflineDatabaseRequiredUpdate::class,
+        ],
+        EntryUpdated::class => [
             UserApplicationSetOfflineDatabaseRequiredUpdate::class,
         ],
     ];

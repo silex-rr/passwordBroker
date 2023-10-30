@@ -4,22 +4,19 @@ namespace Identity\Application;
 
 use Identity\Domain\User\Models\User;
 use Identity\Domain\UserApplication\Models\Attributes\ClientId;
+use Identity\Domain\UserApplication\Models\Attributes\IsOfflineDatabaseMode;
 use Identity\Domain\UserApplication\Models\Attributes\IsOfflineDatabaseRequiredUpdate;
 use Identity\Domain\UserApplication\Models\Attributes\IsRsaPrivateRequiredUpdate;
-use Identity\Domain\UserApplication\Models\Attributes\IsOfflineDatabaseMode;
 use Identity\Domain\UserApplication\Models\UserApplication;
-use Illuminate\Broadcasting\BroadcastEvent;
-use Illuminate\Contracts\Broadcasting\Factory;
-use Illuminate\Events\CallQueuedListener;
+use Identity\Infrastructure\Factories\User\UserFactory;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
-use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Testing\Fluent\AssertableJson;
-use PasswordBroker\Application\Events\EntryGroupCreated;
 use PasswordBroker\Application\Services\EncryptionService;
+use PasswordBroker\Domain\Entry\Models\Entry;
 use PasswordBroker\Domain\Entry\Models\EntryGroup;
-use PasswordBroker\Domain\Entry\Services\AddEntryGroup;
+use PasswordBroker\Domain\Entry\Models\Fields\Password;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Mime\Encoder\Base64Encoder;
 use Tests\Feature\PasswordBroker\Application\EntryGroupRandomAttributes;
@@ -85,8 +82,69 @@ class UserApplicationTest extends TestCase
             $attributes,
             app(EntryGroup::class)->getConnection()->getName()
         );
-        $userApplication->refresh();
-        $this->assertTrue($userApplication->is_offline_database_required_update->getValue());
+
+        $this->getJson(route('userApplicationIsOfflineDatabaseRequiredUpdate', ['userApplication' => $userApplication]))
+            ->assertStatus(200)
+            ->assertJson(fn (AssertableJson $json) => $json->where('status', true));
+
+        $userApplication->is_offline_database_required_update = new IsOfflineDatabaseRequiredUpdate(false);
+        $userApplication->save();
+
+        $this->getJson(route('userApplicationIsOfflineDatabaseRequiredUpdate', ['userApplication' => $userApplication]))
+            ->assertStatus(200)
+            ->assertJson(fn (AssertableJson $json) => $json->where('status', false));
+        /**
+         * @var EntryGroup $entryGroup
+         */
+        $entryGroup = EntryGroup::all()->first();
+
+        //UPDATING BELONGED ENTRIES
+
+        $entry_attributes = Entry::factory()->raw();
+        unset($entry_attributes['entry_group_id'], $entry_attributes['entry_id']);
+        $this->postJson(
+            route('entryGroupEntries', ['entryGroup' => $entryGroup->entry_group_id->getValue()]),
+            $entry_attributes
+        )->assertStatus(200);
+
+        $this->getJson(route('userApplicationIsOfflineDatabaseRequiredUpdate', ['userApplication' => $userApplication]))
+            ->assertStatus(200)
+            ->assertJson(fn (AssertableJson $json) => $json->where('status', true));
+
+        /**
+         * @var UserApplication $userApplication
+         */
+        $userApplication = UserApplication::all()->first();
+        $userApplication->is_offline_database_required_update = new IsOfflineDatabaseRequiredUpdate(false);
+        $userApplication->save();
+
+        $this->getJson(route('userApplicationIsOfflineDatabaseRequiredUpdate', ['userApplication' => $userApplication]))
+            ->assertStatus(200)
+            ->assertJson(fn (AssertableJson $json) => $json->where('status', false));
+
+        //UPDATING BELONGED FIELDS
+
+        $entryGroup->refresh();
+        /**
+         * @var Entry $entry
+         */
+        $entry = $entryGroup->entries()->first();
+
+        $this->postJson(
+            route('entryFields', ['entryGroup' => $entryGroup, 'entry' => $entry]),
+            [
+                'type' => Password::TYPE,
+                'value' => $this->faker->word,
+                'login' => $this->faker->word,
+                'title' => '',
+                'master_password' => UserFactory::MASTER_PASSWORD
+            ]
+        )->assertStatus(200);
+
+        $this->getJson(route('userApplicationIsOfflineDatabaseRequiredUpdate', ['userApplication' => $userApplication]))
+            ->assertStatus(200)
+            ->assertJson(fn (AssertableJson $json) => $json->where('status', true));
+
     }
 
     public function test_a_system_administrator_can_switch_a_database_offline_mode_for_self_tokens(): void

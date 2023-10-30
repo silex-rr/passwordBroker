@@ -9,6 +9,7 @@ use Illuminate\Contracts\Bus\Dispatcher;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use PasswordBroker\Application\Events\EntryEvent;
 use PasswordBroker\Application\Events\EntryGroupEvent;
 use PasswordBroker\Application\Events\FieldEvent;
 use PasswordBroker\Application\Events\RoleEvent;
@@ -31,10 +32,10 @@ class UserApplicationSetOfflineDatabaseRequiredUpdate
     /**
      * Handle the event.
      *
-     * @param EntryGroupEvent|FieldEvent|RoleEvent $event
+     * @param EntryGroupEvent|EntryEvent|RoleEvent|FieldEvent $event
      * @return void
      */
-    public function handle(EntryGroupEvent|FieldEvent|RoleEvent $event): void
+    public function handle(EntryGroupEvent|EntryEvent|RoleEvent|FieldEvent $event): void
     {
         $userApplicationJoin = static function(?UserId $userId = null) {
             return static function (Builder|BelongsTo $builder) use ($userId){
@@ -77,6 +78,14 @@ class UserApplicationSetOfflineDatabaseRequiredUpdate
                     return;
                 }
                 $entryGroup = $entry->entryGroup;
+                break;
+            case $event instanceof EntryEvent:
+                $entryGroup = $event->entry->entryGroup()
+                    ->with([
+                        'admins.user' => $userApplicationJoin(),
+                        'moderators.user' => $userApplicationJoin(),
+                        'members.user' =>  $userApplicationJoin()
+                    ])->first();
                 break;
             case $event instanceof EntryGroupEvent:
                 $entryGroup = $event->entryGroup
