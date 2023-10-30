@@ -2,6 +2,7 @@
 
 namespace Identity\Domain\User\Services;
 
+use Carbon\Carbon;
 use Identity\Domain\User\Events\UserApplicationOfflineDatabaseRequiredUpdateChanged;
 use Identity\Domain\UserApplication\Models\Attributes\IsOfflineDatabaseRequiredUpdate;
 use Identity\Domain\UserApplication\Models\UserApplication;
@@ -17,7 +18,8 @@ class UserApplicationChangeOfflineDatabaseRequiredUpdate implements ShouldQueue
 
     public function __construct(
         protected UserApplication $userApplication,
-        protected readonly IsOfflineDatabaseRequiredUpdate $isOfflineDatabaseRequiredUpdate
+        protected readonly IsOfflineDatabaseRequiredUpdate $isOfflineDatabaseRequiredUpdate,
+        protected readonly ?Carbon $carbon = null
     )
     {
     }
@@ -25,6 +27,11 @@ class UserApplicationChangeOfflineDatabaseRequiredUpdate implements ShouldQueue
     public function handle(): void
     {
         $this->userApplication->is_offline_database_required_update = $this->isOfflineDatabaseRequiredUpdate;
+        if ($this->isOfflineDatabaseRequiredUpdate->getValue() === false
+            && $this->carbon
+        ) {
+            $this->userApplication->offline_database_fetched_at = $this->carbon;
+        }
         $this->userApplication->save();
         event(new UserApplicationOfflineDatabaseRequiredUpdateChanged($this->userApplication));
     }
