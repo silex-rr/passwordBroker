@@ -15,10 +15,11 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 
 /**
- * @property int offline_database_fetched_at
- * @property int rsa_private_fetched_at
+ * @property Carbon offline_database_fetched_at
+ * @property Carbon rsa_private_fetched_at
  * @property Attributes\IsOfflineDatabaseMode is_offline_database_mode
  * @property Attributes\UserApplicationId user_application_id
  * @property Attributes\ClientId client_id
