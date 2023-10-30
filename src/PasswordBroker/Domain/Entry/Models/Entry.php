@@ -11,6 +11,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Collection;
+use PasswordBroker\Application\Events\EntryCreated;
+use PasswordBroker\Application\Events\EntryForceDeleted;
+use PasswordBroker\Application\Events\EntryRestored;
+use PasswordBroker\Application\Events\EntryTrashed;
+use PasswordBroker\Application\Events\EntryUpdated;
 use PasswordBroker\Domain\Entry\Models\Casts\EntryId;
 use PasswordBroker\Domain\Entry\Models\Fields\Attributes\FileMime;
 use PasswordBroker\Domain\Entry\Models\Fields\Attributes\FileName;
@@ -43,6 +48,14 @@ class Entry extends Model
     protected $casts = [
         'entry_id' => EntryId::class,
         'title' => Casts\Title::class
+    ];
+
+    protected $dispatchesEvents = [
+        'created' => EntryCreated::class,
+        'updated' => EntryUpdated::class,
+        'trashed' => EntryTrashed::class,
+        'restored' => EntryRestored::class,
+        'forceDeleted' => EntryForceDeleted::class,
     ];
 
 //    public function newUniqueId(): UserIdAttribute
