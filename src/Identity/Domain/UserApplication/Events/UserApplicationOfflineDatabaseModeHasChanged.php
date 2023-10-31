@@ -16,8 +16,8 @@ class UserApplicationOfflineDatabaseModeHasChanged extends DomainEvent
     use Dispatchable;
 
     public function __construct(
-        private readonly UserApplication $userApplication,
-        private readonly IsOfflineDatabaseMode $isOfflineDatabaseMode
+        public readonly UserApplication $userApplication,
+        public readonly IsOfflineDatabaseMode $isOfflineDatabaseMode
     ) {
         $this->entity = $this->userApplication;
     }

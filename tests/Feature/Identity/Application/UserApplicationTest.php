@@ -164,10 +164,16 @@ class UserApplicationTest extends TestCase
         $this->getJson(route('userApplicationOfflineDatabaseMode', ['userApplication' => $userApplication]))
             ->assertStatus(200)
             ->assertJson(fn (AssertableJson $json) => $json->where('status', false));
+        $this->getJson(route('userApplicationIsOfflineDatabaseRequiredUpdate', ['userApplication' => $userApplication]))
+            ->assertStatus(200)
+            ->assertJson(fn (AssertableJson $json) => $json->where('status', false));
 
         $this->putJson(route('userApplicationOfflineDatabaseMode', ['userApplication' => $userApplication]),
                 ['status' => true]
             )->assertStatus(200);
+        $this->getJson(route('userApplicationIsOfflineDatabaseRequiredUpdate', ['userApplication' => $userApplication]))
+            ->assertStatus(200)
+            ->assertJson(fn (AssertableJson $json) => $json->where('status', true));
 
         $this->getJson(route('userApplicationOfflineDatabaseMode', ['userApplication' => $userApplication]))
             ->assertStatus(200)

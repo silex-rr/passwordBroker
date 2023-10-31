@@ -4,6 +4,7 @@ namespace Identity\Application\Listeners;
 
 use Identity\Domain\User\Models\Attributes\UserId;
 use Identity\Domain\User\Services\UserApplicationChangeOfflineDatabaseRequiredUpdate;
+use Identity\Domain\UserApplication\Events\UserApplicationOfflineDatabaseModeHasChanged;
 use Identity\Domain\UserApplication\Models\Attributes\IsOfflineDatabaseRequiredUpdate;
 use Illuminate\Contracts\Bus\Dispatcher;
 use Illuminate\Database\Eloquent\Builder;
@@ -35,8 +36,13 @@ class UserApplicationSetOfflineDatabaseRequiredUpdate
      * @param EntryGroupEvent|EntryEvent|RoleEvent|FieldEvent $event
      * @return void
      */
-    public function handle(EntryGroupEvent|EntryEvent|RoleEvent|FieldEvent $event): void
+    public function handle(EntryGroupEvent|EntryEvent|RoleEvent|FieldEvent|UserApplicationOfflineDatabaseModeHasChanged $event): void
     {
+        /**
+         * @var Dispatcher $dispatcher
+         */
+        $dispatcher = app(Dispatcher::class);
+
         $userApplicationJoin = static function(?UserId $userId = null) {
             return static function (Builder|BelongsTo $builder) use ($userId){
                 $builder->withWhereHas('applications', static function(Builder|HasMany $builder){
@@ -51,6 +57,16 @@ class UserApplicationSetOfflineDatabaseRequiredUpdate
         };
 
         switch (true) {
+            case $event instanceof UserApplicationOfflineDatabaseModeHasChanged:
+                if ($event->isOfflineDatabaseMode->getValue()
+                    && $event->userApplication->is_offline_database_required_update->getValue() === false
+                ) {
+                    $dispatcher->dispatch(new UserApplicationChangeOfflineDatabaseRequiredUpdate(
+                        userApplication: $event->userApplication,
+                        isOfflineDatabaseRequiredUpdate: new IsOfflineDatabaseRequiredUpdate(true)
+                    ));
+                }
+                return;
             case $event instanceof RoleEvent:
                 $entryGroup = $event->role->entryGroup();
                 switch ($event->role::ROLE_NAME) {
@@ -108,10 +124,7 @@ class UserApplicationSetOfflineDatabaseRequiredUpdate
             return;
         }
         $isOfflineDatabaseRequiredUpdate = new IsOfflineDatabaseRequiredUpdate(true);
-        /**
-         * @var Dispatcher $dispatcher
-         */
-        $dispatcher = app(Dispatcher::class);
+
 
         $applications->each(fn ( $userApplication)
             => !is_null($userApplication)

@@ -3,6 +3,7 @@
 namespace Identity\Application\Providers;
 
 use Identity\Application\Listeners\UserApplicationSetOfflineDatabaseRequiredUpdate;
+use Identity\Domain\UserApplication\Events\UserApplicationOfflineDatabaseModeHasChanged;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 use PasswordBroker\Application\Events\EntryCreated;
 use PasswordBroker\Application\Events\EntryGroupCreated;
@@ -28,9 +29,12 @@ class IdentityEventServiceProvider extends ServiceProvider
     /**
      * The event to listener mappings for the application.
      *
-     * @var array<class-string, array<int, class-string>>
+     * @var array<string, array<int, string>>
      */
     protected $listen = [
+        UserApplicationOfflineDatabaseModeHasChanged::class => [
+            UserApplicationSetOfflineDatabaseRequiredUpdate::class,
+        ],
         //Fields Events
         FieldUpdated::class => [
             UserApplicationSetOfflineDatabaseRequiredUpdate::class,
