@@ -47,12 +47,16 @@ class UserAuthController extends Controller
 ////            $user,
 //        $request->user()]);
 
+        /**
+         * @var User $user
+         */
+        $user = $request->user();
         $token = $this->dispatchSync(new GetUserToken(
-            user: $request->user(),
+            user: $user,
             token_name: $request->get('token_name'),
         ));
 
-        return new JsonResponse(['token' => $token]);
+        return new JsonResponse(['token' => $token, 'user' => $user]);
     }
 
     public function show(): JsonResponse
