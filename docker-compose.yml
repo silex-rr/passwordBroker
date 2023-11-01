@@ -6,7 +6,7 @@ services:
         image: bitnami/php-fpm:8.2
         container_name: PB_php-fpm
         expose:
-            - 9000:9000
+            - 9000
         volumes:
             - .:/app
 #            - ./nginx/php-fpm.conf:/opt/bitnami/php/etc/php-fpm.conf
@@ -17,11 +17,18 @@ services:
             backend:
                 aliases:
                     - "php_fpm"
+    mysql-fix-permissions:
+        image: alpine:latest
+        user: 0:0
+        command: chmod -R 0777 /mysql_data /mysql_logs
+        volumes:
+            - ./docker/mysql/data:/mysql_data
+            - ./docker/mysql/logs:/mysql_logs
     mysql:
         image: bitnami/mysql:8.0
         container_name: PB_mysql
         expose:
-            - ${DB_PORT}:3306
+            - ${DB_PORT}
         volumes:
             - ./docker/mysql/data:/bitnami/mysql/data:rw
 #            - ./docker/mysql/my_custom.cnf:/opt/bitnami/mysql/conf/my_custom.cnf:ro
@@ -29,7 +36,10 @@ services:
             - MYSQL_ROOT_USER=${DB_DATABASE}
             - MYSQL_ROOT_PASSWORD=${DB_PASSWORD}
             - MYSQL_DATABASE=${DB_DATABASE}
+            - MYSQL_PORT_NUMBER=${DB_PORT}
         restart: always
+        depends_on:
+            - mysql-fix-permissions
         networks:
             backend:
                 aliases:
@@ -47,15 +57,32 @@ services:
         depends_on:
             - mysql
             - php_fpm
+            - php_composer
         networks:
             backend:
                 aliases:
                     - "nginx"
+    php_composer:
+        image: bitnami/php-fpm:8.2
+        container_name: PB_composer
+        depends_on:
+            - mysql
+        volumes:
+            - .:/app
+        command: bash /app/docker/start.sh
+        environment:
+            APP_ENV: production
+            CONTAINER_ROLE: composer
+        networks:
+            backend:
+                aliases:
+                    - "php_composer"
     queue:
         image: bitnami/php-fpm:8.2
         container_name: PB_queue
         depends_on:
             - mysql
+            - php_composer
         volumes:
             - .:/app
         command: bash /app/docker/start.sh
@@ -71,6 +98,7 @@ services:
         container_name: PB_scheduler
         depends_on:
             - mysql
+            - php_composer
         volumes:
             - .:/app
         command: bash /app/docker/start.sh

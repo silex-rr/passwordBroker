@@ -6,6 +6,12 @@ set -e
 role=${CONTAINER_ROLE:-app}
 env=${APP_ENV:-production}
 
+if [ "$role" = "composer" ]; then
+    echo "Composer install..."
+    (cd /app && composer install)
+    exit 1
+fi
+
 if [ "$env" != "local" ]; then
     echo "Caching configuration..."
     (cd /app && php artisan config:cache && php artisan route:cache && php artisan view:cache)
