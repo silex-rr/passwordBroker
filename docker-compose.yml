@@ -1,0 +1,86 @@
+version: '3'
+
+services:
+    php_fpm:
+#        tty: true # Enables debugging capabilities when attached to this container.
+        image: bitnami/php-fpm:8.2
+        container_name: PB_php-fpm
+        expose:
+            - 9000:9000
+        volumes:
+            - .:/app
+#            - ./nginx/php-fpm.conf:/opt/bitnami/php/etc/php-fpm.conf
+        restart: always
+        depends_on:
+            - mysql
+        networks:
+            backend:
+                aliases:
+                    - "php_fpm"
+    mysql:
+        image: bitnami/mysql:8.0
+        container_name: PB_mysql
+        expose:
+            - ${DB_PORT}:3306
+        volumes:
+            - ./docker/mysql/data:/bitnami/mysql/data:rw
+#            - ./docker/mysql/my_custom.cnf:/opt/bitnami/mysql/conf/my_custom.cnf:ro
+        environment:
+            - MYSQL_ROOT_USER=${DB_DATABASE}
+            - MYSQL_ROOT_PASSWORD=${DB_PASSWORD}
+            - MYSQL_DATABASE=${DB_DATABASE}
+        restart: always
+        networks:
+            backend:
+                aliases:
+                    - "mysql"
+    nginx:
+        image: bitnami/nginx:1.25
+        container_name: PB_nginx
+        ports:
+            - 127.0.0.1:8080:8080
+        volumes:
+            - ./public:/app
+            - ./docker/nginx/app.conf:/opt/bitnami/nginx/conf/server_blocks/app.conf:ro
+            - ./docker/nginx/logs:/opt/bitnami/nginx/
+        restart: always
+        depends_on:
+            - mysql
+            - php_fpm
+        networks:
+            backend:
+                aliases:
+                    - "nginx"
+    queue:
+        image: bitnami/php-fpm:8.2
+        container_name: PB_queue
+        depends_on:
+            - mysql
+        volumes:
+            - .:/app
+        command: bash /app/docker/start.sh
+        environment:
+            APP_ENV: production
+            CONTAINER_ROLE: queue
+        networks:
+            backend:
+                aliases:
+                    - "queue"
+    scheduler:
+        image: bitnami/php-fpm:8.2
+        container_name: PB_scheduler
+        depends_on:
+            - mysql
+        volumes:
+            - .:/app
+        command: bash /app/docker/start.sh
+        environment:
+            APP_ENV: production
+            CONTAINER_ROLE: scheduler
+        networks:
+            backend:
+                aliases:
+                    - "scheduler"
+networks:
+    backend:
+        driver: bridge
