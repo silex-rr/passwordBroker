@@ -17,13 +17,15 @@ services:
             backend:
                 aliases:
                     - "php_fpm"
-    mysql-fix-permissions:
+    file_fix_permissions:
         image: alpine:latest
+        container_name: PB_file-fix-permissions
         user: 0:0
-        command: chmod -R 0777 /mysql_data /mysql_logs
+        command: chmod -R 0777 /mysql_data /mysql_logs /nginx_logs
         volumes:
             - ./docker/mysql/data:/mysql_data
             - ./docker/mysql/logs:/mysql_logs
+            - ./docker/nginx/logs:/nginx_logs
     mysql:
         image: bitnami/mysql:8.0
         container_name: PB_mysql
@@ -39,25 +41,26 @@ services:
             - MYSQL_PORT_NUMBER=${DB_PORT}
         restart: always
         depends_on:
-            - mysql-fix-permissions
+            - file_fix_permissions
         networks:
             backend:
                 aliases:
                     - "mysql"
     nginx:
-        image: bitnami/nginx:1.25
+        image: bitnami/nginx:1.24
         container_name: PB_nginx
         ports:
             - 127.0.0.1:8080:8080
         volumes:
             - ./public:/app
             - ./docker/nginx/app.conf:/opt/bitnami/nginx/conf/server_blocks/app.conf:ro
-            - ./docker/nginx/logs:/opt/bitnami/nginx/
+            - ./docker/nginx/logs:/opt/bitnami/nginx/logs
         restart: always
         depends_on:
             - mysql
             - php_fpm
             - php_composer
+            - file_fix_permissions
         networks:
             backend:
                 aliases:
