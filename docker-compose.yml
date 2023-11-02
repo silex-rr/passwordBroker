@@ -4,6 +4,7 @@ services:
     php_fpm:
 #        tty: true # Enables debugging capabilities when attached to this container.
         image: bitnami/php-fpm:8.2
+        user: ${UID}:${GID}
         container_name: PB_php-fpm
         expose:
             - 9000
@@ -14,23 +15,28 @@ services:
         depends_on:
             - mysql
         networks:
-            backend:
+            PB_backend:
                 aliases:
                     - "php_fpm"
     file_fix_permissions:
         image: alpine:latest
         container_name: PB_file-fix-permissions
         user: 0:0
-        command: chmod -R 0777 /mysql_data /mysql_logs /nginx_logs
+        command: chmod 755 $(find /permission/ -type d) && chown -R ${UID}:${GID} /app
         volumes:
-            - ./docker/mysql/data:/mysql_data
-            - ./docker/mysql/logs:/mysql_logs
-            - ./docker/nginx/logs:/nginx_logs
+            - ./docker/mysql/data:/permission/mysql_data
+            - ./docker/mysql/logs:/permission/mysql_logs
+            - ./docker/nginx/logs:/permission/nginx_logs
+            - ./storage:/permission/app_storage
+            - .:/app
     mysql:
         image: bitnami/mysql:8.0
+        user: ${UID}:${GID}
         container_name: PB_mysql
         expose:
             - ${DB_PORT}
+        ports:
+            - 33306:${DB_PORT}
         volumes:
             - ./docker/mysql/data:/bitnami/mysql/data:rw
 #            - ./docker/mysql/my_custom.cnf:/opt/bitnami/mysql/conf/my_custom.cnf:ro
@@ -43,11 +49,12 @@ services:
         depends_on:
             - file_fix_permissions
         networks:
-            backend:
+            PB_backend:
                 aliases:
                     - "mysql"
     nginx:
         image: bitnami/nginx:1.24
+        user: ${UID}:${GID}
         container_name: PB_nginx
         ports:
             - 127.0.0.1:8080:8080
@@ -62,11 +69,12 @@ services:
             - php_composer
             - file_fix_permissions
         networks:
-            backend:
+            PB_backend:
                 aliases:
                     - "nginx"
     php_composer:
         image: bitnami/php-fpm:8.2
+        user: ${UID}:${GID}
         container_name: PB_composer
         depends_on:
             - mysql
@@ -77,11 +85,12 @@ services:
             APP_ENV: production
             CONTAINER_ROLE: composer
         networks:
-            backend:
+            PB_backend:
                 aliases:
                     - "php_composer"
     queue:
         image: bitnami/php-fpm:8.2
+        user: ${UID}:${GID}
         container_name: PB_queue
         depends_on:
             - mysql
@@ -89,15 +98,17 @@ services:
         volumes:
             - .:/app
         command: bash /app/docker/start.sh
+        restart: always
         environment:
             APP_ENV: production
             CONTAINER_ROLE: queue
         networks:
-            backend:
+            PB_backend:
                 aliases:
                     - "queue"
     scheduler:
         image: bitnami/php-fpm:8.2
+        user: ${UID}:${GID}
         container_name: PB_scheduler
         depends_on:
             - mysql
@@ -105,13 +116,14 @@ services:
         volumes:
             - .:/app
         command: bash /app/docker/start.sh
+        restart: always
         environment:
             APP_ENV: production
             CONTAINER_ROLE: scheduler
         networks:
-            backend:
+            PB_backend:
                 aliases:
                     - "scheduler"
 networks:
-    backend:
+    PB_backend:
         driver: bridge
