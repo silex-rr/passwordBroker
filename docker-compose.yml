@@ -1,6 +1,16 @@
 version: '3'
 
 services:
+    file_fix_permissions:
+        image: alpine:latest
+        container_name: PB_file-fix-permissions
+        user: 0:0
+        command: /bin/sh /permission.sh
+        volumes:
+            - ./docker:/permission/docker
+            - ./storage:/permission/app_storage
+            - .:/app
+            - ./docker/permission.sh:/permission.sh
     php_fpm:
 #        tty: true # Enables debugging capabilities when attached to this container.
         image: bitnami/php-fpm:8.2
@@ -10,25 +20,25 @@ services:
             - 9000
         volumes:
             - .:/app
+            - ./docker/php/logs:/opt/bitnami/php/logs:rw
+            - ./docker/php/tmp:/opt/bitnami/php/tmp:rw
 #            - ./nginx/php-fpm.conf:/opt/bitnami/php/etc/php-fpm.conf
         restart: always
         depends_on:
-            - mysql
+            file_fix_permissions:
+                condition: service_completed_successfully
+            mysql:
+                condition: service_healthy
+            php_composer:
+                condition: service_completed_successfully
+#        healthcheck:
+#            test: [ "CMD", "bash" ,"-c", '"[ -f /opt/bitnami/php/tmp/ ]"' ]
+#            timeout: 20s
+#            retries: 10
         networks:
             PB_backend:
                 aliases:
                     - "php_fpm"
-    file_fix_permissions:
-        image: alpine:latest
-        container_name: PB_file-fix-permissions
-        user: 0:0
-        command: chmod 755 $(find /permission/ -type d) && chown -R ${UID}:${GID} /app
-        volumes:
-            - ./docker/mysql/data:/permission/mysql_data
-            - ./docker/mysql/logs:/permission/mysql_logs
-            - ./docker/nginx/logs:/permission/nginx_logs
-            - ./storage:/permission/app_storage
-            - .:/app
     mysql:
         image: bitnami/mysql:8.0
         user: ${UID}:${GID}
@@ -39,35 +49,43 @@ services:
             - 33306:${DB_PORT}
         volumes:
             - ./docker/mysql/data:/bitnami/mysql/data:rw
+            - ./docker/mysql/tmp:/opt/bitnami/mysql/tmp:rw
 #            - ./docker/mysql/my_custom.cnf:/opt/bitnami/mysql/conf/my_custom.cnf:ro
         environment:
-            - MYSQL_ROOT_USER=${DB_DATABASE}
             - MYSQL_ROOT_PASSWORD=${DB_PASSWORD}
+            - MYSQL_USER=${DB_USERNAME}
+            - MYSQL_PASSWORD=${DB_PASSWORD}
             - MYSQL_DATABASE=${DB_DATABASE}
             - MYSQL_PORT_NUMBER=${DB_PORT}
         restart: always
         depends_on:
-            - file_fix_permissions
+            file_fix_permissions:
+                condition: service_completed_successfully
+        healthcheck:
+            test: [ "CMD", "mysqladmin" ,"ping", "-h", "localhost" ]
+            timeout: 10s
+            retries: 10
         networks:
             PB_backend:
                 aliases:
                     - "mysql"
     nginx:
         image: bitnami/nginx:1.24
-        user: ${UID}:${GID}
         container_name: PB_nginx
         ports:
             - 127.0.0.1:8080:8080
         volumes:
             - ./public:/app
             - ./docker/nginx/app.conf:/opt/bitnami/nginx/conf/server_blocks/app.conf:ro
-            - ./docker/nginx/logs:/opt/bitnami/nginx/logs
+            - ./docker/nginx/logs:/opt/bitnami/nginx/logs:rw
         restart: always
         depends_on:
-            - mysql
-            - php_fpm
-            - php_composer
-            - file_fix_permissions
+            file_fix_permissions:
+                condition: service_completed_successfully
+            mysql:
+                condition: service_healthy
+#            php_fpm:
+#                condition: service_healthy
         networks:
             PB_backend:
                 aliases:
@@ -77,12 +95,16 @@ services:
         user: ${UID}:${GID}
         container_name: PB_composer
         depends_on:
-            - mysql
+            file_fix_permissions:
+                condition: service_completed_successfully
+            mysql:
+                condition: service_healthy
         volumes:
             - .:/app
         command: bash /app/docker/start.sh
         environment:
             APP_ENV: production
+            APP_KEY: ${APP_KEY}
             CONTAINER_ROLE: composer
         networks:
             PB_backend:
@@ -93,8 +115,12 @@ services:
         user: ${UID}:${GID}
         container_name: PB_queue
         depends_on:
-            - mysql
-            - php_composer
+            file_fix_permissions:
+                condition: service_completed_successfully
+            mysql:
+                condition: service_healthy
+            php_composer:
+                condition: service_completed_successfully
         volumes:
             - .:/app
         command: bash /app/docker/start.sh
@@ -111,8 +137,12 @@ services:
         user: ${UID}:${GID}
         container_name: PB_scheduler
         depends_on:
-            - mysql
-            - php_composer
+            file_fix_permissions:
+                condition: service_completed_successfully
+            mysql:
+                condition: service_healthy
+            php_composer:
+                condition: service_completed_successfully
         volumes:
             - .:/app
         command: bash /app/docker/start.sh

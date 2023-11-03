@@ -5,11 +5,22 @@ set -e
 
 role=${CONTAINER_ROLE:-app}
 env=${APP_ENV:-production}
+key=${APP_KEY:-empty}
 
 if [ "$role" = "composer" ]; then
     echo "Composer install..."
     (cd /app && composer install)
-    exit 1
+    echo "key $key"
+    if [ "$key" = "empty" ]; then
+        echo "Generating app key"
+        php artisan key:generate
+    fi
+
+    php artisan migrate --force
+    php artisan config:cache
+    php artisan config:clear
+
+    exit 0
 fi
 
 if [ "$env" != "local" ]; then
