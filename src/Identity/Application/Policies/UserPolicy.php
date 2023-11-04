@@ -12,7 +12,7 @@ class UserPolicy
 
     public function before(?User $user): ?Response
     {
-        if (is_null($user)) {
+        if (is_null($user) && !User::doesntExist()) {
             return Response::denyWithStatus(401);
         }
         return null;
