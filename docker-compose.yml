@@ -32,7 +32,7 @@ services:
             php_composer:
                 condition: service_completed_successfully
         healthcheck:
-            test: [ "CMD", "bash" ,"-c", '"[ -f /opt/bitnami/php/tmp/php-fpm.pid ]"' ]
+            test: [ "CMD", "php" ,"-r", "print is_file('/opt/bitnami/php/tmp/php-fpm.pid');" ]
             timeout: 5s
             retries: 10
         networks:
