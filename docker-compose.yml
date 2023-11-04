@@ -31,10 +31,10 @@ services:
                 condition: service_healthy
             php_composer:
                 condition: service_completed_successfully
-#        healthcheck:
-#            test: [ "CMD", "bash" ,"-c", '"[ -f /opt/bitnami/php/tmp/ ]"' ]
-#            timeout: 20s
-#            retries: 10
+        healthcheck:
+            test: [ "CMD", "bash" ,"-c", '"[ -f /opt/bitnami/php/tmp/php-fpm.pid ]"' ]
+            timeout: 5s
+            retries: 10
         networks:
             PB_backend:
                 aliases:
@@ -84,8 +84,8 @@ services:
                 condition: service_completed_successfully
             mysql:
                 condition: service_healthy
-#            php_fpm:
-#                condition: service_healthy
+            php_fpm:
+                condition: service_healthy
         networks:
             PB_backend:
                 aliases:
