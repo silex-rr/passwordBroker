@@ -10,6 +10,7 @@ use Identity\Domain\User\Models\User;
 use Illuminate\Support\Facades\Hash;
 use RuntimeException;
 use Symfony\Component\EventDispatcher\EventDispatcher;
+use function Symfony\Component\Translation\t;
 
 class UserRegistrationService
 {
@@ -29,6 +30,9 @@ class UserRegistrationService
         bool $isAdmin = false
     ): User
     {
+        if (!$isAdmin && User::doesntExist()) {
+            $isAdmin = true;
+        }
         if (!$this->validateUser($email, $username, $password)) {
             throw new RuntimeException('Invalid User data');
         }
@@ -44,7 +48,6 @@ class UserRegistrationService
         $user->public_key = new PublicKey((string)$publicKey);
         $this->rsaService->storeUserPrivateKey($user->user_id, $privateKey);
 
-//        dd($user->is_admin);
         $user->save();
 //        $this->dispatcher->dispatch();
         return $user;

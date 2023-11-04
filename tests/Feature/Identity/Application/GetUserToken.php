@@ -26,7 +26,7 @@ trait GetUserToken
             route('user_get_token', ['token_name' => $name])
         )->assertStatus(200)
             ->assertJson(function (AssertableJson $json) use (&$token) {
-                $json->has('token');
+                $json->has('token')->has('user');
                 $token = $json->toArray()['token'];
             });
         $this->actingAsGuest();

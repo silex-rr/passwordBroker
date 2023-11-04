@@ -46,10 +46,13 @@ class UserPolicy
             : Response::denyWithStatus(403);
     }
 
-    public function create(User $user): Response
+    public function create(?User $user = null): Response
     {
         if (User::doesntExist()) {
             return Response::allow();
+        }
+        if (is_null($user)) {
+            return Response::denyWithStatus(401);
         }
         return $this->delete($user);
     }

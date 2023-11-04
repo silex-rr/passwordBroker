@@ -628,6 +628,5 @@ class EntryGroupTest extends TestCase
             'user_application_id' => $application_id,
             'is_offline_database_required_update' => 0
         ]);
-        dd(UserApplication::all()->first()->offline_database_fetched_at);
     }
 }

@@ -105,7 +105,7 @@ class UserTest extends TestCase
         $this->getJson(route('user', $user))->assertStatus(401);
     }
 
-    public function test_a_guest_cannot_add_a_user():void
+    public function test_a_guest_can_add_only_the_first_user():void
     {
         $userAttributes = User::factory()->make()->getAttributes();
         $userAttributes['username'] = $userAttributes['name'];
@@ -114,10 +114,23 @@ class UserTest extends TestCase
         $userAttributes['master_password_confirmation'] = UserFactory::MASTER_PASSWORD;
 
         $users_num = User::count();
+        $this->assertEquals(0, $users_num);
 
-        $this->postJson(route('registration'), ['user' => $userAttributes])->assertStatus(401);
+        $this->postJson(route('registration'), ['user' => $userAttributes])->assertStatus(200);
 
-        $this->assertEquals($users_num, User::count());
+        $this->assertEquals(1, User::count());
+        $this->assertTrue(User::first()->is_admin->getValue());
+
+        $userAttributes2 = User::factory()->make()->getAttributes();
+        $userAttributes2['username'] = $userAttributes['name'];
+        $userAttributes2['password_confirmation'] = $userAttributes['password'];
+        $userAttributes2['master_password'] = UserFactory::MASTER_PASSWORD;
+        $userAttributes2['master_password_confirmation'] = UserFactory::MASTER_PASSWORD;
+
+        $this->postJson(route('registration'), ['user' => $userAttributes2])->assertStatus(401);
+
+        $this->assertEquals(1, User::count());
+
     }
 
     public function test_a_guest_cannot_delete_a_user():void
@@ -242,6 +255,7 @@ class UserTest extends TestCase
         $entryGroup->addAdmin($user_1, $this->faker->password(128,128));
 
         /**
+         * @var string $token
          * @var UserAccessToken $userAccessToken
          */
         [$token, $userAccessToken] = $this->getUserToken($user_1);
