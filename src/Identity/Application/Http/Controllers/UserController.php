@@ -9,11 +9,16 @@ use Identity\Application\Http\Requests\UpdateUserRequest;
 use Identity\Application\Http\Requests\UsersSearchRequest;
 use Identity\Application\Services\RsaService;
 use Identity\Application\Services\UserRegistrationService;
+use Identity\Application\Services\UserService;
 use Identity\Domain\User\Models\User;
 use Identity\Domain\User\Models\UserAccessToken;
 use Identity\Domain\User\Services\DestroyUser;
 use Identity\Domain\User\Services\SearchUsers;
 use Identity\Domain\User\Services\UpdateUser;
+use Identity\Domain\User\Services\UserApplicationChangeOfflineDatabaseRequiredUpdate;
+use Identity\Domain\User\Services\UserApplicationChangeRsaPrivateRequiredUpdate;
+use Identity\Domain\UserApplication\Models\Attributes\IsOfflineDatabaseRequiredUpdate;
+use Identity\Domain\UserApplication\Models\Attributes\IsRsaPrivateRequiredUpdate;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Foundation\Validation\ValidatesRequests;
@@ -97,7 +102,7 @@ class UserController extends Controller
         ], 200);
     }
 
-    public function getPrivateRsa(RsaService $rsaService, Base64Encoder $base64Encoder): JsonResponse
+    public function getPrivateRsa(RsaService $rsaService, Base64Encoder $base64Encoder, UserService $userService): JsonResponse
     {
         $carbon = Carbon::now();
         /**
@@ -111,8 +116,14 @@ class UserController extends Controller
          */
         $accessToken = $authUser->currentAccessToken();
         if ($accessToken) {
-            $accessToken->rsa_private_fetched_at = $carbon;
-            $accessToken->save();
+            $userApplication = $userService->getUserApplicationByToken($accessToken);
+            if ($userApplication) {
+                $this->dispatchSync(new UserApplicationChangeRsaPrivateRequiredUpdate(
+                    userApplication: $userApplication,
+                    isRsaPrivateRequiredUpdate: new IsRsaPrivateRequiredUpdate(false),
+                    carbon: $carbon
+                ));
+            }
         }
 
         return new JsonResponse([
