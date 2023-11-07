@@ -395,4 +395,45 @@ class UserTest extends TestCase
         $this->getJson(route('user_get_rsa_private_key'))
             ->assertStatus(403);
     }
+
+    public function test_a_user_can_login(): void
+    {
+        $this->withoutExceptionHandling();
+        $password = $this->faker->password;
+        /**
+         * @var User $user
+         */
+        $user = User::factory()->create(['password' => bcrypt($password)]);
+
+        $this->post(route('login'),
+            [
+                'email' => $user->email->getValue(),
+                'password' => $password
+            ]
+        )->assertStatus(200)
+            ->assertJson(fn (AssertableJson $json) => $json->where('message', "Login successful"));
+    }
+
+    public function test_a_user_can_login_adn_get_token(): void
+    {
+        $this->withoutExceptionHandling();
+        $password = $this->faker->password;
+        /**
+         * @var User $user
+         */
+        $user = User::factory()->create(['password' => bcrypt($password)]);
+
+        $this->post(route('login'),
+            [
+                'email' => $user->email->getValue(),
+                'password' => $password,
+                'token_is_required' => true,
+                'token_name' => $this->faker->word
+            ]
+        )->assertStatus(200)
+            ->assertJson(fn (AssertableJson $json)
+            => $json->where('message', "Login successful")
+                ->where('user.email', $user->email->getValue())
+                ->has('token'));
+    }
 }

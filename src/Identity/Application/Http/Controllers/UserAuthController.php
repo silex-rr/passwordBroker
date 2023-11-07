@@ -4,6 +4,7 @@ namespace Identity\Application\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use Identity\Application\Http\Requests\GetOrCreateTokenRequest;
+use Identity\Application\Http\Requests\LoginRequest;
 use Identity\Domain\User\Models\User;
 use Identity\Domain\User\Services\GetUserToken;
 use Illuminate\Http\JsonResponse;
@@ -13,13 +14,26 @@ use Illuminate\Support\Facades\Session;
 
 class UserAuthController extends Controller
 {
-    public function login(): JsonResponse
+    public function login(LoginRequest $request): JsonResponse
     {
-        $credentials = request()?->only('email', 'password');
+        $credentials = $request->only('email', 'password');
 
         if (Auth::attempt($credentials)) {
-            Auth::user();
-            return new JsonResponse(['message' => 'Login successful'], 200);
+            /**
+             * @var User $user
+             */
+            $user = Auth::user();
+            $response = ['message' => 'Login successful'];
+
+            if($request->isTokenRequired()) {
+
+                $response['token'] = $this->dispatchSync(new GetUserToken(
+                    user: $user,
+                    token_name: $request->getTokenName(),
+                ));
+                $response['user'] = $user;
+            }
+            return new JsonResponse($response, 200);
         }
 
         return new JsonResponse(['message' => 'Invalid email or password'], 401);
@@ -35,7 +49,6 @@ class UserAuthController extends Controller
         $request->session()->regenerateToken();
         return new JsonResponse(['message' => 'Logged Out'], 200);
     }
-
     public function getToken(GetOrCreateTokenRequest $request): JsonResponse
     {
 //        /**
