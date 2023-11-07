@@ -144,9 +144,10 @@ class EntryGroupHistoryTest extends TestCase
         $entryGroup = EntryGroup::factory()->create();
         $entryGroupAnother = EntryGroup::factory()->create();
         $admin = User::factory()->create();
-        $entry1 = Entry::factory()->make();
-        $entry2 = Entry::factory()->make();
-        $entry3 = Entry::factory()->make();
+        $entryTitle = $this->faker->word;
+        $entry1 = Entry::factory()->make(['title' => new Title($entryTitle . '_1')]);
+        $entry2 = Entry::factory()->make(['title' => new Title($entryTitle . '_2')]);
+        $entry3 = Entry::factory()->make(['title' => new Title($entryTitle . '_3')]);
         $entryGroupService = app(EntryGroupService::class);
 
         $entryGroupService->addUserToGroupAsAdmin($admin, $entryGroup);
