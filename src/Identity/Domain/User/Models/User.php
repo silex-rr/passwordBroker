@@ -5,17 +5,16 @@ namespace Identity\Domain\User\Models;
 use App\Common\Domain\Traits\HasFactoryDomain;
 use App\Common\Domain\Traits\ModelDomainConstructor;
 use Identity\Domain\User\Events\UserWasCreated;
-use Identity\Domain\User\Events\UserWasUpdated;
 use Identity\Domain\User\Models\Casts\Email;
 use Identity\Domain\User\Models\Casts\IsAdmin;
 use Identity\Domain\User\Models\Casts\PublicKey;
 use Identity\Domain\User\Models\Casts\UserId;
 use Identity\Domain\User\Models\Casts\UserName;
 use Identity\Domain\UserApplication\Models\UserApplication;
+use Identity\Infrastructure\Factories\User\UserFactory;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Query\Builder;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
@@ -31,6 +30,7 @@ use PasswordBroker\Domain\Entry\Models\Groups\Moderator;
  * @property string $password
  * @property Attributes\UserName $name
  * @property Attributes\Email $email
+ * @method static UserFactory factory
  */
 class User extends Authenticatable
 {

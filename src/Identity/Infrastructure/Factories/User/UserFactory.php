@@ -9,8 +9,12 @@ use Identity\Domain\User\Models\Attributes\IsAdmin;
 use Identity\Domain\User\Models\Attributes\PublicKey;
 use Identity\Domain\User\Models\Attributes\UserId;
 use Identity\Domain\User\Models\Attributes\UserName;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 
+/**
+ * @method \Identity\Domain\User\Models\User | \Identity\Domain\User\Models\User[] create($attributes = [], ?Model $parent = null)
+ */
 class UserFactory extends FactoryDomain
 {
     public const MASTER_PASSWORD = 'master_password_1';
