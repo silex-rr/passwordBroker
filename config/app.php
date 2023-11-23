@@ -207,7 +207,13 @@ return [
          */
         PasswordBroker\Application\Providers\PasswordBrokerServiceProvider::class,
         PasswordBroker\Application\Providers\PasswordBrokerAuthServiceProvider::class,
-        PasswordBroker\Application\Providers\PasswordBrokerEventServiceProvider::class
+        PasswordBroker\Application\Providers\PasswordBrokerEventServiceProvider::class,
+        /*
+         * System Domain
+         */
+        System\Application\Providers\SystemServiceProvider::class,
+        System\Application\Providers\SystemAuthServiceProvider::class,
+        System\Application\Providers\SystemEventServiceProvider::class,
 
     ],
 
