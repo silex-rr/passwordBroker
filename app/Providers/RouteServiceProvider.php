@@ -34,6 +34,13 @@ class RouteServiceProvider extends ServiceProvider
         . DIRECTORY_SEPARATOR . 'Routes'
         . DIRECTORY_SEPARATOR;
 
+    protected string $system_namespace = 'System\Application\Http\Controllers';
+    protected string $system_dir = 'src'
+        . DIRECTORY_SEPARATOR . 'System'
+        . DIRECTORY_SEPARATOR . 'Application'
+        . DIRECTORY_SEPARATOR . 'Routes'
+        . DIRECTORY_SEPARATOR;
+
     /**
      * Define your route model bindings, pattern filters, and other route configuration.
      *
@@ -64,6 +71,11 @@ class RouteServiceProvider extends ServiceProvider
                 ->prefix('identity/api')
                 ->namespace($this->identity_namespace)
                 ->group(base_path($this->identity_dir . 'api.php'));
+
+            Route::middleware('api')
+                ->prefix('system/api')
+                ->namespace($this->system_namespace)
+                ->group(base_path($this->system_dir . 'api.php'));
         });
 
         if (env('LOG_LEVEL') === 'debug') {
