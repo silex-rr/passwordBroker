@@ -23,9 +23,9 @@ abstract class AbstractValue
         return (string)$this->value;
     }
 
-    public function jsonSerialize(): string
+    public function jsonSerialize(): mixed
     {
-        return $this->__toString();
+        return $this->value;
     }
 
     public static function fromNative($value): static
