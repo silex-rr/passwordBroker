@@ -18,8 +18,8 @@ class BackupSettingTest extends TestCase
     {
         $user = User::factory()->systemAdministrator()->create();
         $this->actingAs($user);
-        $route_name = 'system_backup_setting';
-        $route = route($route_name, ['backupSetting' => BackupScheduleSetting::TYPE]);
+        $route_name = 'system_backup_schedule_setting';
+        $route = route($route_name, ['backupScheduleSetting' => BackupScheduleSetting::TYPE]);
 
         $this->getJson($route)->assertStatus(200)
             ->assertJson(fn (AssertableJson $json)

@@ -37,7 +37,7 @@ class SystemServiceProvider extends ServiceProvider
 
     public function bindRoutes(): void
     {
-        Route::bind('backupSetting', fn() => BackupScheduleSetting::firstOrCreate([
+        Route::bind('backupScheduleSetting', fn() => BackupScheduleSetting::firstOrCreate([
             'key' => BackupScheduleSetting::TYPE,
             'type' => BackupScheduleSetting::TYPE,
         ]));
