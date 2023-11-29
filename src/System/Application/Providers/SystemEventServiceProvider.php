@@ -3,7 +3,11 @@
 namespace System\Application\Providers;
 
 use Illuminate\Foundation\Support\Providers\EventServiceProvider;
+use System\Application\Listners\BackupWasCreatedListener;
+use System\Application\Observers\BackupObserver;
 use System\Application\Observers\SettingObserver;
+use System\Domain\Backup\Events\BackupWasCreated;
+use System\Domain\Backup\Models\Backup;
 use System\Domain\Settings\Models\Setting;
 
 class SystemEventServiceProvider extends EventServiceProvider
@@ -13,7 +17,11 @@ class SystemEventServiceProvider extends EventServiceProvider
      *
      * @var array<string, array<int, string>>
      */
-    protected $listen = [];
+    protected $listen = [
+        BackupWasCreated::class => [
+            BackupWasCreatedListener::class
+        ]
+    ];
 
     /**
      * Register any events for your application.
@@ -25,6 +33,7 @@ class SystemEventServiceProvider extends EventServiceProvider
         foreach (Setting::getRelated() as $class) {
             $class::observe(SettingObserver::class);
         }
+        Backup::observe(BackupObserver::class);
     }
 
     /**
