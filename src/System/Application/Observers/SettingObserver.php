@@ -8,6 +8,10 @@ use System\Domain\Settings\Models\Setting;
 
 class SettingObserver
 {
+    public function creating(Setting $setting): void
+    {
+        $setting->setting_id;
+    }
     public function saving(Setting $setting): void
     {
         $this->updating($setting);
@@ -15,6 +19,7 @@ class SettingObserver
 
     public function updating(Setting $setting): void
     {
+        $setting->setting_id;
         $setting->packData();
         $setting->unpackData();
         if (app()->runningInConsole()) {

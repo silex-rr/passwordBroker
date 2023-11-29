@@ -26,13 +26,8 @@ class Data implements CastsAttributes
         if (!$value instanceof DataAttribute) {
             throw new \InvalidArgumentException('The given value is not instance of Setting.Data Attribute');
         }
-        try {
-            $json = json_encode($value->getValue(), JSON_THROW_ON_ERROR);
-        } catch (JsonException $e) {
-            throw new RuntimeException('Error of converting Setting Data to JSON ' . $e->getMessage());
-        }
         return [
-            'data' => $value->getValue()//$json,
+            'data' => $value->getValue(),
         ];
     }
 }

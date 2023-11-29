@@ -2,8 +2,10 @@
 
 namespace System\Domain\Settings\Models;
 
+use App\Common\Domain\Contracts\EnumDefaultValue;
 use App\Common\Domain\Traits\ModelDomainConstructor;
 use App\Models\Abstracts\AbstractValue;
+use BackedEnum;
 use Identity\Domain\User\Models\Attributes\UserId;
 use Identity\Domain\User\Models\User;
 use Illuminate\Database\Eloquent\Builder;
@@ -34,7 +36,7 @@ abstract class Setting extends Model
         StringSetting::TYPE => StringSetting::class,
         IntSetting::TYPE => IntSetting::class,
 
-        BackupScheduleSetting::TYPE => BackupScheduleSetting::class,
+        BackupSetting::TYPE => BackupSetting::class,
     ];
 
     public $table = 'settings';
@@ -43,6 +45,7 @@ abstract class Setting extends Model
     protected $primaryKey = 'setting_id';
 
     public $fillable = [
+        'setting_id',
         'key',
         'data',
         'updated_by'
@@ -86,11 +89,16 @@ abstract class Setting extends Model
             $prpType = $prop->getType()?->getName();
             switch ($prpType) {
                 default:
-                    if (!is_subclass_of($prpType, AbstractValue::class)) {
-                        continue 2;
+                    if (is_subclass_of($prpType, AbstractValue::class)) {
+                        $value = new $prpType($value);
+                        break;
                     }
-                    $value = new $prpType($value);
-                    break;
+                    if (is_subclass_of($prpType, BackedEnum::class)) {
+                        $value = $prpType::from($value);
+                        break;
+                    }
+
+                    continue 2;
 
                 case 'int':
                     if (!is_int($value)) {
@@ -131,9 +139,15 @@ abstract class Setting extends Model
 //                    $this->schedule
 //                ]);
 //            }
-            if (is_null($value) && is_subclass_of($prpType, AbstractValue::class)) {
-                $value = new $prpType();
+            if (is_null($value)) {
+                if (is_subclass_of($prpType, AbstractValue::class)) {
+                    $value = new $prpType();
+                }
+                if (is_subclass_of($prpType, EnumDefaultValue::class)) {
+                    $value = $prpType::default();
+                }
             }
+
 
             $props[$prop->getName()] = $value;
         }

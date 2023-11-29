@@ -9,7 +9,7 @@ use System\Infrastructure\Validation\Rule\ArrayOfHoursRule;
 /**
  * @property int[] $schedule
  */
-class BackupScheduleSettingRequest extends FormRequest
+class BackupSettingRequest extends FormRequest
 {
     public function authorize() : bool
     {

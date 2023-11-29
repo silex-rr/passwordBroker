@@ -4,9 +4,9 @@ namespace System\Domain\Settings\Models;
 
 use System\Domain\Settings\Models\Attributes\Backup\Schedule;
 
-class BackupScheduleSetting extends Setting
+class BackupSetting extends Setting
 {
-    public const TYPE = 'backupSchedule';
+    public const TYPE = 'backup';
     protected Schedule $schedule;
 
     protected $attributes = ['type' => self::TYPE];

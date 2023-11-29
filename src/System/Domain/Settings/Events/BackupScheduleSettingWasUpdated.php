@@ -10,13 +10,13 @@ use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Support\Facades\Auth;
-use System\Domain\Settings\Models\BackupScheduleSetting;
+use System\Domain\Settings\Models\BackupSetting;
 
 class BackupScheduleSettingWasUpdated extends DomainEvent implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, Saveable;
 
-    public function __construct(public BackupScheduleSetting $backupScheduleSetting)
+    public function __construct(public BackupSetting $backupScheduleSetting)
     {
         $this->entity = $this->backupScheduleSetting;
         /**

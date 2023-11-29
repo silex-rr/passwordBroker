@@ -6,7 +6,7 @@ use Identity\Domain\User\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Testing\Fluent\AssertableJson;
-use System\Domain\Settings\Models\BackupScheduleSetting;
+use System\Domain\Settings\Models\BackupSetting;
 use Tests\TestCase;
 
 class BackupSettingTest extends TestCase
@@ -18,18 +18,18 @@ class BackupSettingTest extends TestCase
     {
         $user = User::factory()->systemAdministrator()->create();
         $this->actingAs($user);
-        $route_name = 'system_backup_schedule_setting';
-        $route = route($route_name, ['backupScheduleSetting' => BackupScheduleSetting::TYPE]);
+        $route_name = 'system_backup_setting';
+        $route = route($route_name, ['backupScheduleSetting' => BackupSetting::TYPE]);
 
         $this->getJson($route)->assertStatus(200)
             ->assertJson(fn (AssertableJson $json)
-                => $json->where('key', BackupScheduleSetting::TYPE)
+                => $json->where('key', BackupSetting::TYPE)
                     ->has('schedule', 0)
                     ->etc()
             );
 
         $data = [
-            'key' => BackupScheduleSetting::TYPE,
+            'key' => BackupSetting::TYPE,
             'schedule' => [8, 12, 20],
         ];
 
@@ -40,7 +40,7 @@ class BackupSettingTest extends TestCase
 
         $this->getJson($route)->assertStatus(200)
             ->assertJson(fn (AssertableJson $json)
-                => $json->where('key', BackupScheduleSetting::TYPE)
+                => $json->where('key', BackupSetting::TYPE)
                     ->has('schedule', 3)
                     ->where('schedule.0', $validateSchedule)
                     ->where('schedule.1', $validateSchedule)
