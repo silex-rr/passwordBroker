@@ -3,6 +3,7 @@
 namespace System\Domain\Settings\Models\Attributes\Backup;
 
 use App\Models\Abstracts\AbstractValue;
+use App\Models\Interfaces\ValueObject;
 
 class Schedule extends AbstractValue
 {
@@ -22,6 +23,14 @@ class Schedule extends AbstractValue
                 $this->value[] = (int)$item;
             }
         }
+    }
 
+    /**
+     * @param Schedule $object
+     * @return bool
+     */
+    public function equals(ValueObject $object): bool
+    {
+        return count(array_diff($this->value, $object->value)) === 0;
     }
 }
