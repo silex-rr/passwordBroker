@@ -12,13 +12,13 @@ use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Support\Facades\Auth;
 use System\Domain\Settings\Models\BackupSetting;
 
-class BackupScheduleSettingWasUpdated extends DomainEvent implements ShouldBroadcast
+class BackupSettingScheduleWasUpdated extends DomainEvent implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, Saveable;
 
-    public function __construct(public BackupSetting $backupScheduleSetting)
+    public function __construct(public BackupSetting $backupSetting)
     {
-        $this->entity = $this->backupScheduleSetting;
+        $this->entity = $this->backupSetting;
         /**
          * @var User $user
          */
