@@ -7,7 +7,7 @@ use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Http\JsonResponse;
 use System\Application\Http\Requests\BackupSettingRequest;
 use System\Domain\Settings\Models\BackupSetting;
-use System\Domain\Settings\Service\SetBackupScheduleSetting;
+use System\Domain\Settings\Service\SetBackupSetting;
 
 class BackupSettingController extends Controller
 {
@@ -19,7 +19,11 @@ class BackupSettingController extends Controller
 
     public function store(BackupSetting $backupSetting, BackupSettingRequest $request): JsonResponse
     {
-        $this->dispatchSync(new SetBackupScheduleSetting($backupSetting, $request->schedule));
+        $this->dispatchSync(new SetBackupSetting(
+            backupSetting: $backupSetting,
+            scheduleArray: $request->schedule,
+            enable: $request->enable
+        ));
         return new JsonResponse($backupSetting, 200);
     }
 

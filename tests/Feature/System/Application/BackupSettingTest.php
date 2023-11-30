@@ -25,12 +25,14 @@ class BackupSettingTest extends TestCase
             ->assertJson(fn (AssertableJson $json)
                 => $json->where('key', BackupSetting::TYPE)
                     ->has('schedule', 0)
+                    ->where('enable', false)
                     ->etc()
             );
 
         $data = [
             'key' => BackupSetting::TYPE,
             'schedule' => [8, 12, 20],
+            'enable' => true
         ];
 
         $this->postJson($route, $data)
@@ -41,6 +43,7 @@ class BackupSettingTest extends TestCase
         $this->getJson($route)->assertStatus(200)
             ->assertJson(fn (AssertableJson $json)
                 => $json->where('key', BackupSetting::TYPE)
+                    ->where('enable', true)
                     ->has('schedule', 3)
                     ->where('schedule.0', $validateSchedule)
                     ->where('schedule.1', $validateSchedule)
