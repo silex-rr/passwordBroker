@@ -3,12 +3,17 @@
 namespace PasswordBroker\Infrastructure\Factories\Entry;
 
 use App\Common\Domain\Abstractions\FactoryDomain;
+use Illuminate\Database\Eloquent\Model;
 use PasswordBroker\Domain\Entry\Models\Attributes\EntryGroupId;
 use PasswordBroker\Domain\Entry\Models\Attributes\EntryId as EntryIdAttribute;
 use PasswordBroker\Domain\Entry\Models\Attributes\Title;
+use PasswordBroker\Domain\Entry\Models\Entry;
 use PasswordBroker\Domain\Entry\Models\EntryGroup;
 
 
+/**
+ * @method Entry | Entry create($attributes = [], ?Model $parent = null)
+ */
 class EntryFactory extends FactoryDomain
 {
     /**

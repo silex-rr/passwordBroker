@@ -26,6 +26,7 @@ use PasswordBroker\Domain\Entry\Models\Groups\Admin;
 use PasswordBroker\Domain\Entry\Models\Groups\Attributes\EncryptedAesPassword;
 use PasswordBroker\Domain\Entry\Models\Groups\Member;
 use PasswordBroker\Domain\Entry\Models\Groups\Moderator;
+use PasswordBroker\Infrastructure\Factories\Entry\EntryGroupFactory;
 use PasswordBroker\Infrastructure\Validation\EntryGroupUserValidator;
 use PasswordBroker\Infrastructure\Validation\EntryGroupValidator;
 use PasswordBroker\Infrastructure\Validation\Handlers\EntryGroupUserValidationHandler;
@@ -36,6 +37,8 @@ use Symfony\Component\Mime\Encoder\Base64Encoder;
  * @property Attributes\EntryGroupId $entry_group_id
  * @property Attributes\GroupName $name
  * @property Attributes\MaterializedPath $materialized_path
+ *
+ * @method static EntryGroupFactory factory
  */
 class EntryGroup extends Model
 {

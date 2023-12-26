@@ -28,12 +28,15 @@ use PasswordBroker\Domain\Entry\Models\Fields\File;
 use PasswordBroker\Domain\Entry\Models\Fields\Link;
 use PasswordBroker\Domain\Entry\Models\Fields\Note;
 use PasswordBroker\Domain\Entry\Models\Fields\Password;
+use PasswordBroker\Infrastructure\Factories\Entry\EntryFactory;
 use PasswordBroker\Infrastructure\Validation\EntryValidator;
 use PasswordBroker\Infrastructure\Validation\Handlers\EntryValidationHandler;
 
 /**
  * @property Attributes\EntryId $entry_id
  * @property Attributes\Title $title
+ *
+ * @method static EntryFactory factory
  */
 class Entry extends Model
 {
