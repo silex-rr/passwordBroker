@@ -4,10 +4,10 @@ namespace PasswordBroker\Application;
 
 use Exception;
 use Identity\Domain\User\Models\User;
-use Identity\Infrastructure\Factories\User\UserFactory;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Testing\Fluent\AssertableJson;
+use PasswordBroker\Application\Services\EntryGroupService;
 use PasswordBroker\Domain\Entry\Models\Attributes\GroupName;
 use PasswordBroker\Domain\Entry\Models\Attributes\Title;
 use PasswordBroker\Domain\Entry\Models\Entry;
@@ -92,11 +92,14 @@ class EntrySearchTest extends TestCase
         $groupA = $groupFactory->create(['name' => GroupName::fromNative('groupA')]);
         $groupB = $groupFactory->create(['name' => GroupName::fromNative('groupB')]);
         $groupC = $groupFactory->create(['name' => GroupName::fromNative('groupC')]);
+
+        /**
+         * @var EntryGroupService $entryGroupService
+         */
+        $entryGroupService = app(EntryGroupService::class);
+
         foreach ([$groupA, $groupB, $groupC] as $group) {
-            /**
-             * @var EntryGroup $group
-             */
-            $group->addAdmin($user, $this->faker->password(128,128));
+            $entryGroupService->addUserToGroupAsAdmin($user, $group);
             try {
                 $count = random_int(10, 20);
             } catch (Exception $e) {
