@@ -41,44 +41,67 @@ class EntrySearchTest extends TestCase
 
         foreach ($entryTitles as $entryTitle) {
             $found = false;
-            $this->getJson(route('entrySearch', ['query' => $entryTitle]))
+            $this->getJson(route('entrySearch', ['q' => $entryTitle, 'perPage' => 100]))
                 ->assertStatus(200)
                 ->assertJson(function (AssertableJson $json) use ($entryTitle, &$found) {
-                    $json->has('result', 1, function (AssertableJson $result) use ($entryTitle, &$found) {
-                        $result->has('entryGroups', function (AssertableJson $entryGroup) use ($entryTitle, &$found) {
-                            $entryGroup->has('entries', function (AssertableJson $entry) use ($entryTitle, &$found) {
-                                $entry->where('title', function (string $title) use ($entryTitle, &$found) {
-                                    if ($entryTitle === $title) {
-                                        $found = true;
-                                    }
-                                    return true;
-                                });
-                            });
+                    $json->has('data');
+                    $resultNum = count($json->toArray()['data']);
+                    for ($i = 0; $i < $resultNum; $i++) {
+                        $json->where('data.' . $i . '.title', function (string $title) use ($entryTitle, &$found) {
+//                            var_dump(['title', $title]);
+                            if ($entryTitle === $title) {
+                                $found = true;
+                            }
+                            return true;
                         });
-                    });
+                    }
+
+                    $json->etc();
+//                    $json->has('data', null, function (AssertableJson $entry) use ($entryTitle, &$found) {
+//                        $entry->where('title', function (string $title) use ($entryTitle, &$found) {
+//                            var_dump(['title', $title]);
+//                            if ($entryTitle === $title) {
+//                                $found = true;
+//                            }
+//                            return true;
+//                        })->etc();
+//                    })->etc();
+//                    if (!$found) {
+//                        var_dump($entryTitle);
+//                        $json->dd();
+//                    }
                 });
             $this->assertTrue($found, 'Entry with the Title ' . $entryTitle . ' was not found');
         }
 
         foreach ($entryFieldTitles as $entryFieldTitle) {
             $found = false;
-            $this->getJson(route('entrySearch', ['query' => $entryFieldTitle]))
+            $this->getJson(route('entrySearch', ['q' => $entryFieldTitle, 'perPage' => 100]))
                 ->assertStatus(200)
                 ->assertJson(function (AssertableJson $json) use ($entryFieldTitle, &$found) {
-                    $json->has('result', 1, function (AssertableJson $result) use ($entryFieldTitle, &$found) {
-                        $result->has('entryGroups', function (AssertableJson $entryGroup) use ($entryFieldTitle, &$found) {
-                            $entryGroup->has('entries', function (AssertableJson $entry) use ($entryFieldTitle, &$found) {
-                                $entry->has('fields', function (AssertableJson $field) use ($entryFieldTitle, &$found) {
-                                    $field->where('title', function (string $title) use ($entryFieldTitle, &$found) {
-                                        if ($entryFieldTitle === $title) {
-                                            $found = true;
-                                        }
-                                        return true;
-                                    });
-                                });
-                            });
-                        });
-                    });
+                    $json->has('data');
+
+                    $array = $json->toArray();
+                    foreach ($array['data'] as $entry) {
+                        foreach ($entry['passwords'] as $password) {
+                            if ($entryFieldTitle === $password['title']) {
+                                $found = true;
+                            }
+                        }
+                    }
+
+                    $json->etc();
+//                    $json->has('data', null, function (AssertableJson $entry) use ($entryFieldTitle, &$found) {
+//
+//                        $entry->has('passwords', null,  function (AssertableJson $field) use ($entryFieldTitle, &$found) {
+//                            $field->where('title',  function (string $title) use ($entryFieldTitle, &$found) {
+//                                if ($entryFieldTitle === $title) {
+//                                    $found = true;
+//                                }
+//                                return $found;
+//                            })->etc();
+//                        })->etc();
+//                    })->etc();
                 });
             $this->assertTrue($found, 'Entry Field with the Title ' . $entryFieldTitle . ' was not found');
         }
@@ -101,23 +124,34 @@ class EntrySearchTest extends TestCase
         foreach ([$groupA, $groupB, $groupC] as $group) {
             $entryGroupService->addUserToGroupAsAdmin($user, $group);
             try {
-                $count = random_int(10, 20);
+                $count = random_int(2, 4);
             } catch (Exception $e) {
-                $count = 10;
+                $count = 2;
             }
-            $entryFactory->withEntryGroup($group)->count($count)->create();
+
+            $addPasswords = function ($entry, $title = null) use ($user, $group){
+                $this->getPasswordHelper(
+                    owner: $user,
+                    entryGroup: $group,
+                    entry: $entry,
+                    password_str: $this->faker->password,
+                    title: $title ?? $this->faker->word
+                );
+            };
+
+            $entries = $entryFactory->withEntryGroup($group)->count($count)->create();
+            foreach ($entries as $en) {
+                for ($i = 0; $i < 2; $i++) {
+                    $addPasswords($en);
+                }
+            }
+
             if (count($entryTitles)) {
                 $title = array_shift($entryTitles);
                 $entry = $entryFactory->withEntryGroup($group)->create(['title' => Title::fromNative($title)]);
                 if (count($entryFieldTitles)) {
                     $fieldTitle = array_shift($entryFieldTitles);
-                    $this->getPasswordHelper(
-                        owner: $user,
-                        entryGroup: $group,
-                        entry: $entry,
-                        password_str: $this->faker->password,
-                        title: $fieldTitle
-                    );
+                    $addPasswords($entry, $fieldTitle);
                 }
             }
         }
