@@ -201,6 +201,11 @@ abstract class Field extends Model
         return self::$related;
     }
 
+    public static function getRelatedForWith(): array
+    {
+        return array_map(static fn (string $a) => lcfirst($a) . 's', array_keys(static::getRelated()));
+    }
+
     protected function encryptedValueBase64(): Attribute
     {
         return new Attribute(
