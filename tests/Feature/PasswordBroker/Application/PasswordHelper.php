@@ -45,8 +45,8 @@ trait PasswordHelper
             title: $title
         );
 
-        $this->assertCount(1,
-            Entry::where('entry_id', $entry->entry_id)->firstOrFail()->fields()
+        $this->assertInstanceOf(Password::class,
+            Password::where('entry_id', $entry->entry_id)->firstOrFail()
         );
         return $password;
     }
