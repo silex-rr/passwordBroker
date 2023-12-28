@@ -2,16 +2,16 @@
 
 namespace PasswordBroker\Infrastructure\Repositories;
 
-use PasswordBroker\Domain\Entry\Contracts\EntryRepositoryInterface;
-use PasswordBroker\Domain\Entry\Contracts\EntrySpecificationInterface;
-use PasswordBroker\Domain\Entry\Models\Fields\Password;
+use App\Common\Domain\Abstractions\BaseRepository;
+use PasswordBroker\Domain\Entry\Models\Entry;
 
-class EntryRepository implements EntryRepositoryInterface
+class EntryRepository extends BaseRepository
 {
-    public function query(EntrySpecificationInterface $specification)
+    /**
+     * @inheritDoc
+     */
+    public function model(): string
     {
-        return Password::get()->filter(
-            fn(Password $password) => $specification->specifies($password)
-        );
+        return Entry::class;
     }
 }

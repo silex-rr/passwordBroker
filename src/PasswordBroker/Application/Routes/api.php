@@ -7,6 +7,7 @@ use PasswordBroker\Application\Http\Controllers\Api\EntryFieldHistoryController;
 use PasswordBroker\Application\Http\Controllers\Api\EntryGroupController;
 use PasswordBroker\Application\Http\Controllers\Api\EntryGroupHistoryController;
 use PasswordBroker\Application\Http\Controllers\Api\EntryGroupUserController;
+use PasswordBroker\Application\Http\Controllers\Api\EntrySearchController;
 use PasswordBroker\Application\Http\Controllers\Api\ImportController;
 
 /*
@@ -54,6 +55,9 @@ Route::middleware('auth.sanctum.cookie')->group(function (){
     Route::put('/entryGroups/{entryGroup:entry_group_id}/entries/{entry:entry_id}', [EntryController::class, 'update']);
     Route::patch('/entryGroups/{entryGroup:entry_group_id}/entries/{entry:entry_id}', [EntryController::class, 'move']);
     Route::delete('/entryGroups/{entryGroup:entry_group_id}/entries/{entry:entry_id}', [EntryController::class, 'destroy']);
+
+    Route::get('/entrySearch', [EntrySearchController::class, 'index'])
+        ->name('entrySearch');
 
     Route::get('/entryGroups/{entryGroup:entry_group_id}/entries/{entry:entry_id}/fields',
         [EntryFieldController::class, 'index'])
