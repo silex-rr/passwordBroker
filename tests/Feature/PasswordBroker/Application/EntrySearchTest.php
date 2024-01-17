@@ -107,14 +107,58 @@ class EntrySearchTest extends TestCase
         }
     }
 
+    public function test_a_user_can_not_find_entries_that_they_has_not_access_to(): void
+    {
+        $user = User::factory()->systemAdministrator()->create();
+
+        $entryTitles = [
+            'aaaa',
+            'bbbb',
+            'cccc',
+        ];
+        $entryFieldTitles = [
+            'aaaaT',
+            'bbbbT',
+            'ccccT',
+        ];
+        $this->seedDatabase($user, $entryTitles, $entryFieldTitles);
+
+        $user_other = User::factory()->create();
+        $entryTitlesOther = [
+            'dddd',
+            'eeee',
+            'ffff',
+        ];
+        $entryFieldTitlesOther = [
+            'ddddT',
+            'eeeeT',
+            'ffffT',
+        ];
+        $this->seedDatabase($user_other, $entryTitlesOther, $entryFieldTitlesOther);
+
+        $this->actingAs($user);
+
+        $this->getJson(route('entrySearch', ['q' => $entryTitles[0], 'perPage' => 100]))
+            ->assertStatus(200)
+            ->assertJson(function (AssertableJson $json) {
+                $json->has('data', 1)->etc();
+            });
+
+        $this->getJson(route('entrySearch', ['q' => $entryTitlesOther[0], 'perPage' => 100]))
+            ->assertStatus(200)
+            ->assertJson(function (AssertableJson $json) {
+                $json->has('data', 0)->etc();
+            });
+    }
+
     private function seedDatabase(User $user, array $entryTitles = [], array $entryFieldTitles = []): void
     {
         $groupFactory = EntryGroup::factory();
         $entryFactory = Entry::factory();
 
-        $groupA = $groupFactory->create(['name' => GroupName::fromNative('groupA')]);
-        $groupB = $groupFactory->create(['name' => GroupName::fromNative('groupB')]);
-        $groupC = $groupFactory->create(['name' => GroupName::fromNative('groupC')]);
+        $groupA = $groupFactory->create(['name' => GroupName::fromNative('groupA' . $this->faker->word())]);
+        $groupB = $groupFactory->create(['name' => GroupName::fromNative('groupB' . $this->faker->word())]);
+        $groupC = $groupFactory->create(['name' => GroupName::fromNative('groupC' . $this->faker->word())]);
 
         /**
          * @var EntryGroupService $entryGroupService
