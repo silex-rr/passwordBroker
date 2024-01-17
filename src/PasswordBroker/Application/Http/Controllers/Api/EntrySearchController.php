@@ -7,6 +7,7 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Auth;
 use PasswordBroker\Application\Http\Requests\EntrySearchRequest;
 use PasswordBroker\Domain\Entry\Services\SearchEntry;
 
@@ -18,6 +19,7 @@ class EntrySearchController extends Controller
     public function index(EntrySearchRequest $request): JsonResponse
     {
         $searchEntry = new SearchEntry(
+            user: Auth::user(),
             query: $request->getQuery(),
             perPage: $request->getPerPage(),
             page: $request->getPage(),
