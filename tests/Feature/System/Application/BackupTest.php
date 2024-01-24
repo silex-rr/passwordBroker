@@ -18,6 +18,23 @@ class BackupTest extends TestCase
     use RefreshDatabase;
     use WithFaker;
 
+    public function test_only_an_administrator_can_see_list_of_backups(): void
+    {
+        $admin = User::factory()->systemAdministrator()->create();
+        Backup::factory()->count(100)->create();
+
+        $this->actingAs($admin);
+
+        $this->getJson(route('system_backups', ['perPage' => 20]))->assertStatus(200)
+            ->assertJson(fn (AssertableJson $json) =>
+                $json->has('data', 20)
+                    ->etc()
+            );
+
+        $user = User::factory()->create();
+
+        $this->actingAs($user)->getJson(route('system_backups'))->assertStatus(403);
+    }
     public function test_an_administrator_can_create_a_backup(): void
     {
         $this->withoutExceptionHandling();
