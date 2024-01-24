@@ -3,6 +3,9 @@
 namespace System\Application\Providers;
 
 use App\Common\Application\Traits\ProviderMergeConfigRecursion;
+use Identity\Domain\User\Models\User;
+use Illuminate\Auth\Access\Response;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 use System\Domain\Backup\Models\Backup;
@@ -51,10 +54,10 @@ class SystemServiceProvider extends ServiceProvider
 
     public function defineGates(): void
     {
-//        Gate::define('field-history-search-any', static fn(User $user) =>
-//        $user->is_admin->getValue()
-//            ? Response::allow()
-//            : Response::deny('You must be a system administrator')
-//        );
+        Gate::define('perform-with-backups', static fn (User $user) =>
+            $user->is_admin->getValue()
+                ? Response::allow()
+                : Response::deny('You must be a system administrator')
+        );
     }
 }
