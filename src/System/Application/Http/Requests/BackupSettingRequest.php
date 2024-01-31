@@ -9,6 +9,8 @@ use System\Infrastructure\Validation\Rule\ArrayOfHoursRule;
 /**
  * @property int[] $schedule
  * @property bool $enable
+ * @property bool email_enable
+ * @property string|null email
  */
 class BackupSettingRequest extends FormRequest
 {
@@ -26,7 +28,14 @@ class BackupSettingRequest extends FormRequest
             'enable' => [
                 'required',
                 'boolean'
-            ]
+            ],
+            'email_enable' => [
+                'required',
+                'boolean'
+            ],
+            'email' => [
+                'nullable|email'
+            ],
         ];
     }
 

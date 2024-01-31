@@ -12,6 +12,7 @@ use System\Domain\Settings\Service\SetBackupSetting;
 class BackupSettingController extends Controller
 {
     use DispatchesJobs;
+
     public function show(BackupSetting $backupSetting): JsonResponse
     {
         return new JsonResponse($backupSetting, 200);
@@ -22,7 +23,9 @@ class BackupSettingController extends Controller
         $this->dispatchSync(new SetBackupSetting(
             backupSetting: $backupSetting,
             scheduleArray: $request->schedule,
-            enable: $request->enable
+            enable: $request->enable,
+            email_enable: $request->email_enable,
+            email: $request->email,
         ));
         return new JsonResponse($backupSetting, 200);
     }

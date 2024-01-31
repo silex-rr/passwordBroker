@@ -36,12 +36,13 @@ class MakeBackup implements ShouldQueue
             $this->backupService->makeBackup($this->backup);
             $this->backup->state = BackupState::CREATED;
             $this->backup->backup_created = new BackupCreated(Carbon::now());
+            $this->backup->save();
             event(new BackupWasMade($this->backup));
         } catch (Exception $e) {
             $this->backup->state = BackupState::ERROR;
             $this->backup->error_message = new ErrorMessage($e->getMessage());
+            $this->backup->save();
             event(new BackupFailed($this->backup, $e->getMessage()));
         }
-        $this->backup->save();
     }
 }

@@ -37,16 +37,24 @@ class SystemServiceProvider extends ServiceProvider
 
     public function register(): void
     {
+        $config = $this->app->make('config');
+
         $this->mergeConfigRecursion(
             require $this->base_path . $this->configs_dir . DIRECTORY_SEPARATOR . 'filesystems.disks.php',
-            'filesystems.disks'
+            'filesystems.disks',
+            $config
         );
+
+        $config->set('view.paths', [
+            ...config('view.paths'),
+            ...require $this->base_path . $this->configs_dir . DIRECTORY_SEPARATOR . 'view.paths.php',
+        ]);
     }
 
     public function bindRoutes(): void
     {
         Route::bind('backup', fn (string $backup_id) => Backup::where('backup_id', $backup_id)->firstOrFail());
-        Route::bind('backupScheduleSetting', fn() => BackupSetting::firstOrCreate([
+        Route::bind('backupSetting', fn() => BackupSetting::firstOrCreate([
             'key' => BackupSetting::TYPE,
             'type' => BackupSetting::TYPE,
         ]));

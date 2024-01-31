@@ -10,6 +10,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use System\Domain\Settings\Events\BackupSettingScheduleWasUpdated;
 use System\Domain\Settings\Events\BackupSettingWasDisabled;
 use System\Domain\Settings\Events\BackupSettingWasEnabled;
+use System\Domain\Settings\Models\Attributes\Backup\Email;
 use System\Domain\Settings\Models\Attributes\Backup\Enable;
 use System\Domain\Settings\Models\Attributes\Backup\Schedule;
 use System\Domain\Settings\Models\BackupSetting;
@@ -23,8 +24,10 @@ class SetBackupSetting implements ShouldQueue
         /**
          * @var int[]
          */
-        private readonly array         $scheduleArray,
-        private readonly bool $enable,
+        private readonly array          $scheduleArray,
+        private readonly bool           $enable,
+        private readonly bool           $email_enable,
+        private readonly ?string        $email,
     )
     {}
 
@@ -43,7 +46,20 @@ class SetBackupSetting implements ShouldQueue
                 : new BackupSettingWasDisabled($this->backupSetting)
             );
         }
-        $this->backupSetting->save();
+        $email_enable = new Enable($this->email_enable);
+        if (!$email_enable->equals($this->backupSetting->getEmailEnable())) {
+            $this->backupSetting->setEmailEnable($email_enable);
+//                event($email_enable->getValue()
+//                    ? new BackupSettingEmailWasEnabled($this->backupSetting)
+//                    : new BackupSettingEmailWasDisabled($this->backupSetting)
+//                );
+        }
+        $email = new Email($this->email ?: '');
+        if (!$email->equals($this->backupSetting->getEmail())) {
+            $this->backupSetting->setEmail($email);
+//            event(new BackupSettingScheduleWasUpdated($this->backupSetting));
+        }
 
+        $this->backupSetting->save();
     }
 }

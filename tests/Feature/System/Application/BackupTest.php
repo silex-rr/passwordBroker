@@ -3,13 +3,22 @@
 namespace System\Application;
 
 use Carbon\Carbon;
+use Carbon\CarbonInterval;
 use Identity\Domain\User\Models\User;
+use Illuminate\Bus\Dispatcher;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Testing\Fluent\AssertableJson;
+use System\Application\Mail\BackupEmail;
+use System\Application\Services\BackupService;
 use System\Domain\Backup\Models\Attributes\BackupState;
 use System\Domain\Backup\Models\Backup;
+use System\Domain\Backup\Service\CreateBackup;
+use System\Domain\Settings\Models\Attributes\Backup\Email;
+use System\Domain\Settings\Models\Attributes\Backup\Enable;
+use System\Domain\Settings\Models\BackupSetting;
 use Tests\TestCase;
 use ZipArchive;
 
@@ -26,21 +35,72 @@ class BackupTest extends TestCase
         $this->actingAs($admin);
 
         $this->getJson(route('system_backups', ['perPage' => 20]))->assertStatus(200)
-            ->assertJson(fn (AssertableJson $json) =>
-                $json->has('data', 20)
-                    ->etc()
+            ->assertJson(fn(AssertableJson $json) => $json->has('data', 20)
+                ->etc()
             );
 
         $user = User::factory()->create();
 
         $this->actingAs($user)->getJson(route('system_backups'))->assertStatus(403);
     }
+
+    public function test_an_email_can_be_send_after_backup_creation(): void
+    {
+        $user = User::factory()->systemAdministrator()->create();
+        $this->actingAs($user);
+        Mail::fake();
+
+        /**
+         * @var BackupSetting $backupSetting
+         */
+        $backupSetting = BackupSetting::firstOrCreate([
+            'key' => BackupSetting::TYPE,
+            'type' => BackupSetting::TYPE,
+        ]);
+
+        $backupSetting->setEmailEnable(Enable::fromNative(true));
+        $backupSetting->setEmail(Email::fromNative('some@email.com'));
+        $backupSetting->save();
+
+        /**
+         * @var BackupService $backupService
+         */
+        $backupService = app(BackupService::class);
+        /**
+         * @var Dispatcher $dispatcher
+         */
+        $dispatcher = app(Dispatcher::class);
+
+        /**
+         * @var Backup $backup
+         */
+        $backup = $dispatcher->dispatchSync(
+            new CreateBackup(backup: new Backup(), backupService: $backupService)
+        );
+        $this->assertDatabaseHas($backup->getTableFullName(), ['backup_id' => $backup->backup_id->getValue()]);
+        /**
+         * @var Backup $backup
+         */
+        $backup = Backup::where(['backup_id' => $backup->backup_id->getValue()])->get()->firstorFail();
+
+        Mail::assertSent(BackupEmail::class, function (BackupEmail $mail) use ($backup) {
+//            $fileData = Storage::disk('system_backup')->get($backup->file_name->getValue());
+            $attachments = $mail->attachments();
+            $this->assertCount(1, $attachments);
+            $this->assertEquals($attachments[0]->as, $backup->file_name->getValue());
+            return true;
+        });
+    }
+
     public function test_an_administrator_can_create_a_backup(): void
     {
         $this->withoutExceptionHandling();
 
         $user = User::factory()->systemAdministrator()->create();
         $carbon_now = Carbon::now();
+        $carbon_now->sub(
+            CarbonInterval::create(years: 0, months: 0, weeks: 0, days: 0, hours: 0, minutes: 0, seconds: 10)
+        );
         $route_create_name = 'system_backups';
         $route_create = route($route_create_name);
 
@@ -48,32 +108,29 @@ class BackupTest extends TestCase
 
         $backup_id = '';
 
-        $setBackupId = static function ($v) use (&$backup_id): bool
-        {
+        $setBackupId = static function ($v) use (&$backup_id): bool {
             $backup_id = $v;
             return !empty($v);
         };
 
         $this->postJson($route_create)->assertStatus(200)
             ->assertJson(function (AssertableJson $json) use ($setBackupId) {
-                    $json->where('state', BackupState::AWAIT->value)
-                        ->where('backup_id', $setBackupId)
-                        ->etc();
-                }
+                $json->where('state', BackupState::AWAIT->value)
+                    ->where('backup_id', $setBackupId)
+                    ->etc();
+            }
             );
 
         $route_get_name = 'system_backup';
         $route_get = route($route_get_name, ['backup' => $backup_id]);
 
         $backup_size = 0;
-        $setBackupSize = static function ($v) use (&$backup_size): bool
-        {
+        $setBackupSize = static function ($v) use (&$backup_size): bool {
             $backup_size = $v;
             return is_numeric($v) && $v > 0;
         };
         $backup_file_name = '';
-        $setBackupFileName = static function ($v) use (&$backup_file_name): bool
-        {
+        $setBackupFileName = static function ($v) use (&$backup_file_name): bool {
             $backup_file_name = $v;
             return !empty($backup_file_name);
         };
