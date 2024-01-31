@@ -26,6 +26,7 @@ class BackupSettingController extends Controller
             enable: $request->enable,
             email_enable: $request->email_enable,
             email: $request->email,
+            archive_password: $request->archive_password,
         ));
         return new JsonResponse($backupSetting, 200);
     }

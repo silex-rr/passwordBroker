@@ -4,6 +4,7 @@ namespace System\Domain\Settings\Models;
 
 use System\Domain\Settings\Models\Attributes\Backup\Email;
 use System\Domain\Settings\Models\Attributes\Backup\Enable;
+use System\Domain\Settings\Models\Attributes\Backup\Password;
 use System\Domain\Settings\Models\Attributes\Backup\Schedule;
 
 class BackupSetting extends Setting
@@ -13,6 +14,7 @@ class BackupSetting extends Setting
     protected Enable $enable;
     protected Enable $email_enable;
     protected Email $email;
+    protected Password $archive_password;
 
 
     protected $attributes = ['type' => self::TYPE];
@@ -24,10 +26,12 @@ class BackupSetting extends Setting
         $this->appends[] = 'enable';
         $this->appends[] = 'email_enable';
         $this->appends[] = 'email';
+        $this->appends[] = 'archive_password';
         $this->schedule = new Schedule([]);
         $this->enable = new Enable(false);
         $this->email_enable = new Enable(false);
         $this->email = new Email('');
+        $this->archive_password = new Password('');
     }
 
     public function getSchedule(): Schedule
@@ -88,6 +92,22 @@ class BackupSetting extends Setting
     {
         $this->email = $email;
     }
+
+    public function getArchivePassword(): Password
+    {
+        return $this->archive_password;
+    }
+    public function getArchivePasswordAttribute(): Password
+    {
+        return $this->archive_password;
+    }
+
+    public function setArchivePassword(Password $archive_password): void
+    {
+        $this->archive_password = $archive_password;
+    }
+
+
 
 
 }

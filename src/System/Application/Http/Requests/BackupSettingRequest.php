@@ -9,8 +9,9 @@ use System\Infrastructure\Validation\Rule\ArrayOfHoursRule;
 /**
  * @property int[] $schedule
  * @property bool $enable
- * @property bool email_enable
- * @property string|null email
+ * @property bool $email_enable
+ * @property string|null $email
+ * @property string|null $archive_password
  */
 class BackupSettingRequest extends FormRequest
 {
@@ -23,19 +24,24 @@ class BackupSettingRequest extends FormRequest
         return [
             'schedule' => [
                 'required',
-                new ArrayOfHoursRule()
+                new ArrayOfHoursRule(),
             ],
             'enable' => [
                 'required',
-                'boolean'
+                'boolean',
             ],
             'email_enable' => [
                 'required',
-                'boolean'
+                'boolean',
             ],
             'email' => [
-                'nullable|email'
+                'email',
+                'nullable',
             ],
+            'archive_password' => [
+                'nullable',
+                'string'
+            ]
         ];
     }
 

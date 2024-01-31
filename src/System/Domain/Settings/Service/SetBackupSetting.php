@@ -12,6 +12,7 @@ use System\Domain\Settings\Events\BackupSettingWasDisabled;
 use System\Domain\Settings\Events\BackupSettingWasEnabled;
 use System\Domain\Settings\Models\Attributes\Backup\Email;
 use System\Domain\Settings\Models\Attributes\Backup\Enable;
+use System\Domain\Settings\Models\Attributes\Backup\Password;
 use System\Domain\Settings\Models\Attributes\Backup\Schedule;
 use System\Domain\Settings\Models\BackupSetting;
 
@@ -28,6 +29,7 @@ class SetBackupSetting implements ShouldQueue
         private readonly bool           $enable,
         private readonly bool           $email_enable,
         private readonly ?string        $email,
+        private readonly ?string        $archive_password,
     )
     {}
 
@@ -59,6 +61,12 @@ class SetBackupSetting implements ShouldQueue
             $this->backupSetting->setEmail($email);
 //            event(new BackupSettingScheduleWasUpdated($this->backupSetting));
         }
+        $archivePassword = new Password($this->archive_password ?: '');
+        if (!$archivePassword->equals($this->backupSetting->getArchivePassword())) {
+            $this->backupSetting->setArchivePassword($archivePassword);
+//            event(new BackupSettingScheduleWasUpdated($this->backupSetting));
+        }
+
 
         $this->backupSetting->save();
     }

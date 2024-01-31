@@ -29,11 +29,16 @@ class BackupSettingTest extends TestCase
                     ->etc()
             );
 
+        $archive_password = $this->faker->password();
+        $email = $this->faker->email();
+
         $data = [
             'key' => BackupSetting::TYPE,
             'schedule' => [8, 12, 20],
+            'archive_password' => $archive_password,
             'enable' => true,
             'email_enable' => false,
+            'email' => $email,
         ];
 
         $this->postJson($route, $data)
@@ -49,6 +54,9 @@ class BackupSettingTest extends TestCase
                     ->where('schedule.0', $validateSchedule)
                     ->where('schedule.1', $validateSchedule)
                     ->where('schedule.2', $validateSchedule)
+                    ->where('archive_password', $archive_password)
+                    ->where('email_enable', false)
+                    ->where('email', $email)
                     ->etc()
             );
     }
