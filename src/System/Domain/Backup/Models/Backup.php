@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 use System\Domain\Backup\Models\Casts\BackupCreated;
 use System\Domain\Backup\Models\Casts\BackupDeleted;
 use System\Domain\Backup\Models\Casts\BackupId;
+use System\Domain\Backup\Models\Casts\BackupPassword;
 use System\Domain\Backup\Models\Casts\BackupState;
 use System\Domain\Backup\Models\Casts\ErrorMessage;
 use System\Domain\Backup\Models\Casts\FileName;
@@ -23,6 +24,7 @@ use System\Infrastructure\Factories\Backup\BackupFactory;
  * @property Attributes\BackupCreated $backup_created
  * @property Attributes\BackupDeleted $backup_deleted
  * @property Attributes\ErrorMessage $error_message
+ * @property Attributes\BackupPassword $password
  *
  * @method static BackupFactory factory
  */
@@ -50,6 +52,7 @@ class Backup extends Model
         'backup_created' => BackupCreated::class,
         'backup_deleted' => BackupDeleted::class,
         'error_message' => ErrorMessage::class,
+        'password' => BackupPassword::class,
     ];
 
 }

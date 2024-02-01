@@ -8,9 +8,11 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use PDO;
 use RuntimeException;
+use System\Domain\Backup\Models\Attributes\BackupPassword;
 use System\Domain\Backup\Models\Attributes\FileName;
 use System\Domain\Backup\Models\Attributes\Size;
 use System\Domain\Backup\Models\Backup;
+use System\Domain\Settings\Models\BackupSetting;
 use ZipArchive;
 
 class BackupService
@@ -20,6 +22,15 @@ class BackupService
         if (is_null($backup)) {
             $backup = new Backup();
         }
+        /**
+         * @var BackupSetting $backupSetting
+         */
+        $backupSetting = BackupSetting::firstOrCreate([
+            'key' => BackupSetting::TYPE,
+            'type' => BackupSetting::TYPE,
+        ]);
+        $password = $backupSetting->getArchivePassword()->getValue();
+
         $zipArchiveFilePath = $this->getTempDirForBackup() . 'pb_backup_' . time() . '.zip';
         $zipArchive = new ZipArchive();
         $zipArchive->open($zipArchiveFilePath, ZipArchive::CREATE);
@@ -27,11 +38,25 @@ class BackupService
         $fileName = new FileName('pb_backup_' . (Carbon::now())->format('Y_m_d__H_i_s') . '.zip');
         $backup->file_name = $fileName;
 
-        $fileDatabasePath = $this->addDatabaseToZipArchive($zipArchive);
-        $this->addFilesFromStoreToZipArchive($zipArchive, Storage::disk('cbc_salt'), 'cbc_salt/');
-        $this->addFilesFromStoreToZipArchive($zipArchive, Storage::disk('identity_keys'), 'identity_keys/');
-        $this->addEnv($zipArchive);
+        $backup->password = BackupPassword::fromNative($password);
 
+        $fileDatabasePath = $this->addDatabaseToZipArchive($zipArchive);
+        $this->addFilesFromStoreToZipArchive(
+            zipArchive: $zipArchive,
+            filesystem: Storage::disk('cbc_salt'),
+            pathInArchive: 'cbc_salt/',
+            password: $password,
+        );
+        $this->addFilesFromStoreToZipArchive(
+            zipArchive: $zipArchive,
+            filesystem: Storage::disk('identity_keys'),
+            pathInArchive: 'identity_keys/',
+            password: $password,
+        );
+
+        $this->addEnv(zipArchive: $zipArchive, password: $password);
+
+        $zipArchive->setPassword($password);
         $zipArchive->close();
 
         unlink($fileDatabasePath);
@@ -43,12 +68,15 @@ class BackupService
         return $backup;
     }
 
-    private function addEnv(ZipArchive $zipArchive): void
+    private function addEnv(ZipArchive $zipArchive, ?string $password): void
     {
         base_path();
         foreach (scandir(base_path()) as $file) {
             if (preg_match('/^\.env/', $file)) {
                 $zipArchive->addFile(base_path() . '/' . $file, $file);
+                if ($password) {
+                    $zipArchive->setEncryptionName($file, ZipArchive::EM_AES_256, $password);
+                }
             }
         }
     }
@@ -68,11 +96,19 @@ class BackupService
         return $fileDatabasePath;
     }
 
-    private function addFilesFromStoreToZipArchive(ZipArchive $zipArchive, Filesystem $filesystem, string $pathInArchive = ''): void
+    private function addFilesFromStoreToZipArchive(
+        ZipArchive $zipArchive,
+        Filesystem $filesystem,
+        string $pathInArchive = '',
+        ?string $password = null,
+    ): void
     {
         foreach ($filesystem->allFiles('/') as $file){
             $full_path = $pathInArchive . $file;
             $zipArchive->addFromString($full_path, $filesystem->get($file));
+            if ($password) {
+                $zipArchive->setEncryptionName($full_path, ZipArchive::EM_AES_256, $password);
+            }
         }
     }
 

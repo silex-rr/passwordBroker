@@ -18,6 +18,7 @@ use System\Domain\Backup\Models\Backup;
 use System\Domain\Backup\Service\CreateBackup;
 use System\Domain\Settings\Models\Attributes\Backup\Email;
 use System\Domain\Settings\Models\Attributes\Backup\Enable;
+use System\Domain\Settings\Models\Attributes\Backup\Password;
 use System\Domain\Settings\Models\BackupSetting;
 use Tests\TestCase;
 use ZipArchive;
@@ -104,6 +105,19 @@ class BackupTest extends TestCase
         $route_create_name = 'system_backups';
         $route_create = route($route_create_name);
 
+        $archivePassword = $this->faker->password();
+
+        /**
+         * @var BackupSetting $backupSetting
+         */
+        $backupSetting = BackupSetting::firstOrCreate([
+            'key' => BackupSetting::TYPE,
+            'type' => BackupSetting::TYPE,
+        ]);
+
+        $backupSetting->setArchivePassword(Password::fromNative($archivePassword));
+        $backupSetting->save();
+
         $this->actingAs($user);
 
         $backup_id = '';
@@ -118,8 +132,7 @@ class BackupTest extends TestCase
                 $json->where('state', BackupState::AWAIT->value)
                     ->where('backup_id', $setBackupId)
                     ->etc();
-            }
-            );
+                });
 
         $route_get_name = 'system_backup';
         $route_get = route($route_get_name, ['backup' => $backup_id]);
@@ -134,13 +147,19 @@ class BackupTest extends TestCase
             $backup_file_name = $v;
             return !empty($backup_file_name);
         };
+        $backup_password = '';
+        $setBackupPassword = static function ($v) use (&$backup_password): bool {
+            $backup_password = $v;
+            return !empty($backup_password);
+        };
 
 
         $this->get($route_get)->assertStatus(200)
-            ->assertJson(function (AssertableJson $json) use ($setBackupSize, $setBackupFileName, $backup_id, $carbon_now) {
+            ->assertJson(function (AssertableJson $json) use ($setBackupSize, $setBackupFileName, $setBackupPassword, $backup_id, $carbon_now) {
                 $json->where('size', $setBackupSize)
                     ->where('file_name', $setBackupFileName)
                     ->where('backup_id', $backup_id)
+                    ->where('password', $setBackupPassword)
                     ->where('state', BackupState::CREATED->value)
                     ->where('backup_created', fn($bc) => new Carbon($bc) >= $carbon_now)
                     ->etc();
@@ -165,7 +184,7 @@ class BackupTest extends TestCase
         $this->assertEquals($fileSize, $backup_size);
         $zipArchive = new ZipArchive();
         $zipArchive->open($tmp_path, ZipArchive::RDONLY);
-
+        $zipArchive->setPassword($backup_password);
         $hasKeys = false;
         $hasSalt = false;
         $hasDatabase = false;
@@ -183,10 +202,11 @@ class BackupTest extends TestCase
             }
             if (!$hasDatabase && preg_match('/^database_(.+)$/', $nameIndex)) {
                 $hasDatabase = true;
-//                $dataBaseName = $nameIndex;
             }
-            if (!$hasEnv && preg_match('/^\.env/', $nameIndex)) {
-                $hasEnv = true;
+            if (!$hasEnv && preg_match('/^\.env$/', $nameIndex)) {
+                $env_content_original = file_get_contents(base_path('.env'));
+                $env_content = $zipArchive->getFromIndex($i);
+                $hasEnv = $env_content_original === $env_content;
             }
         }
         $this->assertTrue($hasKeys, 'User\'s Private Keys were not found in the backup');
