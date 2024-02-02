@@ -9,7 +9,6 @@ use PasswordBroker\Application\Policies\EntryGroupPolicy;
 use PasswordBroker\Application\Policies\EntryPolicy;
 use PasswordBroker\Domain\Entry\Models\Entry;
 use PasswordBroker\Domain\Entry\Models\EntryGroup;
-use PasswordBroker\Domain\Entry\Models\Fields\EntryFieldHistory;
 use PasswordBroker\Domain\Entry\Models\Fields\Field;
 
 class PasswordBrokerAuthServiceProvider extends AuthServiceProvider
@@ -32,7 +31,7 @@ class PasswordBrokerAuthServiceProvider extends AuthServiceProvider
      */
     public function boot(): void
     {
-        $this->registerPolicies();
+//        $this->registerPolicies();
 
         //
     }
