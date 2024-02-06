@@ -3,7 +3,6 @@
 namespace PasswordBroker\Infrastructure\Services;
 
 use Random\Randomizer;
-use function Symfony\Component\String\b;
 
 class PasswordGenerator
 {
