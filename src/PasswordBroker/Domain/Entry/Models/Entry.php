@@ -28,6 +28,7 @@ use PasswordBroker\Domain\Entry\Models\Fields\File;
 use PasswordBroker\Domain\Entry\Models\Fields\Link;
 use PasswordBroker\Domain\Entry\Models\Fields\Note;
 use PasswordBroker\Domain\Entry\Models\Fields\Password;
+use PasswordBroker\Domain\Entry\Models\Fields\TOTP;
 use PasswordBroker\Infrastructure\Factories\Entry\EntryFactory;
 use PasswordBroker\Infrastructure\Validation\EntryValidator;
 use PasswordBroker\Infrastructure\Validation\Handlers\EntryValidationHandler;
@@ -89,6 +90,11 @@ class Entry extends Model
     public function notes(): HasMany
     {
         return $this->hasMany(Note::class, 'entry_id', 'entry_id');
+    }
+
+    public function TOTPs(): HasMany
+    {
+        return $this->hasMany(TOTP::class, 'entry_id', 'entry_id');
     }
 
     public function files(): HasMany
@@ -191,6 +197,26 @@ class Entry extends Model
         $note->field_id;
         $note->save();
         return $note;
+    }
+
+    public function addTOTP(
+        UserIdAttribute $userId,
+        string          $TOPT_encrypted,
+        string          $initializing_vector,
+        string          $title = ""
+    ): TOTP
+    {
+        $TOTP = new TOTP([
+            'entry_id' => $this->entry_id,
+            'title' => Title::fromNative($title),
+            'value_encrypted' => ValueEncrypted::fromNative($TOPT_encrypted),
+            'initialization_vector' => InitializationVector::fromNative($initializing_vector),
+            'created_by' => $userId,
+            'updated_by' => $userId
+        ]);
+        $TOTP->field_id;
+        $TOTP->save();
+        return $TOTP;
     }
 
     public function validate(EntryValidationHandler $validationHandler): void

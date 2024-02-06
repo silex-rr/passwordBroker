@@ -3,6 +3,7 @@
 namespace PasswordBroker\Application\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
 use PasswordBroker\Application\Events\FieldDecrypted;
@@ -19,6 +20,7 @@ use PasswordBroker\Domain\Entry\Models\Fields\Password;
 use PasswordBroker\Domain\Entry\Services\AddFieldToEntry;
 use PasswordBroker\Domain\Entry\Services\DestroyEntryField;
 use PasswordBroker\Domain\Entry\Services\UpdateField;
+use PasswordBroker\Infrastructure\Services\TimeBasedOneTimePasswordGenerator;
 use phpseclib3\Exception\NoKeyLoadedException;
 use Symfony\Component\Mime\Encoder\Base64Encoder;
 
@@ -48,6 +50,41 @@ class EntryFieldController extends Controller
     public function show(EntryGroup $entryGroup, Entry $entry, Field $field): JsonResponse
     {
         return new JsonResponse($field, 200);
+    }
+
+    public function showTOTP(EntryGroup $entryGroup, Entry $entry, Field $field, EntryFieldDecryptedRequest $request): JsonResponse
+    {
+
+
+        try {
+            $decryptField = $this->entryGroupService->decryptField(field: $field, master_password: $request->getMasterPassword());
+
+            event(new FieldDecrypted(field: $field));
+
+
+            $timeBasedOneTimePasswordGenerator = new TimeBasedOneTimePasswordGenerator();
+            $TOTP = $timeBasedOneTimePasswordGenerator->generate($decryptField);
+
+            $carbon = Carbon::now();
+            return new JsonResponse(
+                [
+                    'time' => $carbon->format('c'),
+                    'code' => $TOTP->now(),
+                    'epoch' => $TOTP->getEpoch(),
+                    'period' => $TOTP->getPeriod(),
+                    'expiresIn' => $TOTP->expiresIn(),
+                    'expiresAt' => $carbon->add('second', $TOTP->expiresIn())->format('c'),
+                ]
+                , 200);
+        } catch (NoKeyLoadedException $exception) {
+            return new JsonResponse([
+                'message' => "MasterPassword is invalid",
+                'errors' => [
+                    'master_password' => 'invalid',
+                ]
+            ], 422);
+        }
+
     }
 
     public function showDecrypted(EntryGroup $entryGroup, Entry $entry, Field $field, EntryFieldDecryptedRequest $request)
@@ -102,7 +139,7 @@ class EntryFieldController extends Controller
                     'master_password' => 'invalid'
                 ]
             ], 422);
-        } catch (\Exception $e) {dd($e);}
+        }
 
 
         return new JsonResponse($result, 200);

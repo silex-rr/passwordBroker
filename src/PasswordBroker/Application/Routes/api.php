@@ -70,6 +70,9 @@ Route::middleware('auth.sanctum.cookie')->group(function (){
     Route::post('/entryGroups/{entryGroup:entry_group_id}/entries/{entry:entry_id}/fields/{field:field_id}/decrypted',
         [EntryFieldController::class, 'showDecrypted'])
         ->name('entryFieldDecrypted');
+    Route::post('/entryGroups/{entryGroup:entry_group_id}/entries/{entry:entry_id}/fields/{field:field_id}/totp',
+        [EntryFieldController::class, 'showTOTP'])
+        ->name('entryFieldTOTP');
     Route::put('/entryGroups/{entryGroup:entry_group_id}/entries/{entry:entry_id}/fields/{field:field_id}',
         [EntryFieldController::class, 'update']);
     Route::delete('/entryGroups/{entryGroup:entry_group_id}/entries/{entry:entry_id}/fields/{field:field_id}',

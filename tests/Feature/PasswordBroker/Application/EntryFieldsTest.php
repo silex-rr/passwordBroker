@@ -14,6 +14,7 @@ use PasswordBroker\Domain\Entry\Models\Entry;
 use PasswordBroker\Domain\Entry\Models\EntryGroup;
 use PasswordBroker\Domain\Entry\Models\Fields\File;
 use PasswordBroker\Domain\Entry\Models\Fields\Password;
+use PasswordBroker\Domain\Entry\Models\Fields\TOTP;
 use PasswordBroker\Domain\Entry\Services\AddEntry;
 use PasswordBroker\Infrastructure\Validation\Handlers\EntryValidationHandler;
 use Symfony\Component\Mime\Encoder\Base64Encoder;
@@ -464,6 +465,59 @@ class EntryFieldsTest extends TestCase
             );
     }
 
+    public function test_member_can_generate_an_otp_for_totp_field(): void
+    {
+        $this->withoutExceptionHandling();
+        /**
+         * @var EntryGroup $entryGroup
+         * @var User $admin
+         * @var User $member
+         * @var Entry $entry
+         * @var EntryGroupService $entryGroupService
+         */
+        $entryGroup = EntryGroup::factory()->create();
+        [$admin, $member] = User::factory()->count(2)->create();
+        $entry = Entry::factory()->make();
+        /**
+         * @var EncryptionService $encryptionService
+         */
+        $entryGroupService = app(EntryGroupService::class);
+
+        $entryGroupService->addUserToGroupAsAdmin($admin, $entryGroup);
+
+        $this->actingAs($admin);
+        dispatch_sync(new AddEntry($entry, $entryGroup, new EntryValidationHandler()));
+        $entryGroupService->addUserToGroupAsMember($member, $entryGroup, null, UserFactory::MASTER_PASSWORD);
+
+        /**
+         * @var Entry $entry
+         */
+        $entry = Entry::where('title', $entry->title)->firstOrFail();
+        $secret = $this->faker->word();
+        $this->postJson(route('entryFields', ['entryGroup' => $entryGroup, 'entry' => $entry]), [
+            'type' => TOTP::TYPE,
+            'master_password' => UserFactory::MASTER_PASSWORD,
+            'value' => $secret,
+        ])->assertStatus(200);
+        $totp = $entry->TOTPs()->first();
+
+        $this->actingAs($member);
+
+        $this->postJson(route('entryFieldTOTP', ['entryGroup' => $entryGroup, 'entry' => $entry, 'field' => $totp]),
+            ['master_password' => UserFactory::MASTER_PASSWORD]
+        )
+            ->assertStatus(200)
+            ->assertJson(fn (AssertableJson $field) =>
+                $field->has('code')
+                    ->has('time')
+                    ->has('epoch')
+                    ->has('period')
+                    ->has('expiresIn')
+                    ->has('expiresAt')
+                    ->etc()
+            );
+
+    }
     public function test_member_can_see_an_decrypted_entry_field_belonged_to_their_group(): void
     {
         /**

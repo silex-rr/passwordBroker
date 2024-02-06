@@ -55,7 +55,8 @@ abstract class Field extends Model
         Password::TYPE => Password::class,
         Link::TYPE => Link::class,
         Note::TYPE => Note::class,
-        File::TYPE => File::class
+        File::TYPE => File::class,
+        TOTP::TYPE => TOTP::class,
     ];
 
     public $table = 'entry_fields';

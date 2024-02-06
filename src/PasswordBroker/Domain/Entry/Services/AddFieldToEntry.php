@@ -20,6 +20,7 @@ use PasswordBroker\Domain\Entry\Models\Fields\File;
 use PasswordBroker\Domain\Entry\Models\Fields\Link;
 use PasswordBroker\Domain\Entry\Models\Fields\Note;
 use PasswordBroker\Domain\Entry\Models\Fields\Password;
+use PasswordBroker\Domain\Entry\Models\Fields\TOTP;
 use RuntimeException;
 
 class AddFieldToEntry implements ShouldQueue
@@ -105,6 +106,7 @@ class AddFieldToEntry implements ShouldQueue
                 );
                 break;
             case Link::TYPE:
+            case TOTP::TYPE:
             case Note::TYPE:
                 $field = $this->entry->$method(
                     $user->user_id,

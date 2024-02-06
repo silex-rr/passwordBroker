@@ -5,6 +5,7 @@ namespace Tests\Unit\PasswordBroker\Domain\Entry;
 use Identity\Domain\User\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
+use PasswordBroker\Application\Services\EncryptionService;
 use PasswordBroker\Domain\Entry\Models\Entry;
 use PasswordBroker\Domain\Entry\Models\EntryGroup;
 use phpseclib3\Crypt\PublicKeyLoader;
@@ -110,6 +111,34 @@ class EntryTest extends TestCase
         $this->assertEquals(
             1,
             $entry->notes()->where('field_id', $note->field_id)->count()
+        );
+    }
+
+    public function test_an_entry_can_have_a_TOTP(): void
+    {
+        /**
+         * @var Entry $entry
+         * @var User $user
+         */
+        $entry = Entry::factory()->withEntryGroup()->create();
+        $user = User::factory()->create();
+
+        /**
+         * @var EncryptionService $encryptionService;
+         */
+        $encryptionService = app(EncryptionService::class);
+
+        $secret = $this->faker->word;
+
+        $note = $entry->addTOPT(
+            $user->user_id,
+            $secret,
+            $encryptionService->generateInitializationVector(),
+        );
+
+        $this->assertEquals(
+            1,
+            $entry->TOTPs()->where('field_id', $note->field_id)->count()
         );
     }
 
