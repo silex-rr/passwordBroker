@@ -13,7 +13,7 @@ services:
             - ./docker/permission.sh:/permission.sh
     php_fpm:
 #        tty: true # Enables debugging capabilities when attached to this container.
-        image: bitnami/php-fpm:8.2
+        image: bitnami/php-fpm:8.3
         user: ${UID}:${GID}
         container_name: PB_php-fpm
         expose:
@@ -91,7 +91,7 @@ services:
                 aliases:
                     - "nginx"
     php_composer:
-        image: bitnami/php-fpm:8.2
+        image: bitnami/php-fpm:8.3
         user: ${UID}:${GID}
         container_name: PB_composer
         depends_on:
@@ -111,7 +111,7 @@ services:
                 aliases:
                     - "php_composer"
     queue:
-        image: bitnami/php-fpm:8.2
+        image: bitnami/php-fpm:8.3
         user: ${UID}:${GID}
         container_name: PB_queue
         depends_on:
@@ -133,7 +133,7 @@ services:
                 aliases:
                     - "queue"
     scheduler:
-        image: bitnami/php-fpm:8.2
+        image: bitnami/php-fpm:8.3
         user: ${UID}:${GID}
         container_name: PB_scheduler
         depends_on:
