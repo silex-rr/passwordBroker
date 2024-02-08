@@ -29,7 +29,7 @@ class SettingObserver
          * @var User $user
          */
         $user = Auth::user();
-        $setting->updatedBy = $user->user_id;
+        $setting->updated_by = $user->user_id;
     }
 
     public function retrieved(Setting $setting): void
