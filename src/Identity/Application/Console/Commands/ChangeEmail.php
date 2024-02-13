@@ -51,7 +51,7 @@ class ChangeEmail extends Command
 
         do {
             $email = $this->ask("Set new email for user " . $user->name->getValue() . ": ");
-            $email_confirm = $this->secret("Confirm new email: ");
+            $email_confirm = $this->ask("Confirm new email: ");
             if ($email !== $email_confirm) {
                 $this->info("------------eMails doesn't match, try again------------");
                 continue;
