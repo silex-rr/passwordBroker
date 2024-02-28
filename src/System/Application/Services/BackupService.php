@@ -157,7 +157,7 @@ class BackupService
             $PDO = DB::getPdo();
             $tableInfo = $PDO->query(sprintf("PRAGMA table_info(%s)", $table));
             fwrite($fileResource, sprintf("\n\n-- Table structure for table `%s`\n\n", $table));
-
+            fwrite($fileResource, sprintf("DROP TABLE IF EXISTS `%s`;\n", $table));
             fwrite($fileResource, sprintf("CREATE TABLE %s (\r\n", $table));
             $tableSignature = [];
             while ($column = $tableInfo ->fetch(PDO::FETCH_ASSOC)) {
