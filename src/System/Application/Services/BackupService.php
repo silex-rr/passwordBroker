@@ -17,7 +17,7 @@ use ZipArchive;
 
 class BackupService
 {
-    public function makeBackup(?Backup $backup = null): Backup
+    public function makeBackup(?Backup $backup = null, ?string $password = null): Backup
     {
         if (is_null($backup)) {
             $backup = new Backup();
@@ -29,7 +29,9 @@ class BackupService
             'key' => BackupSetting::TYPE,
             'type' => BackupSetting::TYPE,
         ]);
-        $password = $backupSetting->getArchivePassword()->getValue();
+        if (is_null($password)) {
+            $password = $backupSetting->getArchivePassword()->getValue();
+        }
 
         $zipArchiveFilePath = $this->getTempDirForBackup() . 'pb_backup_' . time() . '.zip';
         $zipArchive = new ZipArchive();
@@ -40,7 +42,7 @@ class BackupService
 
         $backup->password = BackupPassword::fromNative($password);
 
-        $fileDatabasePath = $this->addDatabaseToZipArchive($zipArchive);
+        $fileDatabasePath = $this->addDatabaseToZipArchive(zipArchive: $zipArchive, password: $password);
         $this->addFilesFromStoreToZipArchive(
             zipArchive: $zipArchive,
             filesystem: Storage::disk('cbc_salt'),
@@ -54,6 +56,7 @@ class BackupService
             password: $password,
         );
 
+        $this->addVersion(zipArchive: $zipArchive, password: $password);
         $this->addEnv(zipArchive: $zipArchive, password: $password);
 
         $zipArchive->setPassword($password);
@@ -68,6 +71,15 @@ class BackupService
         return $backup;
     }
 
+    private function addVersion(ZipArchive $zipArchive, ?string $password): void
+    {
+        $version = config('app_version.version', '0.0.1');
+        $file = 'app_version.txt';
+        $zipArchive->addFromString($file, $version);
+        if ($password) {
+            $zipArchive->setEncryptionName($file, ZipArchive::EM_AES_256, $password);
+        }
+    }
     private function addEnv(ZipArchive $zipArchive, ?string $password): void
     {
         base_path();
@@ -85,14 +97,19 @@ class BackupService
      * @param ZipArchive $zipArchive
      * @return string database file path
      */
-    private function addDatabaseToZipArchive(ZipArchive $zipArchive): string
+    private function addDatabaseToZipArchive(ZipArchive $zipArchive, ?string $password): string
     {
         $fileDatabasePath = $this->getTempDirForBackup() . 'pb_backup_database_' . time() . '.sql';
 
         $fileDatabaseResource = fopen($fileDatabasePath, 'wb+');
         $databaseName = $this->makeDatabaseBackup($fileDatabaseResource);
-        $zipArchive->addFile($fileDatabasePath, 'database_' . $databaseName . '.sql');
+        $databaseNameInArchive = 'database_' . $databaseName . '.sql';
+        $zipArchive->addFile($fileDatabasePath, $databaseNameInArchive);
+        if ($password) {
+            $zipArchive->setEncryptionName($databaseNameInArchive, ZipArchive::EM_AES_256, $password);
+        }
         fclose($fileDatabaseResource);
+        unset($fileDatabaseResource);
         return $fileDatabasePath;
     }
 
@@ -166,21 +183,24 @@ class BackupService
     }
     private function makeDatabaseBackupMySql($fileResource, array $tables): void
     {
+        fwrite($fileResource,"SET FOREIGN_KEY_CHECKS=0;\n\n");
         foreach ($tables as $table) {
             $tableStructure = DB::select(sprintf("SHOW CREATE TABLE %s", $table))[0]->{'Create Table'};
 
             fwrite($fileResource, sprintf("\n\n-- Table structure for table `%s`\n\n", $table));
+            fwrite($fileResource, sprintf("DROP TABLE IF EXISTS `%s`;\n", $table));
             fwrite($fileResource, $tableStructure . ";\n\n");
 
-            $tableData = DB::table($table)->get()->toArray();
+            $tableData = DB::table($table)->get();
             fwrite($fileResource, sprintf("-- Inserting data for table `%s`\n", $table));
-            foreach ($tableData as $row) {
-                $row = array_map(static fn ($value) => is_numeric($value) ? $value : "'" . addslashes($value) . "'", $row);
+            foreach ($tableData->all() as $row) {
+                $row = array_map(static fn ($value) => is_numeric($value) ? $value : "'" . addslashes($value) . "'", (array)$row);
                 fwrite($fileResource,
                     sprintf("INSERT INTO `%s` VALUES (%s);\n", $table, implode(', ', $row))
                 );
             }
         }
+        fwrite($fileResource,"\n\nSET FOREIGN_KEY_CHECKS=1;");
     }
 
     /**
