@@ -130,7 +130,7 @@ class EntryTest extends TestCase
 
         $secret = $this->faker->word;
 
-        $note = $entry->addTOPT(
+        $note = $entry->addTOTP(
             $user->user_id,
             $secret,
             $encryptionService->generateInitializationVector(),
