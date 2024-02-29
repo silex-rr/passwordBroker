@@ -10,7 +10,7 @@ abstract class DomainEvent
     public const CHANNEL_DOMAIN_EVENTS = 'domain_events';
 
     public Model $entity;
-    public User $user;
+    public ?User $user;
     public function getName(): string
     {
         return str_replace('_', '.', $this->toSnakeCase(
