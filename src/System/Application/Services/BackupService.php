@@ -170,11 +170,16 @@ class BackupService
                 $tableSignature[] = sprintf("%s %s%s%s", $columnName, $dataType, $notNull, $defaultValue);
             }
 
-            fwrite($fileResource, implode(", \n", $tableSignature) . "\n);\n");
+            $tableStructure = implode(", \n", $tableSignature) . "\n);\n";
+            fwrite($fileResource, $tableStructure);
             fwrite($fileResource, sprintf("-- Inserting data for table `%s`\n", $table));
             $dataQuery = $PDO->query(sprintf("SELECT * FROM `%s`", $table));
-            while ($row = $dataQuery->fetch(PDO::FETCH_ASSOC)) {
-                $row = array_map(static fn ($value) => is_numeric($value) ? $value : "'" . addslashes($value) . "'", $row);
+            $blobFields = $this->getBlobFields($tableStructure);
+            while ($rowArr = $dataQuery->fetch(PDO::FETCH_ASSOC)) {
+                $row = [];
+                foreach ($rowArr as $column => $value) {
+                    $row[] = $this->sqlValueHelper($column, $value, $blobFields);
+                }
                 fwrite($fileResource,
                     sprintf("INSERT INTO `%s` VALUES (%s);\n", $table, implode(', ', $row))
                 );
@@ -193,14 +198,54 @@ class BackupService
 
             $tableData = DB::table($table)->get();
             fwrite($fileResource, sprintf("-- Inserting data for table `%s`\n", $table));
-            foreach ($tableData->all() as $row) {
-                $row = array_map(static fn ($value) => is_numeric($value) ? $value : "'" . addslashes($value) . "'", (array)$row);
+
+            $blobFields = $this->getBlobFields($tableStructure);
+
+            foreach ($tableData->all() as $rowObj) {
+                $row = [];
+                foreach ($rowObj as $column => $value) {
+                    $row[] = $this->sqlValueHelper($column, $value, $blobFields);
+                }
+//                if ($table === 'password_broker_entry_fields') {
+//                    dd([
+//                        $row,
+//                        $rowObj,
+//                        $blobFields
+//                    ]);
+//                }
                 fwrite($fileResource,
                     sprintf("INSERT INTO `%s` VALUES (%s);\n", $table, implode(', ', $row))
                 );
             }
         }
         fwrite($fileResource,"\n\nSET FOREIGN_KEY_CHECKS=1;");
+    }
+
+    /**
+     * @param $tableStructure
+     * @return mixed
+     */
+    public function getBlobFields($tableStructure): array
+    {
+        $blobFields = [];
+        if (preg_match_all('/`(.*)`\s[a-z]*blob/', $tableStructure, $matches)) {
+            $blobFields = $matches[1];
+        }
+        return $blobFields;
+    }
+
+    private function sqlValueHelper($field, $value, array $blobFields): mixed
+    {
+        if (is_numeric($value)) {
+            return $value;
+        }
+        if (is_null($value)) {
+            return 'NULL';
+        }
+        if (in_array($field, $blobFields, true)) {
+            return "UNHEX('" . bin2hex($value) . "')";
+        }
+        return "'" . addslashes($value) . "'";
     }
 
     /**
