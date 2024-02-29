@@ -3,11 +3,15 @@
 namespace System\Application\Services;
 
 use Carbon\Carbon;
+use Doctrine\DBAL\Exception;
 use Illuminate\Contracts\Filesystem\Filesystem;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
+use InvalidArgumentException;
 use PDO;
 use RuntimeException;
+use System\Domain\Backup\Models\Attributes\BackupCreated;
 use System\Domain\Backup\Models\Attributes\BackupPassword;
 use System\Domain\Backup\Models\Attributes\FileName;
 use System\Domain\Backup\Models\Attributes\Size;
@@ -17,6 +21,62 @@ use ZipArchive;
 
 class BackupService
 {
+    public const string BACKUP_TEMPORARY_LOCATION = 'backup-temp';
+
+    /**
+     * @param string $filePath
+     * @param string|null $password
+     * @return void
+     */
+    public function recoveryFromBackupFile(string $filePath, ?string $password = null): void
+    {
+        if (!file_exists($filePath)) {
+            throw new InvalidArgumentException('File does not exist filePath [' . $filePath . ']');
+        }
+        $zipArchive = new ZipArchive();
+        $open = $zipArchive->open($filePath);
+        if ($open !== true) {
+            throw new InvalidArgumentException('Unable tp open ZIP archive from a file [' . $filePath . '] status: ' . $open);
+        }
+
+        if (!is_null($password)) {
+            $zipArchive->setPassword($password);
+        }
+
+        $recoveryDirRelativeName = 'pb_recovery_' . time();
+        $recoveryDirRelativePath = self::BACKUP_TEMPORARY_LOCATION . DIRECTORY_SEPARATOR . $recoveryDirRelativeName;
+        $tempDirForBackupRecovery = $this->getTempDirForBackup() . DIRECTORY_SEPARATOR .  $recoveryDirRelativeName;
+
+        $extractTo = $zipArchive->extractTo($tempDirForBackupRecovery);
+        $zipArchive->close();
+
+        if (!$extractTo) {
+            Storage::disk('local')->deleteDirectory($recoveryDirRelativePath);
+            throw new RuntimeException("Unable to extract files from ZIP archive");
+        }
+        $this->recoveryStorageFromBackup($recoveryDirRelativePath, 'identity_keys');
+        $this->recoveryStorageFromBackup($recoveryDirRelativePath, 'cbc_salt');
+        Storage::disk('local')->deleteDirectory($recoveryDirRelativePath);
+    }
+
+    private function recoveryStorageFromBackup(string $recoveryDirRelativePath, string $storage_name): void
+    {
+        $targetStorage = Storage::disk($storage_name);
+        $path = $recoveryDirRelativePath . DIRECTORY_SEPARATOR . $storage_name;
+        $localStorage = Storage::disk('local');
+        foreach ($localStorage->allFiles($path . DIRECTORY_SEPARATOR) as $file) {
+//            dump( $file);
+            $resource = $localStorage->readStream($file);
+//            $targetStorage->writeStream($file, $resource);
+            fclose($resource);
+        }
+    }
+
+    /**
+     * @param Backup|null $backup
+     * @param string|null $password
+     * @return Backup
+     */
     public function makeBackup(?Backup $backup = null, ?string $password = null): Backup
     {
         if (is_null($backup)) {
@@ -33,7 +93,7 @@ class BackupService
             $password = $backupSetting->getArchivePassword()->getValue();
         }
 
-        $zipArchiveFilePath = $this->getTempDirForBackup() . 'pb_backup_' . time() . '.zip';
+        $zipArchiveFilePath = $this->getTempDirForBackup() . DIRECTORY_SEPARATOR . 'pb_backup_' . time() . '.zip';
         $zipArchive = new ZipArchive();
         $zipArchive->open($zipArchiveFilePath, ZipArchive::CREATE);
 
@@ -56,8 +116,8 @@ class BackupService
             password: $password,
         );
 
-        $this->addVersion(zipArchive: $zipArchive, password: $password);
-        $this->addEnv(zipArchive: $zipArchive, password: $password);
+        $this->addVersionToZipArchive(zipArchive: $zipArchive, password: $password);
+        $this->addEnvToZipArchive(zipArchive: $zipArchive, password: $password);
 
         $zipArchive->setPassword($password);
         $zipArchive->close();
@@ -71,7 +131,12 @@ class BackupService
         return $backup;
     }
 
-    private function addVersion(ZipArchive $zipArchive, ?string $password): void
+    /**
+     * @param ZipArchive $zipArchive
+     * @param string|null $password
+     * @return void
+     */
+    private function addVersionToZipArchive(ZipArchive $zipArchive, ?string $password): void
     {
         $version = config('app_version.version', '0.0.1');
         $file = 'app_version.txt';
@@ -80,7 +145,13 @@ class BackupService
             $zipArchive->setEncryptionName($file, ZipArchive::EM_AES_256, $password);
         }
     }
-    private function addEnv(ZipArchive $zipArchive, ?string $password): void
+
+    /**
+     * @param ZipArchive $zipArchive
+     * @param string|null $password
+     * @return void
+     */
+    private function addEnvToZipArchive(ZipArchive $zipArchive, ?string $password): void
     {
         base_path();
         foreach (scandir(base_path()) as $file) {
@@ -99,7 +170,7 @@ class BackupService
      */
     private function addDatabaseToZipArchive(ZipArchive $zipArchive, ?string $password): string
     {
-        $fileDatabasePath = $this->getTempDirForBackup() . 'pb_backup_database_' . time() . '.sql';
+        $fileDatabasePath = $this->getTempDirForBackup() . DIRECTORY_SEPARATOR . 'pb_backup_database_' . time() . '.sql';
 
         $fileDatabaseResource = fopen($fileDatabasePath, 'wb+');
         $databaseName = $this->makeDatabaseBackup($fileDatabaseResource);
@@ -113,6 +184,13 @@ class BackupService
         return $fileDatabasePath;
     }
 
+    /**
+     * @param ZipArchive $zipArchive
+     * @param Filesystem $filesystem
+     * @param string $pathInArchive
+     * @param string|null $password
+     * @return void
+     */
     private function addFilesFromStoreToZipArchive(
         ZipArchive $zipArchive,
         Filesystem $filesystem,
@@ -132,6 +210,7 @@ class BackupService
     /**
      * @param resource $fileResource
      * @return string database name
+     * @throws Exception
      */
     public function makeDatabaseBackup($fileResource): string
     {
@@ -253,7 +332,7 @@ class BackupService
      */
     public function getTempDirForBackup(): string
     {
-        return storage_path() . DIRECTORY_SEPARATOR;
+        return config('filesystems.disks.local.root') . DIRECTORY_SEPARATOR . self::BACKUP_TEMPORARY_LOCATION;
     }
 
 }

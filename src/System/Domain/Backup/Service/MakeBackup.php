@@ -24,6 +24,7 @@ class MakeBackup implements ShouldQueue
     public function __construct(
         private readonly Backup        $backup,
         private readonly BackupService $backupService,
+        private readonly ?string       $password = null,
     )
     {}
     public function handle(): void
@@ -33,7 +34,7 @@ class MakeBackup implements ShouldQueue
         }
         $this->backup->state = BackupState::CREATING;
         try {
-            $this->backupService->makeBackup($this->backup);
+            $this->backupService->makeBackup($this->backup, $this->password);
             $this->backup->state = BackupState::CREATED;
             $this->backup->backup_created = new BackupCreated(Carbon::now());
             $this->backup->save();
