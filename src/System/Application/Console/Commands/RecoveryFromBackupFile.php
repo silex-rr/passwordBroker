@@ -5,7 +5,7 @@ namespace System\Application\Console\Commands;
 use Exception;
 use Illuminate\Console\Command;
 use Symfony\Component\Console\Command\Command as CommandAlias;
-use System\Application\Services\BackupService;
+use System\Application\Services\RecoveryService;
 
 class RecoveryFromBackupFile extends Command
 {
@@ -14,7 +14,7 @@ class RecoveryFromBackupFile extends Command
      *
      * @var string
      */
-    protected $signature = 'system:recoveryFromBackupFile {filePath}';
+    protected $signature = 'system:recoveryFromBackup {filePath}';
 
     /**
      * The console command description.
@@ -26,17 +26,17 @@ class RecoveryFromBackupFile extends Command
     /**
      * Execute the console command.
      *
-     * @param BackupService $backupService
+     * @param RecoveryService $recoveryService
      * @return int
      */
-    public function handle(BackupService $backupService): int
+    public function handle(RecoveryService $recoveryService): int
     {
         $filePath = $this->argument('filePath');
         $password = $this->secret("Use password for backup: ", "");
 
         $this->info('Recovery From Backup Started');
         try {
-            $backupService->recoveryFromBackupFile($filePath, empty($password) ? null: $password);
+            $recoveryService->recoveryFromBackupFile($filePath, empty($password) ? null: $password);
         } catch (Exception $e) {
             $this->error('Recovery From Backup Failed: ' . $e->getMessage());
             return CommandAlias::FAILURE;
