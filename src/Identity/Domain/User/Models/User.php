@@ -2,8 +2,10 @@
 
 namespace Identity\Domain\User\Models;
 
+use App\Common\Domain\Contracts\ModelFilterableFieldsInterface;
 use App\Common\Domain\Traits\HasFactoryDomain;
 use App\Common\Domain\Traits\ModelDomainConstructor;
+use App\Common\Domain\Traits\ModelFilterableFields;
 use Identity\Domain\User\Events\UserWasCreated;
 use Identity\Domain\User\Models\Casts\Email;
 use Identity\Domain\User\Models\Casts\IsAdmin;
@@ -33,16 +35,19 @@ use PasswordBroker\Domain\Entry\Models\Groups\Moderator;
  * @method static UserFactory factory
  */
 class User extends Authenticatable
+    implements ModelFilterableFieldsInterface
 {
     use ModelDomainConstructor;
     use HasFactoryDomain;
     use HasUuids;
     use HasApiTokens;
     use Notifiable;
+    use ModelFilterableFields;
     protected $primaryKey = 'user_id';
     public $incrementing = false;
     public $keyType = 'string';
 
+    protected array $filterable = ['name'];
     protected $fillable = ['email', 'name', 'is_admin', 'public_key'];
     protected $casts = [
         'user_id' => UserId::class,
@@ -125,4 +130,5 @@ class User extends Authenticatable
         $this->memberOf[] = $entryGroup;
         $entryGroup->addMember($this, $encrypted_aes_password);
     }
+
 }
