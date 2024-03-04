@@ -7,6 +7,7 @@ use Identity\Infrastructure\Criteria\CriteriaInEntryGroups;
 use Identity\Infrastructure\Criteria\CriteriaNameContains;
 use Identity\Infrastructure\Criteria\CriteriaNameOrEmailContains;
 use Identity\Infrastructure\Criteria\CriteriaNotInEntryGroups;
+use Identity\Infrastructure\Order\UserOrder;
 use Identity\Infrastructure\Repository\UserRepository;
 use Illuminate\Contracts\Pagination\Paginator;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -47,6 +48,9 @@ class SearchUsers implements ShouldQueue
         if ($this->entryGroupInclude) {
             $userRepository->pushCriteria(new CriteriaInEntryGroups([$this->entryGroupInclude]));
         }
+        $orderUser = new UserOrder();
+        $orderUser->asc('name');
+        $userRepository->pushOrder($orderUser);
 //        $userRepository->applyCriteria();
 //        $userRepository->query()->dd();
         return $userRepository->paginate(perPage: $this->perPage, columns: ['*'], pageName: 'page', page: $this->page);
