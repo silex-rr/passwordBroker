@@ -4,13 +4,15 @@ namespace App\Common\Domain\Abstractions;
 
 use App\Common\Domain\Contracts\CriteriaHandlerInterface;
 use App\Common\Domain\Contracts\CriteriaInterface;
+use App\Common\Domain\Contracts\OrderHandlerInterface;
+use App\Common\Domain\Contracts\OrderInterface;
 use App\Common\Domain\Contracts\RepositoryInterface;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 use Illuminate\Contracts\Pagination\Paginator;
 use Illuminate\Container\Container as App;
-abstract class BaseRepository implements RepositoryInterface, CriteriaHandlerInterface
+abstract class BaseRepository implements RepositoryInterface, CriteriaHandlerInterface, OrderHandlerInterface
 {
     /**
      * The underlying model class name
@@ -28,6 +30,7 @@ abstract class BaseRepository implements RepositoryInterface, CriteriaHandlerInt
      * @var bool
      */
     protected bool $skipCriteria = false;
+    protected bool $skipOrders = false;
     /**
      * Prevent overwriting same criteria in stack
      * @var bool
@@ -50,7 +53,8 @@ abstract class BaseRepository implements RepositoryInterface, CriteriaHandlerInt
          * The current stack of criteria
          * @var Collection
          */
-        protected Collection $criteria = new Collection()
+        protected Collection   $criteria = new Collection(),
+        protected Collection   $order = new Collection(),
     )
     {
         $this->resetScope();
@@ -77,6 +81,7 @@ abstract class BaseRepository implements RepositoryInterface, CriteriaHandlerInt
     public function all(array $columns = ['*'])
     {
         $this->applyCriteria();
+        $this->applyOrder();
         return $this->builder->get($columns);
     }
 
@@ -88,36 +93,42 @@ abstract class BaseRepository implements RepositoryInterface, CriteriaHandlerInt
     public function paginate(int $perPage = 1, array $columns = ['*'], $pageName = 'page', int $page = 1): Paginator
     {
         $this->applyCriteria();
+        $this->applyOrder();
         return $this->builder->paginate($perPage, ['*'], $pageName, $page);
     }
 
     public function find(int $id, array $columns)
     {
         $this->applyCriteria();
+        $this->applyOrder();
         return $this->builder->find($id, $columns);
     }
 
     public function findBy(string $field, $value, $columns = ["*"])
     {
         $this->applyCriteria();
+        $this->applyOrder();
         return $this->builder->where($field, '=', $value)->first($columns);
     }
 
     public function findAllBy(string $field, $value, $columns = ["*"])
     {
         $this->applyCriteria();
+        $this->applyOrder();
         return $this->builder->where($field, '=', $value)->all($columns);
     }
 
     public function findWhere(string $where, $columns = ["*"])
     {
         $this->applyCriteria();
+        $this->applyOrder();
         return $this->builder->where($where)->all($columns);
     }
 
     public function findOrFail(int $id, $columns = ["*"])
     {
         $this->applyCriteria();
+        $this->applyOrder();
         return $this->builder->findOrFail($id, $columns);
     }
 
@@ -159,4 +170,37 @@ abstract class BaseRepository implements RepositoryInterface, CriteriaHandlerInt
         return $this->criteria;
     }
 
+    public function pushOrder(OrderInterface $order): Collection
+    {
+        $this->order->push($order);
+        return $this->order;
+    }
+
+    #[\Override]
+    public function skipOrders(bool $status = true): void
+    {
+        $this->skipOrders = $status;
+    }
+
+    #[\Override]
+    public function getOrders(): Collection
+    {
+        return $this->order;
+    }
+
+    #[\Override]
+    public function applyOrder(): self
+    {
+        if ($this->skipOrders === true) {
+            return $this;
+        }
+        foreach ($this->getOrders() as $order) {
+            if ($order instanceof OrderInterface) {
+                $order->apply($this);
+            }
+        }
+        return $this;
+    }
+
 }
+
