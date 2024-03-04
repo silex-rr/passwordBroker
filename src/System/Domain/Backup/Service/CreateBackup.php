@@ -16,13 +16,14 @@ class CreateBackup implements ShouldQueue
     public function __construct(
         private readonly Backup        $backup,
         private readonly BackupService $backupService,
+        private readonly bool          $doNotMakeBackup = false,
     )
     {}
     public function handle(): Backup
     {
 //        $this->backupService->makeBackup($this->backup);
         $this->backup->save();
-        event(new BackupWasCreated($this->backup));
+        event(new BackupWasCreated($this->backup, $this->doNotMakeBackup));
         return $this->backup;
     }
 }

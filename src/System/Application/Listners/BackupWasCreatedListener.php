@@ -5,6 +5,7 @@ namespace System\Application\Listners;
 use Illuminate\Contracts\Bus\Dispatcher;
 use System\Application\Services\BackupService;
 use System\Domain\Backup\Events\BackupWasCreated;
+use System\Domain\Backup\Models\Attributes\BackupState;
 use System\Domain\Backup\Service\MakeBackup;
 
 class BackupWasCreatedListener
@@ -21,10 +22,13 @@ class BackupWasCreatedListener
          */
         $backupService = app(BackupService::class);
 
-        $dispatcher->dispatch(new MakeBackup(
-            backup: $backupWasCreated->backup,
-            backupService: $backupService
-        ));
+        if (!$backupWasCreated->doNotMakeBackup) {
+            $dispatcher->dispatch(new MakeBackup(
+                backup: $backupWasCreated->backup,
+                backupService: $backupService
+            ));
+        }
+
 
     }
 }

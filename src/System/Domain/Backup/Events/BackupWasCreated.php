@@ -17,7 +17,7 @@ class BackupWasCreated extends DomainEvent implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, Saveable, SerializesModels;
 
-    public function __construct(public Backup $backup)
+    public function __construct(public Backup $backup, public bool $doNotMakeBackup)
     {
         $this->entity = $this->backup;
         /**

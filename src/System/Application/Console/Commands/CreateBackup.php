@@ -2,12 +2,8 @@
 
 namespace System\Application\Console\Commands;
 
-use Exception;
-use Identity\Application\Http\Requests\RegisterUserRequest;
-use Identity\Application\Services\UserRegistrationService;
 use Illuminate\Console\Command;
 use Illuminate\Foundation\Bus\DispatchesJobs;
-use Illuminate\Support\Facades\Validator;
 use Symfony\Component\Console\Command\Command as CommandAlias;
 use System\Application\Services\BackupService;
 use System\Domain\Backup\Models\Backup;
@@ -43,7 +39,7 @@ class CreateBackup extends Command
 
         $this->info('Backup Process Started');
 
-        $backup = $this->dispatchSync(new CreateBackupService(backup: new Backup(), backupService: $backupService));
+        $backup = $this->dispatchSync(new CreateBackupService(backup: new Backup(), backupService: $backupService, doNotMakeBackup: true));
         $this->dispatchSync(new MakeBackup(
                 backup: $backup,
                 backupService: $backupService,
