@@ -8,6 +8,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use System\Infrastructure\Criteria\CriteriaBackupFileNameContains;
+use System\Infrastructure\Order\BackupOrder;
 use System\Infrastructure\Repository\BackupRepository;
 
 class SearchBackups implements ShouldQueue
@@ -30,6 +31,9 @@ class SearchBackups implements ShouldQueue
         if (!empty($this->query)) {
             $backupRepository->pushCriteria(new CriteriaBackupFileNameContains($this->query));
         }
+        $backupOrder = new BackupOrder();
+        $backupOrder->desc('created_at');
+        $backupRepository->pushOrder($backupOrder);
         return $backupRepository->paginate(perPage: $this->perPage, columns: ['*'], pageName: 'page', page: $this->page);
 
     }
