@@ -6,8 +6,9 @@ use Illuminate\Broadcasting\Channel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
+use PasswordBroker\Application\Listeners\LogFieldChanges;
 use PasswordBroker\Domain\Entry\Models\Fields\Field;
-
+#[LogFieldChanges]
 class FieldUpdated extends FieldEvent
 {
     use Dispatchable, SerializesModels;

@@ -2,19 +2,17 @@
 
 namespace PasswordBroker\Application\Listeners;
 
-use Identity\Domain\User\Models\User;
-use Illuminate\Support\Facades\Auth;
 use PasswordBroker\Application\Events\FieldEvent;
-use PasswordBroker\Application\Events\FieldUpdated;
 use PasswordBroker\Domain\Entry\Models\Fields\Attributes\FieldEditLog\EventType;
 use PasswordBroker\Domain\Entry\Models\Fields\Attributes\IsDeleted;
 use PasswordBroker\Domain\Entry\Models\Fields\Attributes\Login;
 use PasswordBroker\Domain\Entry\Models\Fields\Attributes\ValueEncrypted;
-use PasswordBroker\Domain\Entry\Models\Fields\Field;
 use PasswordBroker\Domain\Entry\Models\Fields\EntryFieldHistory;
+use PasswordBroker\Domain\Entry\Models\Fields\Field;
 use PasswordBroker\Domain\Entry\Models\Fields\File;
 use PasswordBroker\Domain\Entry\Models\Fields\Password;
 
+#[\Attribute(\Attribute::TARGET_CLASS)]
 class LogFieldChanges
 {
     /**
@@ -30,7 +28,7 @@ class LogFieldChanges
     /**
      * Handle the event.
      *
-     * @param FieldUpdated $event
+     * @param FieldEvent $event
      * @return void
      */
     public function handle(FieldEvent $event): void

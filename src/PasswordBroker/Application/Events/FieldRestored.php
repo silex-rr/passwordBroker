@@ -5,7 +5,9 @@ namespace PasswordBroker\Application\Events;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
+use PasswordBroker\Application\Listeners\LogFieldChanges;
 
+#[LogFieldChanges]
 class FieldRestored extends FieldEvent
 {
     use Dispatchable, SerializesModels;
