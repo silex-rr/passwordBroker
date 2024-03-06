@@ -108,7 +108,8 @@ class Entry extends Model
         $fields = $fields->merge($this->passwords()->get());
         $fields = $fields->merge($this->links()->get());
         $fields = $fields->merge($this->files()->get());
-        return    $fields->merge($this->notes()->get());
+        $fields = $fields->merge($this->notes()->get());
+        return $fields->merge($this->TOTPs()->get());
     }
 
     public function addPassword(
