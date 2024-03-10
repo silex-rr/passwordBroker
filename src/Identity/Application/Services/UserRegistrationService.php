@@ -30,6 +30,9 @@ class UserRegistrationService
         bool $isAdmin = false
     ): User
     {
+        if (!User::doesntExist()) {
+            throw new RuntimeException('Only one user can be registered.');
+        }
         if (!$isAdmin && User::doesntExist()) {
             $isAdmin = true;
         }
