@@ -67,5 +67,10 @@ class SystemServiceProvider extends ServiceProvider
                 ? Response::allow()
                 : Response::deny('You must be a system administrator')
         );
+        Gate::define('perform-initial-recovery', static fn () =>
+            User::doesntExist()
+                ? Response::allow()
+                : Response::deny('You can perform an initial recovery only on an uninitialised system')
+        );
     }
 }
