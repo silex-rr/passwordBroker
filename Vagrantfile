@@ -81,6 +81,8 @@ Vagrant.configure("2") do |config|
     sudo apt-get update
     sudo add-apt-repository ppa:ondrej/php
     sudo apt-get install -y php8.3 php8.3-fpm php8.3-mysql php8.3-zip php8.3-xml php8.3-sqlite3 php8.3-mbstring php8.3-curl php8.3-cli php8.3-bz2
+    sudo cp /app/docker/php/php.ini /etc/php/8.3/fpm/php.ini
+    sudo service php8.3-fpm restart
     sudo apt-get install -y composer
     sudo apt-get install -y mysql-server-8.0
     sudo apt-get install -y nginx
@@ -105,7 +107,7 @@ EOF
 
     php /app/artisan migrate
     sudo echo "* *    * * *   root    php /app/artisan schedule:run >> /dev/null 2>&1" >> /etc/crontab
-    php /app/artisan queue:work --tries=3 --timeout=90 --daemon
+    php /app/artisan queue:work --tries=3 --timeout=90 --daemon &
 
   SHELL
 end
