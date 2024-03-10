@@ -121,6 +121,9 @@ class RecoveryService
     {
         $path = $recoveryDirRelativePath . DIRECTORY_SEPARATOR . '.env';
         $envLocalFileFullPath = app()->environmentFilePath();
+        if (empty($envLocalFileFullPath)) {
+            $envLocalFileFullPath = base_path('.env');
+        }
         if (!$this->localStorage->exists($path)) {
             throw new RuntimeException(".env file does not exists in the Backup");
         }
@@ -141,8 +144,9 @@ class RecoveryService
             }
             $stringFromBackup = preg_replace('/' . $key . '=(?>.)*$/m', $key . '=' . $parsedFromLocal[$key], $stringFromBackup);
         }
+        copy($envLocalFileFullPath, $envLocalFileFullPath . '.backup');
 
-        file_put_contents($stringFromBackup, $envLocalFileFullPath);
+        file_put_contents($envLocalFileFullPath, $stringFromBackup);
     }
 
 }
