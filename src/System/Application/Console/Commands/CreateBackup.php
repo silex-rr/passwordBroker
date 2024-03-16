@@ -2,8 +2,10 @@
 
 namespace System\Application\Console\Commands;
 
+use Identity\Domain\User\Models\User;
 use Illuminate\Console\Command;
 use Illuminate\Foundation\Bus\DispatchesJobs;
+use Illuminate\Support\Facades\Auth;
 use Symfony\Component\Console\Command\Command as CommandAlias;
 use System\Application\Services\BackupService;
 use System\Domain\Backup\Models\Backup;
@@ -38,6 +40,10 @@ class CreateBackup extends Command
         $password = $this->secret("Set password for backup: ", "");
 
         $this->info('Backup Process Started');
+
+        $user = User::where("is_admin", true)->firstOrFail();
+
+        Auth::login($user);
 
         $backup = $this->dispatchSync(new CreateBackupService(backup: new Backup(), backupService: $backupService, doNotMakeBackup: true));
         $this->dispatchSync(new MakeBackup(
