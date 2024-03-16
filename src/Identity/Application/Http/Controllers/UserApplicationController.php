@@ -9,13 +9,18 @@ use Identity\Domain\User\Models\User;
 use Identity\Domain\User\Models\UserAccessToken;
 use Identity\Domain\UserApplication\Models\Attributes\ClientId;
 use Identity\Domain\UserApplication\Models\Attributes\IsOfflineDatabaseMode;
-use Identity\Domain\UserApplication\Models\Attributes\UserApplicationId;
 use Identity\Domain\UserApplication\Models\UserApplication;
 use Identity\Domain\UserApplication\Services\CreateUserApplication;
 use Identity\Domain\UserApplication\Services\UpdateOfflineDatabaseMode;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
+use OpenApi\Attributes\Get;
+use OpenApi\Attributes\Info;
+use OpenApi\Attributes\JsonContent;
+use OpenApi\Attributes\Property;
+use OpenApi\Attributes\Response;
 
+#[Info(version: "v1", title: "Application controller")]
 class UserApplicationController extends Controller
 {
     public function __construct()
@@ -31,6 +36,23 @@ class UserApplicationController extends Controller
         return $resourceAbilityMap;
     }
 
+    #[Get(
+        path: "/identity/api/{user_application_id}",
+        summary: "Provide detail info fro User Application",
+        tags: ["identity"],
+        responses: [
+            new Response(
+                response: 200,
+                description: "User Application Data",
+                content: new JsonContent(
+                    properties: [
+                        "userApplication" => new Property(ref: "#/components/schemas/Identity_UserApplication")
+                    ],
+                    type: "object"
+                )
+            )
+        ]
+    )]
     public function show(UserApplication $userApplication): JsonResponse
     {
         return new JsonResponse(['userApplication' => $userApplication], 200);
