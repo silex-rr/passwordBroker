@@ -19,7 +19,8 @@
         "pusher/pusher-php-server": "^7.2",
         "ramsey/uuid": ">=4.7.5",
         "spatie/laravel-data": "^3.11.0",
-        "spomky-labs/otphp": "^11.2"
+        "spomky-labs/otphp": "^11.2",
+        "zircote/swagger-php": "^4.8"
     },
     "require-dev": {
         "fakerphp/faker": "^v1.23.1",
