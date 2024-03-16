@@ -16,6 +16,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
+use OpenApi\Attributes\Property;
+use OpenApi\Attributes\Schema;
 
 /**
  * @property Carbon offline_database_fetched_at
@@ -26,6 +28,13 @@ use Illuminate\Support\Carbon;
  * @property Attributes\IsOfflineDatabaseRequiredUpdate is_offline_database_required_update
  * @property Attributes\IsRsaPrivateRequiredUpdate is_rsa_private_required_update
  */
+#[Schema(
+    schema: "Identity_UserApplication",
+    properties: [
+        new Property(ref: "#/components/schemas/Identity_UserApplicationId"),
+    ],
+    type: "object"
+)]
 class UserApplication extends Model
 {
     use ModelDomainConstructor;

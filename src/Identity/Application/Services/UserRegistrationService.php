@@ -7,6 +7,7 @@ use Identity\Domain\User\Models\Attributes\IsAdmin;
 use Identity\Domain\User\Models\Attributes\PublicKey;
 use Identity\Domain\User\Models\Attributes\UserName;
 use Identity\Domain\User\Models\User;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use RuntimeException;
 use Symfony\Component\EventDispatcher\EventDispatcher;
@@ -30,10 +31,15 @@ class UserRegistrationService
         bool $isAdmin = false
     ): User
     {
-        if (!User::doesntExist()) {
+        /**
+         * @var User|null $userAuth
+         */
+        $userAuth = Auth::user();
+        $usersDontExist = User::doesntExist();
+        if (!$userAuth?->is_admin && !$usersDontExist) {
             throw new RuntimeException('Only one user can be registered.');
         }
-        if (!$isAdmin && User::doesntExist()) {
+        if (!$isAdmin && $usersDontExist) {
             $isAdmin = true;
         }
         if (!$this->validateUser($email, $username, $password)) {
