@@ -19,8 +19,9 @@ use OpenApi\Attributes\Info;
 use OpenApi\Attributes\JsonContent;
 use OpenApi\Attributes\Property;
 use OpenApi\Attributes\Response;
+use OpenApi\Attributes\Schema;
 
-#[Info(version: "v1", title: "Application controller")]
+#[Info(version: "v1", description: "Required for operate with native application", title: "Application controller API",)]
 class UserApplicationController extends Controller
 {
     public function __construct()
@@ -46,7 +47,7 @@ class UserApplicationController extends Controller
                 description: "User Application Data",
                 content: new JsonContent(
                     properties: [
-                        "userApplication" => new Property(ref: "#/components/schemas/Identity_UserApplication")
+                        new Property(property: "userApplication", ref: "#/components/schemas/Identity_UserApplication")
                     ],
                     type: "object"
                 )

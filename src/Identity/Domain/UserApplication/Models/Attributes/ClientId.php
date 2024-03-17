@@ -4,8 +4,10 @@ namespace Identity\Domain\UserApplication\Models\Attributes;
 
 use App\Models\Abstracts\AbstractValue;
 use InvalidArgumentException;
+use OpenApi\Attributes\Schema;
 use Ramsey\Uuid\Uuid;
 
+#[Schema(schema: "Identity_ClientId", type: "string", format: "uuid")]
 class ClientId extends AbstractValue
 {
     /**

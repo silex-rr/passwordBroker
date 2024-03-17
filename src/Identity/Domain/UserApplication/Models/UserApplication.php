@@ -31,7 +31,13 @@ use OpenApi\Attributes\Schema;
 #[Schema(
     schema: "Identity_UserApplication",
     properties: [
-        new Property(ref: "#/components/schemas/Identity_UserApplicationId"),
+        new Property(property: "userApplicationId", ref: "#/components/schemas/Identity_UserApplicationId"),
+        new Property(property: "clientId", ref: "#/components/schemas/Identity_ClientId"),
+        new Property(property: "isOfflineDatabaseRequiredUpdate", ref: "#/components/schemas/Identity_IsOfflineDatabaseRequiredUpdate"),
+        new Property(property: "isRsaPrivateRequiredUpdate", ref: "#/components/schemas/Identity_IsRsaPrivateRequiredUpdate"),
+        new Property(property: "isOfflineDatabaseMode", ref: "#/components/schemas/Identity_IsOfflineDatabaseMode"),
+        new Property(property: "offlineDatabaseFetchedAt", type: "string", format: "date-time"),
+        new Property(property: "rsaPrivateFetchedAt", type: "string", format: "date-time"),
     ],
     type: "object"
 )]
