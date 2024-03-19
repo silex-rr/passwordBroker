@@ -17,7 +17,11 @@ use Illuminate\Support\Facades\Auth;
 use OpenApi\Attributes\Get;
 use OpenApi\Attributes\Info;
 use OpenApi\Attributes\JsonContent;
+use OpenApi\Attributes\MediaType;
+use OpenApi\Attributes\Post;
 use OpenApi\Attributes\Property;
+use OpenApi\Attributes\Put;
+use OpenApi\Attributes\RequestBody;
 use OpenApi\Attributes\Response;
 use OpenApi\Attributes\Schema;
 
@@ -29,16 +33,8 @@ class UserApplicationController extends Controller
         $this->authorizeResource(UserApplication::class, ['userApplication']);
     }
 
-    protected function resourceAbilityMap(): array
-    {
-        $resourceAbilityMap = parent::resourceAbilityMap();
-        $resourceAbilityMap['setOfflineDatabaseStatus'] = 'update';
-        $resourceAbilityMap['getOfflineDatabaseStatus'] = 'view';
-        return $resourceAbilityMap;
-    }
-
     #[Get(
-        path: "/identity/api/{user_application_id}",
+        path: "/identity/api/userApplications/{userApplication:user_application_id}",
         summary: "Provide detail info fro User Application",
         tags: ["identity"],
         responses: [
@@ -58,6 +54,30 @@ class UserApplicationController extends Controller
     {
         return new JsonResponse(['userApplication' => $userApplication], 200);
     }
+
+    #[Post(
+        path: "/identity/api/userApplications",
+        summary: "Create new instance of User Application",
+        requestBody: new RequestBody(
+            content: new MediaType(
+                mediaType: "multipart/form-data",
+                schema: new Schema(ref: "#/components/schemas/Identity_CreateUserApplicationRequest"
+                )
+            )
+        ),
+        responses: [
+            new Response(
+                response: 200,
+                description: "User Application was successfully created",
+                content: new JsonContent(
+                    properties: [
+                        new Property(property: "userApplication", ref: "#/components/schemas/Identity_UserApplication")
+                    ],
+                    type: "object"
+                )
+            )
+        ]
+    )]
     public function store(CreateUserApplicationRequest $request): JsonResponse
     {
         $clientId = new ClientId($request->clientId());
@@ -76,25 +96,96 @@ class UserApplicationController extends Controller
         return new JsonResponse(['userApplication' => $userApplication], 200);
     }
 
+    #[Get(
+        path: "/userApplication/{userApplication:user_application_id}/offlineDatabaseMode",
+        summary: "Check if the UserApplication is in Offline Database mode",
+        responses: [
+            new Response(
+                response: 200,
+                description: "User Application offline database mode status is delivered",
+                content: new JsonContent(
+                    properties: [
+                        new Property(property: "status", ref: "#/components/schemas/Identity_IsOfflineDatabaseMode")
+                    ],
+                    type: "object"
+                )
+            )
+        ]
+    )]
     public function getOfflineDatabaseStatus(UserApplication $userApplication): JsonResponse
     {
         return new JsonResponse(['status' => $userApplication->is_offline_database_mode->getValue()], 200);
     }
+
+    #[Get(
+        path: "/userApplication/{userApplication:user_application_id}/isOfflineDatabaseRequiredUpdate",
+        summary: "Check if the UserApplication OfflineDatabase needs to be updated",
+        responses: [
+            new Response(
+                response: 200,
+                description: "User Application OfflineDatabase sync status is delivered",
+                content: new JsonContent(
+                    properties: [
+                        new Property(property: "status", ref: "#/components/schemas/Identity_IsOfflineDatabaseRequiredUpdate")
+                    ],
+                    type: "object"
+                )
+            )
+        ]
+    )]
     public function isOfflineDatabaseRequiredUpdate(UserApplication $userApplication): JsonResponse
     {
         return new JsonResponse(['status' => $userApplication->is_offline_database_required_update->getValue()], 200);
     }
+
+    #[Get(
+        path: "/userApplication/{userApplication:user_application_id}/isRsaPrivateRequiredUpdate",
+        summary: "Check if the UserApplication RSA keys needs to be updated",
+        responses: [
+            new Response(
+                response: 200,
+                description: "User Application RSA keys sync status is delivered",
+                content: new JsonContent(
+                    properties: [
+                        new Property(property: "status", ref: "#/components/schemas/Identity_IsRsaPrivateRequiredUpdate")
+                    ],
+                    type: "object"
+                )
+            )
+        ]
+    )]
     public function isRsaPrivateRequiredUpdate(UserApplication $userApplication): JsonResponse
     {
         return new JsonResponse(['status' => $userApplication->is_rsa_private_required_update->getValue()], 200);
     }
 
+    #[Put(
+        path: "/userApplication/{userApplication:user_application_id}/offlineDatabaseMode",
+        summary: "Switch UserApplication offlineDatabase mode",
+        requestBody: new RequestBody(
+            content: new MediaType(
+                mediaType: "multipart/form-data",
+                schema: new Schema(ref: "#/components/schemas/Identity_UpdateOfflineDatabaseModeRequest"),
+            )
+        ),
+        responses: [
+            new Response(response: 200, description: "UserApplication OfflineDatabaseMode switched")
+        ]
+    )]
     public function setOfflineDatabaseStatus(UserApplication $userApplication, UpdateOfflineDatabaseModeRequest $request): JsonResponse
     {
         $this->dispatchSync(
             new UpdateOfflineDatabaseMode($userApplication, IsOfflineDatabaseMode::fromNative($request->status()))
         );
-        return new JsonResponse([],200);
+        return new JsonResponse([], 200);
+    }
+
+    protected function resourceAbilityMap(): array
+    {
+        $resourceAbilityMap = parent::resourceAbilityMap();
+        $resourceAbilityMap['setOfflineDatabaseStatus'] = 'update';
+        $resourceAbilityMap['getOfflineDatabaseStatus'] = 'view';
+        return $resourceAbilityMap;
     }
 
     /**

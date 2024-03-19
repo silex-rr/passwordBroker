@@ -1,0 +1,134 @@
+openapi: 3.0.0
+info:
+  title: 'Application controller API'
+  description: 'Required for operate with native application'
+  version: v1
+paths:
+  '/identity/api/userApplications/{userApplication:user_application_id}':
+    get:
+      tags:
+        - identity
+      summary: 'Provide detail info fro User Application'
+      operationId: f08f9b65756e857f18b3bcb7e4991205
+      responses:
+        '200':
+          description: 'User Application Data'
+          content:
+            application/json:
+              schema:
+                properties:
+                  userApplication: { $ref: '#/components/schemas/Identity_UserApplication' }
+                type: object
+  /identity/api/userApplications:
+    post:
+      summary: 'Create new instance of User Application'
+      operationId: e9bdc472172fb41698c7566c34c07033
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Identity_CreateUserApplicationRequest'
+      responses:
+        '200':
+          description: 'User Application was successfully created'
+          content:
+            application/json:
+              schema:
+                properties:
+                  userApplication: { $ref: '#/components/schemas/Identity_UserApplication' }
+                type: object
+  '/userApplication/{userApplication:user_application_id}/offlineDatabaseMode':
+    get:
+      summary: 'Check if the UserApplication is in Offline Database mode'
+      operationId: ab7a3f130bd007cb9d7426b5187af158
+      responses:
+        '200':
+          description: 'User Application offline database mode status is delivered'
+          content:
+            application/json:
+              schema:
+                properties:
+                  status: { $ref: '#/components/schemas/Identity_IsOfflineDatabaseMode' }
+                type: object
+    put:
+      summary: 'Switch UserApplication offlineDatabase mode'
+      operationId: 52807851b8c12578122dc714706eb6ea
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Identity_UpdateOfflineDatabaseModeRequest'
+      responses:
+        '200':
+          description: 'UserApplication OfflineDatabaseMode switched'
+  '/userApplication/{userApplication:user_application_id}/isOfflineDatabaseRequiredUpdate':
+    get:
+      summary: 'Check if the UserApplication OfflineDatabase needs to be updated'
+      operationId: 7037797a3af055155e4fbf632f9c6a04
+      responses:
+        '200':
+          description: 'User Application OfflineDatabase sync status is delivered'
+          content:
+            application/json:
+              schema:
+                properties:
+                  status: { $ref: '#/components/schemas/Identity_IsOfflineDatabaseRequiredUpdate' }
+                type: object
+  '/userApplication/{userApplication:user_application_id}/isRsaPrivateRequiredUpdate':
+    get:
+      summary: 'Check if the UserApplication RSA keys needs to be updated'
+      operationId: 88cb92192540413980a30f862f2bca08
+      responses:
+        '200':
+          description: 'User Application RSA keys sync status is delivered'
+          content:
+            application/json:
+              schema:
+                properties:
+                  status: { $ref: '#/components/schemas/Identity_IsRsaPrivateRequiredUpdate' }
+                type: object
+components:
+  schemas:
+    Identity_CreateUserApplicationRequest:
+      properties:
+        clientId:
+          type: string
+          format: uuid
+          nullable: true
+      type: object
+    Identity_UpdateOfflineDatabaseModeRequest:
+      properties:
+        status:
+          type: boolean
+      type: object
+    Identity_ClientId:
+      type: string
+      format: uuid
+    Identity_IsOfflineDatabaseMode:
+      type: boolean
+    Identity_IsOfflineDatabaseRequiredUpdate:
+      type: boolean
+    Identity_IsRsaPrivateRequiredUpdate:
+      type: boolean
+    Identity_UserApplicationId:
+      type: string
+      format: uuid
+    Identity_UserApplication:
+      properties:
+        userApplicationId:
+          $ref: '#/components/schemas/Identity_UserApplicationId'
+        clientId:
+          $ref: '#/components/schemas/Identity_ClientId'
+        isOfflineDatabaseRequiredUpdate:
+          $ref: '#/components/schemas/Identity_IsOfflineDatabaseRequiredUpdate'
+        isRsaPrivateRequiredUpdate:
+          $ref: '#/components/schemas/Identity_IsRsaPrivateRequiredUpdate'
+        isOfflineDatabaseMode:
+          $ref: '#/components/schemas/Identity_IsOfflineDatabaseMode'
+        offlineDatabaseFetchedAt:
+          type: string
+          format: date-time
+        rsaPrivateFetchedAt:
+          type: string
+          format: date-time
+      type: object
