@@ -4,7 +4,9 @@ namespace App\Providers;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\ServiceProvider;
+use OpenApi\Attributes\Info;
 
+#[Info(version: "v1", description: "", title: "PasswordBroker API")]
 class AppServiceProvider extends ServiceProvider
 {
 

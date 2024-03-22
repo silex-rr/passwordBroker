@@ -32,7 +32,7 @@ class CreateOpenApiYaml extends Command
      */
     public function handle(): int
     {
-        $openApi = Generator::scan([base_path("/src")]);
+        $openApi = Generator::scan([base_path("/src"), base_path("/app")]);
         if (!$openApi) {
             $this->error("OpenApi  cannot be created");
             return CommandAlias::FAILURE;

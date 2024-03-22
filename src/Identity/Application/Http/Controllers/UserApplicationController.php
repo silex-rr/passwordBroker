@@ -15,9 +15,9 @@ use Identity\Domain\UserApplication\Services\UpdateOfflineDatabaseMode;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 use OpenApi\Attributes\Get;
-use OpenApi\Attributes\Info;
 use OpenApi\Attributes\JsonContent;
 use OpenApi\Attributes\MediaType;
+use OpenApi\Attributes\PathParameter;
 use OpenApi\Attributes\Post;
 use OpenApi\Attributes\Property;
 use OpenApi\Attributes\Put;
@@ -25,7 +25,7 @@ use OpenApi\Attributes\RequestBody;
 use OpenApi\Attributes\Response;
 use OpenApi\Attributes\Schema;
 
-#[Info(version: "v1", description: "Required for operate with native application", title: "Application controller API",)]
+
 class UserApplicationController extends Controller
 {
     public function __construct()
@@ -35,17 +35,24 @@ class UserApplicationController extends Controller
 
     #[Get(
         path: "/identity/api/userApplications/{userApplication:user_application_id}",
-        summary: "Provide detail info fro User Application",
-        tags: ["identity"],
+        summary: "Detail info fro User Application",
+        tags: ["Identity_UserApplicationController"],
+        parameters: [
+            new PathParameter(
+                name: "userApplication:user_application_id",
+                required: true,
+                schema: new Schema(ref: "#/components/schemas/Identity_UserApplicationId"),
+            )
+        ],
         responses: [
             new Response(
                 response: 200,
                 description: "User Application Data",
                 content: new JsonContent(
                     properties: [
-                        new Property(property: "userApplication", ref: "#/components/schemas/Identity_UserApplication")
+                        new Property(property: "userApplication", ref: "#/components/schemas/Identity_UserApplication"),
                     ],
-                    type: "object"
+                    type: "object",
                 )
             )
         ]
@@ -61,19 +68,20 @@ class UserApplicationController extends Controller
         requestBody: new RequestBody(
             content: new MediaType(
                 mediaType: "multipart/form-data",
-                schema: new Schema(ref: "#/components/schemas/Identity_CreateUserApplicationRequest"
+                schema: new Schema(ref: "#/components/schemas/Identity_CreateUserApplicationRequest",
                 )
             )
         ),
+        tags: ["Identity_UserApplicationController"],
         responses: [
             new Response(
                 response: 200,
                 description: "User Application was successfully created",
                 content: new JsonContent(
                     properties: [
-                        new Property(property: "userApplication", ref: "#/components/schemas/Identity_UserApplication")
+                        new Property(property: "userApplication", ref: "#/components/schemas/Identity_UserApplication"),
                     ],
-                    type: "object"
+                    type: "object",
                 )
             )
         ]
@@ -97,17 +105,25 @@ class UserApplicationController extends Controller
     }
 
     #[Get(
-        path: "/userApplication/{userApplication:user_application_id}/offlineDatabaseMode",
+        path: "/identity/api/userApplication/{userApplication:user_application_id}/offlineDatabaseMode",
         summary: "Check if the UserApplication is in Offline Database mode",
+        tags: ["Identity_UserApplicationController"],
+        parameters:[
+            new PathParameter(
+                name: "userApplication:user_application_id",
+                required: true,
+                schema: new Schema(ref: "#/components/schemas/Identity_UserApplicationId"),
+            )
+        ],
         responses: [
             new Response(
                 response: 200,
                 description: "User Application offline database mode status is delivered",
                 content: new JsonContent(
                     properties: [
-                        new Property(property: "status", ref: "#/components/schemas/Identity_IsOfflineDatabaseMode")
+                        new Property(property: "status", ref: "#/components/schemas/Identity_IsOfflineDatabaseMode"),
                     ],
-                    type: "object"
+                    type: "object",
                 )
             )
         ]
@@ -118,8 +134,16 @@ class UserApplicationController extends Controller
     }
 
     #[Get(
-        path: "/userApplication/{userApplication:user_application_id}/isOfflineDatabaseRequiredUpdate",
+        path: "/identity/api/userApplication/{userApplication:user_application_id}/isOfflineDatabaseRequiredUpdate",
         summary: "Check if the UserApplication OfflineDatabase needs to be updated",
+        tags: ["Identity_UserApplicationController"],
+        parameters:[
+            new PathParameter(
+                name: "userApplication:user_application_id",
+                required: true,
+                schema: new Schema(ref: "#/components/schemas/Identity_UserApplicationId")
+            ),
+        ],
         responses: [
             new Response(
                 response: 200,
@@ -139,8 +163,16 @@ class UserApplicationController extends Controller
     }
 
     #[Get(
-        path: "/userApplication/{userApplication:user_application_id}/isRsaPrivateRequiredUpdate",
+        path: "/identity/api/userApplication/{userApplication:user_application_id}/isRsaPrivateRequiredUpdate",
         summary: "Check if the UserApplication RSA keys needs to be updated",
+        tags: ["Identity_UserApplicationController"],
+        parameters:[
+            new PathParameter(
+                name: "userApplication:user_application_id",
+                required: true,
+                schema: new Schema(ref: "#/components/schemas/Identity_UserApplicationId")
+            ),
+        ],
         responses: [
             new Response(
                 response: 200,
@@ -160,7 +192,7 @@ class UserApplicationController extends Controller
     }
 
     #[Put(
-        path: "/userApplication/{userApplication:user_application_id}/offlineDatabaseMode",
+        path: "/identity/api/userApplication/{userApplication:user_application_id}/offlineDatabaseMode",
         summary: "Switch UserApplication offlineDatabase mode",
         requestBody: new RequestBody(
             content: new MediaType(
@@ -168,6 +200,14 @@ class UserApplicationController extends Controller
                 schema: new Schema(ref: "#/components/schemas/Identity_UpdateOfflineDatabaseModeRequest"),
             )
         ),
+        tags: ["Identity_UserApplicationController"],
+        parameters:[
+            new PathParameter(
+                name: "userApplication:user_application_id",
+                required: true,
+                schema: new Schema(ref: "#/components/schemas/Identity_UserApplicationId")
+            ),
+        ],
         responses: [
             new Response(response: 200, description: "UserApplication OfflineDatabaseMode switched")
         ]
