@@ -20,6 +20,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use OpenApi\Attributes\Property;
+use OpenApi\Attributes\Schema;
 use PasswordBroker\Domain\Entry\Models\EntryGroup;
 use PasswordBroker\Domain\Entry\Models\Groups\Admin;
 use PasswordBroker\Domain\Entry\Models\Groups\Member;
@@ -34,6 +36,19 @@ use PasswordBroker\Domain\Entry\Models\Groups\Moderator;
  * @property Attributes\Email $email
  * @method static UserFactory factory
  */
+#[Schema(
+    schema: "Identity_User",
+    properties: [
+        new Property(property: "user_id", ref: "#/components/schemas/Identity_UserId"),
+        new Property(property: "public_key", ref: "#/components/schemas/Identity_PublicKey"),
+        new Property(property: "is_admin", ref: "#/components/schemas/Identity_IsAdmin"),
+        new Property(property: "name", ref: "#/components/schemas/Identity_UserName"),
+        new Property(property: "email", ref: "#/components/schemas/Identity_Email"),
+        new Property(property: "created_at", type: "string", format: "date-time"),
+        new Property(property: "updated_at", type: "string", format: "date-time", nullable: true),
+    ],
+    type: "object",
+)]
 class User extends Authenticatable
     implements ModelFilterableFieldsInterface
 {

@@ -2,7 +2,11 @@
 
 namespace PasswordBroker\Domain\Entry\Models\Attributes;
 
-class MaterializedPath extends \App\Models\Abstracts\AbstractValue
+use App\Models\Abstracts\AbstractValue;
+use OpenApi\Attributes\Schema;
+
+#[Schema(schema: "PasswordBroker_MaterializedPath", type: "string")]
+class MaterializedPath extends AbstractValue
 {
     public function __construct($value)
     {

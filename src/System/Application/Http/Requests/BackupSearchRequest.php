@@ -30,7 +30,7 @@ class BackupSearchRequest extends FormRequest
     public ?string $q = null;
     #[Schema(schema: "System_BackupSearchRequest_perPage", type: "integer", minimum: 1, example: 15, nullable: true)]
     public ?int $perPage = null;
-    #[Schema(schema: "System_BackupSearchRequest_page", type: "integer", minimum: 1, example: 1, nullable: true)]
+    #[Schema(schema: "System_BackupSearchRequest_page", type: "integer", maximum: 100, minimum: 1, example: 1, nullable: true)]
     public ?int $page = null;
 
 

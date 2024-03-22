@@ -4,8 +4,10 @@ namespace PasswordBroker\Domain\Entry\Models\Attributes;
 
 use App\Models\Abstracts\AbstractValue;
 use InvalidArgumentException;
+use OpenApi\Attributes\Schema;
 use Ramsey\Uuid\Uuid;
 
+#[Schema(schema: "PasswordBroker_EntryGroupId", type: "string", format: "uuid")]
 class EntryGroupId extends AbstractValue
 {
     public function __construct(?string $value)
