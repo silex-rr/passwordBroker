@@ -1,15 +1,22 @@
 openapi: 3.0.0
 info:
-  title: 'Application controller API'
-  description: 'Required for operate with native application'
+  title: 'PasswordBroker API'
+  description: ''
   version: v1
 paths:
   '/identity/api/userApplications/{userApplication:user_application_id}':
     get:
       tags:
-        - identity
-      summary: 'Provide detail info fro User Application'
+        - Identity_UserApplicationController
+      summary: 'Detail info fro User Application'
       operationId: f08f9b65756e857f18b3bcb7e4991205
+      parameters:
+        -
+          name: 'userApplication:user_application_id'
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/Identity_UserApplicationId'
       responses:
         '200':
           description: 'User Application Data'
@@ -21,6 +28,8 @@ paths:
                 type: object
   /identity/api/userApplications:
     post:
+      tags:
+        - Identity_UserApplicationController
       summary: 'Create new instance of User Application'
       operationId: e9bdc472172fb41698c7566c34c07033
       requestBody:
@@ -37,10 +46,19 @@ paths:
                 properties:
                   userApplication: { $ref: '#/components/schemas/Identity_UserApplication' }
                 type: object
-  '/userApplication/{userApplication:user_application_id}/offlineDatabaseMode':
+  '/identity/api/userApplication/{userApplication:user_application_id}/offlineDatabaseMode':
     get:
+      tags:
+        - Identity_UserApplicationController
       summary: 'Check if the UserApplication is in Offline Database mode'
-      operationId: ab7a3f130bd007cb9d7426b5187af158
+      operationId: 01335891dd2fbc924c7c7ad735e28acf
+      parameters:
+        -
+          name: 'userApplication:user_application_id'
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/Identity_UserApplicationId'
       responses:
         '200':
           description: 'User Application offline database mode status is delivered'
@@ -51,8 +69,17 @@ paths:
                   status: { $ref: '#/components/schemas/Identity_IsOfflineDatabaseMode' }
                 type: object
     put:
+      tags:
+        - Identity_UserApplicationController
       summary: 'Switch UserApplication offlineDatabase mode'
-      operationId: 52807851b8c12578122dc714706eb6ea
+      operationId: c7d26b092f1616a506bf864d92e8967e
+      parameters:
+        -
+          name: 'userApplication:user_application_id'
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/Identity_UserApplicationId'
       requestBody:
         content:
           multipart/form-data:
@@ -61,10 +88,19 @@ paths:
       responses:
         '200':
           description: 'UserApplication OfflineDatabaseMode switched'
-  '/userApplication/{userApplication:user_application_id}/isOfflineDatabaseRequiredUpdate':
+  '/identity/api/userApplication/{userApplication:user_application_id}/isOfflineDatabaseRequiredUpdate':
     get:
+      tags:
+        - Identity_UserApplicationController
       summary: 'Check if the UserApplication OfflineDatabase needs to be updated'
-      operationId: 7037797a3af055155e4fbf632f9c6a04
+      operationId: 2fc1dcd944de462d149d4fbbfdcdfe06
+      parameters:
+        -
+          name: 'userApplication:user_application_id'
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/Identity_UserApplicationId'
       responses:
         '200':
           description: 'User Application OfflineDatabase sync status is delivered'
@@ -74,10 +110,19 @@ paths:
                 properties:
                   status: { $ref: '#/components/schemas/Identity_IsOfflineDatabaseRequiredUpdate' }
                 type: object
-  '/userApplication/{userApplication:user_application_id}/isRsaPrivateRequiredUpdate':
+  '/identity/api/userApplication/{userApplication:user_application_id}/isRsaPrivateRequiredUpdate':
     get:
+      tags:
+        - Identity_UserApplicationController
       summary: 'Check if the UserApplication RSA keys needs to be updated'
-      operationId: 88cb92192540413980a30f862f2bca08
+      operationId: 987bd9aad89e25a28a77d20d0f59a669
+      parameters:
+        -
+          name: 'userApplication:user_application_id'
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/Identity_UserApplicationId'
       responses:
         '200':
           description: 'User Application RSA keys sync status is delivered'
@@ -87,6 +132,64 @@ paths:
                 properties:
                   status: { $ref: '#/components/schemas/Identity_IsRsaPrivateRequiredUpdate' }
                 type: object
+  /system/api/backups:
+    get:
+      tags:
+        - System_BackupController
+      summary: 'Backup entities list'
+      operationId: 1cdd20acd2c39eb2bbc267e626cf450e
+      parameters:
+        -
+          name: q
+          in: query
+          required: false
+          schema:
+            $ref: '#/components/schemas/System_BackupSearchRequest_q'
+        -
+          name: perPage
+          in: query
+          required: false
+          schema:
+            $ref: '#/components/schemas/System_BackupSearchRequest_perPage'
+        -
+          name: page
+          in: query
+          required: false
+          schema:
+            $ref: '#/components/schemas/System_BackupSearchRequest_page'
+      responses:
+        '200':
+          description: 'List of backups with pagination'
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - { $ref: '#/components/schemas/Common_Paginator' }
+                  - { description: 'Backup set as data type', properties: { data: { type: array, items: { $ref: '#/components/schemas/System_Backup' } } }, type: object }
+    post:
+      tags:
+        - System_BackupController
+      summary: 'Create new Backup'
+      operationId: f6d7c03a1667c4ae9470922fdf58e1c0
+      responses:
+        '200':
+          description: 'Backup entity was successfully created and put in the queue for executing'
+  '/backups/{backup:backup_id}':
+    get:
+      tags:
+        - System_BackupController
+      summary: 'Show a Backup entity'
+      operationId: 9e51625c7d80eac2fad5593b565bdfc9
+      parameters:
+        -
+          name: 'backup:backup_id'
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/System_BackupId'
+      responses:
+        '200':
+          $ref: '#/components/schemas/System_Backup'
 components:
   schemas:
     Identity_CreateUserApplicationRequest:
@@ -131,4 +234,96 @@ components:
         rsaPrivateFetchedAt:
           type: string
           format: date-time
+      type: object
+    System_BackupSearchRequest:
+      properties:
+        q:
+          description: 'query search by backup name'
+          type: string
+          example: part_of_backup_name
+          nullable: true
+        perPage:
+          type: integer
+          example: 15
+          nullable: true
+        page:
+          type: integer
+          example: 1
+          nullable: true
+      type: object
+    System_BackupSearchRequest_q:
+      type: string
+      nullable: true
+    System_BackupSearchRequest_perPage:
+      type: integer
+      minimum: 1
+      example: 15
+      nullable: true
+    System_BackupSearchRequest_page:
+      type: integer
+      minimum: 1
+      example: 1
+      nullable: true
+    System_BackupCreated:
+      type: string
+      format: date-time
+    System_BackupDeleted:
+      type: string
+      format: date-time
+      nullable: true
+    System_BackupId:
+      type: string
+      format: uuid
+    System_BackupPassword:
+      type: string
+      nullable: true
+    System_BackupState:
+      type: string
+      enum:
+        - await
+        - creating
+        - created
+        - error
+        - deleted
+    System_ErrorMessage:
+      type: string
+      nullable: true
+    System_FileName:
+      type: string
+    System_Size:
+      type: integer
+    System_Backup:
+      properties:
+        backup_id:
+          $ref: '#/components/schemas/System_BackupId'
+        file_name:
+          $ref: '#/components/schemas/System_FileName'
+        state:
+          $ref: '#/components/schemas/System_BackupState'
+        size:
+          $ref: '#/components/schemas/System_Size'
+        backup_created:
+          $ref: '#/components/schemas/System_BackupCreated'
+        backup_deleted:
+          $ref: '#/components/schemas/System_BackupDeleted'
+        error_message:
+          $ref: '#/components/schemas/System_ErrorMessage'
+        password:
+          $ref: '#/components/schemas/System_BackupPassword'
+      type: object
+    Common_Paginator:
+      properties:
+        data: {  }
+        current_page:
+          type: integer
+          minimum: 1
+        last_page:
+          type: integer
+          minimum: 1
+        per_page:
+          type: integer
+          minimum: 1
+        total:
+          type: integer
+          minimum: 0
       type: object

@@ -4,7 +4,9 @@ namespace System\Domain\Backup\Models\Attributes;
 
 use App\Models\Abstracts\AbstractValue;
 use Carbon\Carbon;
+use OpenApi\Attributes\Schema;
 
+#[Schema(schema: "System_BackupCreated", type: "string", format: "date-time")]
 class BackupCreated extends AbstractValue
 {
     public function __construct(mixed $value)

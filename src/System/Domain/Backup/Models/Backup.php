@@ -6,6 +6,8 @@ use App\Common\Domain\Traits\HasFactoryDomain;
 use App\Common\Domain\Traits\ModelDomainConstructor;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
+use OpenApi\Attributes\Property;
+use OpenApi\Attributes\Schema;
 use System\Domain\Backup\Models\Casts\BackupCreated;
 use System\Domain\Backup\Models\Casts\BackupDeleted;
 use System\Domain\Backup\Models\Casts\BackupId;
@@ -28,6 +30,20 @@ use System\Infrastructure\Factories\Backup\BackupFactory;
  *
  * @method static BackupFactory factory
  */
+#[Schema(
+    schema: "System_Backup",
+    properties: [
+        new Property(property: "backup_id", ref: "#/components/schemas/System_BackupId"),
+        new Property(property: "file_name", ref: "#/components/schemas/System_FileName"),
+        new Property(property: "state", ref: "#/components/schemas/System_BackupState"),
+        new Property(property: "size", ref: "#/components/schemas/System_Size"),
+        new Property(property: "backup_created", ref: "#/components/schemas/System_BackupCreated"),
+        new Property(property: "backup_deleted", ref: "#/components/schemas/System_BackupDeleted"),
+        new Property(property: "error_message", ref: "#/components/schemas/System_ErrorMessage"),
+        new Property(property: "password", ref: "#/components/schemas/System_BackupPassword"),
+    ],
+    type: "object"
+)]
 class Backup extends Model
 {
     use ModelDomainConstructor;
