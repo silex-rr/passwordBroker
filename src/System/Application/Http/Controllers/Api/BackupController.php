@@ -58,8 +58,13 @@ class BackupController extends Controller
                     allOf: [
                         new Schema(ref: "#/components/schemas/Common_Paginator",),
                         new Schema(
-                            description: "Backup set as data type", properties: [
-                                new Property(property: "data", type: "array",items: new Items(ref: "#/components/schemas/System_Backup"))
+                            description: "Backup set as data type",
+                            properties: [
+                                new Property(
+                                    property: "data",
+                                    type: "array",
+                                    items: new Items(ref: "#/components/schemas/System_Backup")
+                                )
                             ],
                             type: "object",
                         )

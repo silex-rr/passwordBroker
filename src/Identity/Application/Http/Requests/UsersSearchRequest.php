@@ -3,6 +3,7 @@
 namespace Identity\Application\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use OpenApi\Attributes\Schema;
 use PasswordBroker\Domain\Entry\Models\EntryGroup;
 
 /**
@@ -48,11 +49,13 @@ class UsersSearchRequest extends FormRequest
         ];
     }
 
+    #[Schema(schema: "Identity_UsersSearchRequest_q", type: "string", nullable: true)]
     public function getQuery(): string
     {
         return $this->q ?? '';
     }
 
+    #[Schema(schema: "Identity_UsersSearchRequest_entryGroupInclude", type: "string", format: "uuid", nullable: true)]
     public function getEntryGroupInclude(): ?EntryGroup
     {
         if (is_null($this->entryGroupInclude)) {
@@ -60,6 +63,8 @@ class UsersSearchRequest extends FormRequest
         }
         return EntryGroup::where('entry_group_id', $this->entryGroupInclude)->firstOrFail();
     }
+
+    #[Schema(schema: "Identity_UsersSearchRequest_entryGroupExclude", type: "string", format: "uuid", nullable: true)]
     public function getEntryGroupExclude(): ?EntryGroup
     {
         if (is_null($this->entryGroupExclude)) {
@@ -68,10 +73,13 @@ class UsersSearchRequest extends FormRequest
         return EntryGroup::where('entry_group_id', $this->entryGroupExclude)->firstOrFail();
     }
 
+    #[Schema(schema: "Identity_UsersSearchRequest_perPage", type: "integer", minimum: 1, example: 15, nullable: true)]
     public function getPerPage(): int
     {
         return $this->perPage ?? 15;
     }
+
+    #[Schema(schema: "Identity_UsersSearchRequest_page", type: "integer", maximum: 100, minimum: 1, example: 1, nullable: true)]
     public function getPage(): int
     {
         return $this->page ?? 1;

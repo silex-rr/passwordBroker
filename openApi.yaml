@@ -132,6 +132,52 @@ paths:
                 properties:
                   status: { $ref: '#/components/schemas/Identity_IsRsaPrivateRequiredUpdate' }
                 type: object
+  /identity/api/users/search:
+    get:
+      tags:
+        - Identity_UserController
+      summary: 'Users list'
+      operationId: ff3c8c656d0fbe284e83596b112d4361
+      parameters:
+        -
+          name: q
+          in: query
+          required: false
+          schema:
+            $ref: '#/components/schemas/Identity_UsersSearchRequest_q'
+        -
+          name: perPage
+          in: query
+          required: false
+          schema:
+            $ref: '#/components/schemas/Identity_UsersSearchRequest_perPage'
+        -
+          name: page
+          in: query
+          required: false
+          schema:
+            $ref: '#/components/schemas/Identity_UsersSearchRequest_page'
+        -
+          name: entryGroupInclude
+          in: query
+          required: false
+          schema:
+            $ref: '#/components/schemas/Identity_UsersSearchRequest_entryGroupInclude'
+        -
+          name: entryGroupExclude
+          in: query
+          required: false
+          schema:
+            $ref: '#/components/schemas/Identity_UsersSearchRequest_entryGroupExclude'
+      responses:
+        '200':
+          description: 'List of user with pagination'
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - { $ref: '#/components/schemas/Common_Paginator' }
+                  - { description: 'User set as data type', properties: { data: { type: array, items: { $ref: '#/components/schemas/Identity_User' } } }, type: object }
   /system/api/backups:
     get:
       tags:
@@ -204,6 +250,28 @@ components:
         status:
           type: boolean
       type: object
+    Identity_UsersSearchRequest_q:
+      type: string
+      nullable: true
+    Identity_UsersSearchRequest_entryGroupInclude:
+      type: string
+      format: uuid
+      nullable: true
+    Identity_UsersSearchRequest_entryGroupExclude:
+      type: string
+      format: uuid
+      nullable: true
+    Identity_UsersSearchRequest_perPage:
+      type: integer
+      minimum: 1
+      example: 15
+      nullable: true
+    Identity_UsersSearchRequest_page:
+      type: integer
+      maximum: 100
+      minimum: 1
+      example: 1
+      nullable: true
     Identity_ClientId:
       type: string
       format: uuid
@@ -235,6 +303,63 @@ components:
           type: string
           format: date-time
       type: object
+    Identity_Email:
+      type: string
+      format: email
+    Identity_IsAdmin:
+      type: boolean
+    Identity_PublicKey:
+      type: string
+      format: binary
+    Identity_UserId:
+      type: string
+      format: uuid
+    Identity_UserName:
+      type: string
+    Identity_User:
+      properties:
+        user_id:
+          $ref: '#/components/schemas/Identity_UserId'
+        public_key:
+          $ref: '#/components/schemas/Identity_PublicKey'
+        is_admin:
+          $ref: '#/components/schemas/Identity_IsAdmin'
+        name:
+          $ref: '#/components/schemas/Identity_UserName'
+        email:
+          $ref: '#/components/schemas/Identity_Email'
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+          nullable: true
+      type: object
+    PasswordBroker_EntryGroupId:
+      type: string
+      format: uuid
+    PasswordBroker_GroupName:
+      type: string
+    PasswordBroker_MaterializedPath:
+      type: string
+    PasswordBroker_EntryGroup:
+      properties:
+        entry_group_id:
+          $ref: '#/components/schemas/PasswordBroker_EntryGroupId'
+        name:
+          $ref: '#/components/schemas/PasswordBroker_GroupName'
+        materialized_path:
+          $ref: '#/components/schemas/PasswordBroker_MaterializedPath'
+        created_at:
+          type: date-time
+        updated_at:
+          type: date-time
+          nullable: true
+        deleted_at:
+          type: date-time
+          nullable: true
+      type: object
     System_BackupSearchRequest:
       properties:
         q:
@@ -261,6 +386,7 @@ components:
       nullable: true
     System_BackupSearchRequest_page:
       type: integer
+      maximum: 100
       minimum: 1
       example: 1
       nullable: true

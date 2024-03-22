@@ -24,6 +24,13 @@ use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
+use OpenApi\Attributes\Get;
+use OpenApi\Attributes\Items;
+use OpenApi\Attributes\JsonContent;
+use OpenApi\Attributes\Property;
+use OpenApi\Attributes\QueryParameter;
+use OpenApi\Attributes\Response;
+use OpenApi\Attributes\Schema;
 use PasswordBroker\Application\Services\EncryptionService;
 use Symfony\Component\Mime\Encoder\Base64Encoder;
 
@@ -38,6 +45,60 @@ class UserController extends Controller
         $this->authorizeResource(User::class, ['user']);
     }
 
+    #[Get(
+        path: "/identity/api/users/search",
+        summary: "Users list",
+        tags: ["Identity_UserController"],
+        parameters: [
+            new QueryParameter(
+                name: "q",
+                required: false,
+                schema: new Schema(ref: "#/components/schemas/Identity_UsersSearchRequest_q")
+            ),
+            new QueryParameter(
+                name: "perPage",
+                required: false,
+                schema: new Schema(ref: "#/components/schemas/Identity_UsersSearchRequest_perPage"),
+            ),
+            new QueryParameter(
+                name: "page",
+                required: false,
+                schema: new Schema(ref: "#/components/schemas/Identity_UsersSearchRequest_page"),
+            ),
+            new QueryParameter(
+                name: "entryGroupInclude",
+                required: false,
+                schema: new Schema(ref: "#/components/schemas/Identity_UsersSearchRequest_entryGroupInclude"),
+            ),
+            new QueryParameter(
+                name: "entryGroupExclude",
+                required: false,
+                schema: new Schema(ref: "#/components/schemas/Identity_UsersSearchRequest_entryGroupExclude"),
+            ),
+        ],
+        responses: [
+            new Response(
+                response: 200,
+                description: "List of user with pagination",
+                content: new JsonContent(
+                    allOf: [
+                        new Schema(ref: "#/components/schemas/Common_Paginator",),
+                        new Schema(
+                            description: "User set as data type",
+                            properties: [
+                                new Property(
+                                    property: "data",
+                                    type: "array",
+                                    items: new Items(ref: "#/components/schemas/Identity_User")
+                                )
+                            ],
+                            type: "object",
+                        )
+                    ]
+                )
+            ),
+        ],
+    )]
     public function index(UsersSearchRequest $request): JsonResponse
     {
 

@@ -13,6 +13,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use OpenApi\Attributes\Property;
+use OpenApi\Attributes\Schema;
 use PasswordBroker\Application\Events\EntryGroupCreated;
 use PasswordBroker\Application\Events\EntryGroupForceDeleted;
 use PasswordBroker\Application\Events\EntryGroupRestored;
@@ -40,6 +42,19 @@ use Symfony\Component\Mime\Encoder\Base64Encoder;
  *
  * @method static EntryGroupFactory factory
  */
+
+#[Schema(
+    schema: "PasswordBroker_EntryGroup",
+    properties: [
+        new Property(property: "entry_group_id", ref: "#/components/schemas/PasswordBroker_EntryGroupId"),
+        new Property(property: "name", ref: "#/components/schemas/PasswordBroker_GroupName"),
+        new Property(property: "materialized_path", ref: "#/components/schemas/PasswordBroker_MaterializedPath"),
+        new Property(property: "created_at", type: "date-time"),
+        new Property(property: "updated_at", type: "date-time", nullable: true),
+        new Property(property: "deleted_at", type: "date-time", nullable: true),
+    ],
+    type: "object",
+)]
 class EntryGroup extends Model
 {
 //    use CastsValuesToObjects;
