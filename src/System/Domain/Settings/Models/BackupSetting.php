@@ -2,11 +2,23 @@
 
 namespace System\Domain\Settings\Models;
 
+use OpenApi\Attributes\Property;
+use OpenApi\Attributes\Schema;
 use System\Domain\Settings\Models\Attributes\Backup\Email;
 use System\Domain\Settings\Models\Attributes\Backup\Enable;
 use System\Domain\Settings\Models\Attributes\Backup\Password;
 use System\Domain\Settings\Models\Attributes\Backup\Schedule;
 
+#[Schema(
+    schema: "System_BackupSetting",
+    properties: [
+        new Property(property: "schedule", ref: "#/components/schemas/System_Schedule", default: "[]", nullable: false,),
+        new Property(property: "enable", ref: "#/components/schemas/System_Enable", nullable: true,),
+        new Property(property: "email_enable", ref: "#/components/schemas/System_Enable", nullable: true,),
+        new Property(property: "email", ref: "#/components/schemas/System_Email", default: "", nullable: false,),
+        new Property(property: "archive_password", ref: "#/components/schemas/System_Password", default: "", nullable: false),
+    ],
+)]
 class BackupSetting extends Setting
 {
     public const TYPE = 'backup';
