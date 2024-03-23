@@ -132,6 +132,88 @@ paths:
                 properties:
                   status: { $ref: '#/components/schemas/Identity_IsRsaPrivateRequiredUpdate' }
                 type: object
+  /identity/api/login:
+    post:
+      tags:
+        - Identity_UserAuthController
+      summary: 'Authentication endpoint'
+      operationId: 8afc80759bef9d0bc5c9797201805148
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Identity_LoginRequest'
+      responses:
+        '200':
+          description: 'Provide auth token if token_is_required was true'
+          content:
+            application/json:
+              schema:
+                properties:
+                  message: { type: string, default: 'Login successful' }
+                  token: { description: 'provided only if token_is_required was true', type: string, nullable: true }
+                  user: { $ref: '#/components/schemas/Identity_User' }
+                type: object
+        '401':
+          description: 'Failed login attempt'
+          content:
+            application/json:
+              schema:
+                properties:
+                  message: { type: string, default: 'Invalid email or password' }
+                type: object
+  /identity/api/logout:
+    get:
+      tags:
+        - Identity_UserAuthController
+      summary: 'Logout endpoint'
+      operationId: 6d702d8005eb07acc3d321c6fd9275d4
+      responses:
+        '200':
+          description: 'Logged out successfully'
+          content:
+            application/json:
+              schema:
+                properties:
+                  message: { type: string, default: 'Logged Out' }
+                type: object
+  /identity/api/token:
+    post:
+      tags:
+        - Identity_UserAuthController
+      summary: 'Get a token'
+      operationId: 0a1d13e3658ad507791dc7020e7e43d6
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Identity_GetOrCreateTokenRequest'
+      responses:
+        '200':
+          description: 'Auth Token and User object'
+          content:
+            application/json:
+              schema:
+                properties:
+                  token: { type: string }
+                  user: { $ref: '#/components/schemas/Identity_User' }
+                type: object
+  /identity/api/me:
+    get:
+      tags:
+        - Identity_UserAuthController
+      summary: 'Return a logged in user'
+      operationId: c437d11330dfc7c97aa577b3af84833f
+      responses:
+        '200':
+          description: 'Logged in User or message guest|firstUser, firstUser - system does not have any registered user'
+          content:
+            application/json:
+              schema:
+                properties:
+                  message: { type: string, enum: [loggedIn, guest, firstUser] }
+                  user: { oneOf: [{ $ref: '#/components/schemas/Identity_User' }], nullable: true }
+                type: object
   /identity/api/users/search:
     get:
       tags:
@@ -336,6 +418,29 @@ components:
         clientId:
           type: string
           format: uuid
+          nullable: true
+      type: object
+    Identity_GetOrCreateTokenRequest:
+      properties:
+        token_name:
+          type: string
+          nullable: false
+      type: object
+    Identity_LoginRequest:
+      properties:
+        email:
+          type: string
+          format: email
+          nullable: false
+        password:
+          type: string
+          format: password
+          nullable: false
+        token_is_required:
+          type: boolean
+          nullable: true
+        token_name:
+          type: string
           nullable: true
       type: object
     Identity_RegisterUserRequest:
