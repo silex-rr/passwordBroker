@@ -24,11 +24,18 @@ use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
+use OpenApi\Attributes\Delete;
 use OpenApi\Attributes\Get;
 use OpenApi\Attributes\Items;
 use OpenApi\Attributes\JsonContent;
+use OpenApi\Attributes\MediaType;
+use OpenApi\Attributes\Parameter;
+use OpenApi\Attributes\PathParameter;
+use OpenApi\Attributes\Post;
 use OpenApi\Attributes\Property;
+use OpenApi\Attributes\Put;
 use OpenApi\Attributes\QueryParameter;
+use OpenApi\Attributes\RequestBody;
 use OpenApi\Attributes\Response;
 use OpenApi\Attributes\Schema;
 use PasswordBroker\Application\Services\EncryptionService;
@@ -113,12 +120,46 @@ class UserController extends Controller
         return new JsonResponse($this->dispatchSync($job), 200);
     }
 
+    #[Delete(
+        path: "/identity/api/user/{user:user_id}",
+        summary: "Delete a user",
+        tags: ["Identity_UserController"],
+        parameters: [
+            new PathParameter(parameter: "/user/{user:user_id}", ref: "#/components/schemas/Identity_UserId")
+        ],
+        responses: [
+            new Response(
+                response: 200,
+                description: "User was successfully removed"
+            ),
+        ],
+    )]
     public function destroy(User $user): JsonResponse
     {
         $this->dispatchSync(new DestroyUser($user));
         return new JsonResponse(null, 200);
     }
 
+    #[Put(
+        path: "/identity/api/user/{user:user_id}",
+        summary: "Update a user",
+        requestBody: new RequestBody(
+            content: new MediaType(
+                mediaType: "multipart/form-data",
+                schema: new Schema(ref: "#/components/schemas/Identity_UpdateUserRequest"),
+            )
+        ),
+        tags: ["Identity_UserController"],
+        parameters: [
+            new PathParameter(parameter: "{user:user_id}", required: true, ref: "#/components/schemas/Identity_UserId"),
+        ],
+        responses: [
+            new Response(
+                response: 200,
+                description: "User was successfully updated"
+            ),
+        ],
+    )]
     public function update(User $user, UpdateUserRequest $request): JsonResponse
     {
 //        $all = $request->all();
@@ -134,11 +175,50 @@ class UserController extends Controller
         return new JsonResponse(null, 200);
     }
 
+    #[Get(
+        path: "/identity/api/user/{user:user_id}",
+        summary: "Get a User",
+        tags: ["Identity_UserController"],
+        parameters: [
+            new PathParameter(parameter: "/user/{user:user_id}", ref: "#/components/schemas/Identity_UserId")
+        ],
+        responses: [
+            new Response(
+                response: 200,
+                description: "A user object",
+                content: new JsonContent(
+                    ref: "#/components/schemas/Identity_User",
+                    type: "object",
+                ),
+            )
+        ],
+    )]
     public function show(User $user): JsonResponse
     {
         return new JsonResponse($user, 200);
     }
 
+    #[Post(
+        path: "/identity/api/registration",
+        summary: "Registration a new user",
+        requestBody: new RequestBody(
+            content: new MediaType(
+                mediaType: "multipart/form-data",
+                schema: new Schema(ref: "#/components/schemas/Identity_RegisterUserRequest"),
+            )
+        ),
+        tags: ["Identity_UserController"],
+        responses: [
+            new Response(
+                response: 200,
+                description: "User was registered",
+                content: new JsonContent(
+                    ref: "#/components/schemas/Identity_User",
+                    type: "object",
+                )
+            )
+        ],
+    )]
     public function store(RegisterUserRequest $request): JsonResponse
     {
         $email = $request->input('user.email');
@@ -154,6 +234,24 @@ class UserController extends Controller
         ));
     }
 
+    #[Get(
+        path: "/identity/api/getCbcSalt",
+        summary: "Get a User CBC salt",
+        tags: ["Identity_UserController"],
+        responses: [
+            new Response(
+                response: 200,
+                description: "Base64 encoded user CBC salt",
+                content: new JsonContent(
+                    properties: [
+                        new Property(property: "timestamp", type: "string", format: "timestamp"),
+                        new Property(property: "salt_base64", type: "string", format: "base64"),
+                    ],
+                    type: "object",
+                )
+            )
+        ],
+    )]
     public function getCbcSalt(EncryptionService $encryptionService, Base64Encoder $base64Encoder): JsonResponse
     {
         $carbon = Carbon::now();
@@ -163,6 +261,24 @@ class UserController extends Controller
         ], 200);
     }
 
+    #[Get(
+        path: "/identity/api/getPrivateRsa",
+        summary: "Get a User Privet RSA Key",
+        tags: ["Identity_UserController"],
+        responses: [
+            new Response(
+                response: 200,
+                description: "Base64 encoded user Private RSA Key",
+                content: new JsonContent(
+                    properties: [
+                        new Property(property: "timestamp", type: "string", format: "timestamp"),
+                        new Property(property: "rsa_private_key_base64", type: "string", format: "base64"),
+                    ],
+                    type: "object",
+                )
+            )
+        ],
+    )]
     public function getPrivateRsa(RsaService $rsaService, Base64Encoder $base64Encoder, UserService $userService): JsonResponse
     {
         $carbon = Carbon::now();

@@ -178,6 +178,99 @@ paths:
                 allOf:
                   - { $ref: '#/components/schemas/Common_Paginator' }
                   - { description: 'User set as data type', properties: { data: { type: array, items: { $ref: '#/components/schemas/Identity_User' } } }, type: object }
+  '/identity/api/user/{user:user_id}':
+    get:
+      tags:
+        - Identity_UserController
+      summary: 'Get a User'
+      operationId: 827686a62e03dec93d84a62fa06691fc
+      parameters:
+        -
+          $ref: '#/components/schemas/Identity_UserId'
+      responses:
+        '200':
+          description: 'A user object'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Identity_User'
+    put:
+      tags:
+        - Identity_UserController
+      summary: 'Update a user'
+      operationId: 61509a33dddf83dcdb81c5e64aa9d42a
+      parameters:
+        -
+          $ref: '#/components/schemas/Identity_UserId'
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Identity_UpdateUserRequest'
+      responses:
+        '200':
+          description: 'User was successfully updated'
+    delete:
+      tags:
+        - Identity_UserController
+      summary: 'Delete a user'
+      operationId: 0eb7fee767da0cc531b33750a6c93991
+      parameters:
+        -
+          $ref: '#/components/schemas/Identity_UserId'
+      responses:
+        '200':
+          description: 'User was successfully removed'
+  /identity/api/registration:
+    post:
+      tags:
+        - Identity_UserController
+      summary: 'Registration a new user'
+      operationId: feb403b7718c83ff0cc7334a50b4fe36
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Identity_RegisterUserRequest'
+      responses:
+        '200':
+          description: 'User was registered'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Identity_User'
+  /identity/api/getCbcSalt:
+    get:
+      tags:
+        - Identity_UserController
+      summary: 'Get a User CBC salt'
+      operationId: 06b37c1983ad5dcf17b7719d86b0d378
+      responses:
+        '200':
+          description: 'Base64 encoded user CBC salt'
+          content:
+            application/json:
+              schema:
+                properties:
+                  timestamp: { type: string, format: timestamp }
+                  salt_base64: { type: string, format: base64 }
+                type: object
+  /identity/api/getPrivateRsa:
+    get:
+      tags:
+        - Identity_UserController
+      summary: 'Get a User Privet RSA Key'
+      operationId: 7b0257eb74a95eb93f43b04711ba1833
+      responses:
+        '200':
+          description: 'Base64 encoded user Private RSA Key'
+          content:
+            application/json:
+              schema:
+                properties:
+                  timestamp: { type: string, format: timestamp }
+                  rsa_private_key_base64: { type: string, format: base64 }
+                type: object
   /system/api/backups:
     get:
       tags:
@@ -245,11 +338,59 @@ components:
           format: uuid
           nullable: true
       type: object
+    Identity_RegisterUserRequest:
+      properties:
+        user:
+          properties:
+            email:
+              type: string
+              format: email
+              nullable: false
+            name:
+              type: string
+              nullable: false
+            password:
+              type: string
+              format: password
+              nullable: false
+            password_confirmation:
+              type: string
+              format: password
+              nullable: false
+            master_password:
+              type: string
+              format: password
+              nullable: false
+            master_password_confirmation:
+              type: string
+              format: password
+              nullable: false
+          type: object
+      type: object
     Identity_UpdateOfflineDatabaseModeRequest:
       properties:
         status:
           type: boolean
       type: object
+    Identity_UpdateUserRequest:
+      properties:
+        email:
+          $ref: '#/components/schemas/Identity_UpdateUserRequest_email'
+        username:
+          $ref: '#/components/schemas/Identity_UpdateUserRequest_username'
+        password:
+          $ref: '#/components/schemas/Identity_UpdateUserRequest_password'
+      type: object
+    Identity_UpdateUserRequest_email:
+      type: string
+      format: email
+    Identity_UpdateUserRequest_username:
+      type: string
+      nullable: true
+    Identity_UpdateUserRequest_password:
+      type: string
+      format: password
+      nullable: true
     Identity_UsersSearchRequest_q:
       type: string
       nullable: true
