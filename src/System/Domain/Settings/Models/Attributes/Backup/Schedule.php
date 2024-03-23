@@ -4,7 +4,11 @@ namespace System\Domain\Settings\Models\Attributes\Backup;
 
 use App\Models\Abstracts\AbstractValue;
 use App\Models\Interfaces\ValueObject;
+use OpenApi\Attributes\Items;
+use OpenApi\Attributes\Schema;
+use phpDocumentor\Reflection\Type;
 
+#[Schema(schema: "System_Schedule", type: "array", items: new Items(type: "integer", format: "hours"))]
 class Schedule extends AbstractValue
 {
     public function __construct($value = null)

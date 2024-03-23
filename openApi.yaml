@@ -411,6 +411,62 @@ paths:
       responses:
         '200':
           $ref: '#/components/schemas/System_Backup'
+  /system/api/setting/backupSetting/backup:
+    get:
+      tags:
+        - System_BackupSettingController
+      summary: 'Return current backup settings'
+      description: 'Show the backup setting.'
+      operationId: 6c57b4b0003b67253f74acd355a59d26
+      responses:
+        '200':
+          description: 'Backup Settings'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/System_BackupSetting'
+    post:
+      tags:
+        - System_BackupSettingController
+      summary: 'Update Backup Settings'
+      operationId: dcd3a145b5d846138b4f6639831aa949
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/System_BackupSetting'
+      responses:
+        '200':
+          description: 'Backup Settings was successfully updated'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/System_BackupSetting'
+  /system/api/recovery:
+    post:
+      tags:
+        - System_RecoveryController
+      summary: 'Recovery system from a Backup'
+      operationId: 48f70fac57b4d8b7f9b73bedf5a49adc
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              properties:
+                backupFile:
+                  description: 'a ZIP file with backup'
+                  type: file
+                  format: binary
+              type: object
+      responses:
+        '200':
+          description: 'System successfully recovered from backup'
+          content:
+            application/json:
+              schema:
+                properties:
+                  status: { type: string, default: done }
+                type: object
 components:
   schemas:
     Identity_CreateUserApplicationRequest:
@@ -682,6 +738,37 @@ components:
           $ref: '#/components/schemas/System_ErrorMessage'
         password:
           $ref: '#/components/schemas/System_BackupPassword'
+      type: object
+    System_Email:
+      type: string
+      format: email
+    System_Enable:
+      type: boolean
+    System_Password:
+      type: string
+    System_Schedule:
+      type: array
+      items:
+        type: integer
+        format: hours
+    System_BackupSetting:
+      properties:
+        schedule:
+          $ref: '#/components/schemas/System_Schedule'
+        enable:
+          oneOf:
+            -
+              $ref: '#/components/schemas/System_Enable'
+          nullable: true
+        email_enable:
+          oneOf:
+            -
+              $ref: '#/components/schemas/System_Enable'
+          nullable: true
+        email:
+          $ref: '#/components/schemas/System_Email'
+        archive_password:
+          $ref: '#/components/schemas/System_Password'
       type: object
     Common_Paginator:
       properties:
