@@ -5,6 +5,15 @@ namespace PasswordBroker\Application\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
+use OpenApi\Attributes\Get;
+use OpenApi\Attributes\Items;
+use OpenApi\Attributes\JsonContent;
+use OpenApi\Attributes\MediaType;
+use OpenApi\Attributes\PathParameter;
+use OpenApi\Attributes\Post;
+use OpenApi\Attributes\RequestBody;
+use OpenApi\Attributes\Response as ResponseOA;
+use OpenApi\Attributes\Schema;
 use PasswordBroker\Application\Http\Requests\EntryFieldDecryptedRequest;
 use PasswordBroker\Application\Services\EncryptionService;
 use PasswordBroker\Application\Services\EntryGroupService;
@@ -26,11 +35,61 @@ class EntryFieldHistoryController extends Controller
         $this->authorizeResource(Field::class, ['field']);
     }
 
+    #[Get(
+        path: "/passwordBroker/api/entryGroups/{entryGroup:entry_group_id}/entries/{entry:entry_id}/fields/{field:field_id}/history",
+        summary: "List of changes of a Field",
+        tags: ["PasswordBroker_EntryFieldHistoryController"],
+        parameters: [
+            new PathParameter(parameter: "{entryGroup:entry_group_id}", ref: "#/components/schemas/PasswordBroker_EntryGroupId"),
+            new PathParameter(parameter: "{entry:entry_id}", ref: "#/components/schemas/PasswordBroker_EntryId"),
+            new PathParameter(parameter: "{field:field_id}", ref: "#/components/schemas/PasswordBroker_FieldId"),
+        ],
+        responses: [
+            new ResponseOA(
+                response: 200,
+                description: "List of Field changes",
+                content: new JsonContent(
+                    type: "array",
+                    items: new Items(ref: "#/components/schemas/PasswordBroker_EntryFieldHistory"),
+                )
+            ),
+        ],
+    )]
     public function index(EntryGroup $entryGroup, Entry $entry, Field $field): JsonResponse
     {
         return new JsonResponse($field->fieldHistories()->with('User')->orderByDesc('created_at')->get(), 200);
     }
 
+    #[Post(
+        path: "/passwordBroker/api/entryGroups/{entryGroup:entry_group_id}/entries/{entry:entry_id}/fields/{field:field_id}/history/{fieldEditLog:field_edit_log_id}/decrypted",
+        summary: "Get a decrypted value of a Field History",
+        requestBody: new RequestBody(
+            content: new MediaType(
+                mediaType: "multipart/form-data",
+                schema: new Schema(ref: "#/components/schemas/PasswordBroker_EntryFieldDecryptedRequest"),
+            ),
+        ),
+        tags: ["PasswordBroker_EntryFieldHistoryController"],
+        parameters: [
+            new PathParameter(parameter: "{entryGroup:entry_group_id}", ref: "#/components/schemas/PasswordBroker_EntryGroupId"),
+            new PathParameter(parameter: "{entry:entry_id}", ref: "#/components/schemas/PasswordBroker_EntryId"),
+            new PathParameter(parameter: "{field:field_id}", ref: "#/components/schemas/PasswordBroker_FieldId"),
+            new PathParameter(parameter: "{fieldEditLog:field_edit_log_id}", ref: "#/components/schemas/PasswordBroker_EntryFieldHistory"),
+        ],
+        responses: [
+            new ResponseOA(
+                response: 200,
+                description: "Decrypted value encoded in base64",
+                content: new MediaType(
+                    mediaType: "text/plain"
+                )
+            ),
+            new ResponseOA(
+                response: 422,
+                description: "MasterPassword is wrong",
+            ),
+        ],
+    )]
     public function showDecrypted(
         EntryGroup                 $entryGroup,
         Entry                      $entry,

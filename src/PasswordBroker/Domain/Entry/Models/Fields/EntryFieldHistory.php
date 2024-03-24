@@ -9,6 +9,8 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use OpenApi\Attributes\Property;
+use OpenApi\Attributes\Schema;
 use PasswordBroker\Domain\Entry\Models\EntryGroup;
 use PasswordBroker\Domain\Entry\Models\Fields\Attributes\Login;
 use PasswordBroker\Domain\Entry\Models\Fields\Casts\FieldEditLog\EventType;
@@ -34,6 +36,23 @@ use PasswordBroker\Domain\Entry\Models\Fields\Casts\ValueEncrypted;
  * @method static Builder belongToEntryGroup(EntryGroup $entryGroup)
  * @method Builder belongToEntryGroup(EntryGroup $entryGroup)
  */
+#[Schema(
+    schema: "PasswordBroker_EntryFieldHistory",
+    properties: [
+        new Property(property: "field_edit_log_id", ref: "#/components/schemas/PasswordBroker_FieldEditLogId", nullable: false,),
+        new Property(property: "field_id", ref: "#/components/schemas/PasswordBroker_FieldId", nullable: false,),
+        new Property(property: "title", ref: "#/components/schemas/PasswordBroker_FieldTitle", nullable: false,),
+        new Property(property: "event_type", ref: "#/components/schemas/PasswordBroker_EventType", nullable: false,),
+        new Property(property: "value_encrypted", ref: "#/components/schemas/PasswordBroker_ValueEncrypted", nullable: false,),
+        new Property(property: "initialization_vector", ref: "#/components/schemas/PasswordBroker_InitializationVector", nullable: false,),
+        new Property(property: "is_deleted", ref: "#/components/schemas/PasswordBroker_IsDeleted", nullable: false,),
+        new Property(property: "updated_by", ref: "#/components/schemas/Identity_UserId", nullable: false,),
+        new Property(property: "login", ref: "#/components/schemas/PasswordBroker_Login", nullable: false,),
+        new Property(property: "type", type: "string", nullable: false,),
+        new Property(property: "created_at", type: "string", format: "date-time", nullable: false,),
+        new Property(property: "updated_at", type: "string", format: "date-time", nullable: true,),
+    ],
+)]
 class EntryFieldHistory extends Model
 {
     use ModelDomainConstructor;
