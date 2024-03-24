@@ -353,6 +353,90 @@ paths:
                   timestamp: { type: string, format: timestamp }
                   rsa_private_key_base64: { type: string, format: base64 }
                 type: object
+  '/passwordBroker/api/entryGroups/{entryGroup:entry_group_id}/entries':
+    get:
+      tags:
+        - PasswordBroker_EntryController
+      summary: 'Get a list of Entries that belong to EntryGroup'
+      operationId: 80d7dd9fcfd804a5aab53202a906e4fd
+      parameters:
+        -
+          $ref: '#/components/schemas/PasswordBroker_EntryGroupId'
+      responses:
+        '200':
+          description: 'List of Entries that belong to selected EntryGroup'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PasswordBroker_Entry'
+    post:
+      tags:
+        - PasswordBroker_EntryController
+      summary: 'Create new Entry in selected EntryGroup'
+      operationId: 2ed75e28873acb6c8069a181812a78af
+      parameters:
+        -
+          $ref: '#/components/schemas/PasswordBroker_EntryGroupId'
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PasswordBroker_EntryRequest'
+      responses:
+        '200':
+          description: 'Entry was successfully created in selected EntryGroup'
+  '/passwordBroker/api/entryGroups/{entryGroup:entry_group_id}/entries/{entry:entry_id}':
+    put:
+      tags:
+        - PasswordBroker_EntryController
+      summary: 'Update an Entry'
+      operationId: c79377d8b5864ffa20445662a48d85a9
+      parameters:
+        -
+          $ref: '#/components/schemas/PasswordBroker_EntryGroupId'
+        -
+          $ref: '#/components/schemas/PasswordBroker_EntryId'
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PasswordBroker_EntryRequest'
+      responses:
+        '200':
+          description: 'Entry was successfully updated'
+    delete:
+      tags:
+        - PasswordBroker_EntryController
+      summary: 'Delete an Entry (mark as deleted)'
+      operationId: 0151bf17357923e74563bf4f83ae40af
+      parameters:
+        -
+          $ref: '#/components/schemas/PasswordBroker_EntryGroupId'
+        -
+          $ref: '#/components/schemas/PasswordBroker_EntryId'
+      responses:
+        '200':
+          description: 'Entry was successfully deleted (marked as deleted)'
+    patch:
+      tags:
+        - PasswordBroker_EntryController
+      summary: 'Move an Entry to another EntryGroup'
+      operationId: 1b883ba2c009b770dc488f630cac91bb
+      parameters:
+        -
+          $ref: '#/components/schemas/PasswordBroker_EntryGroupId'
+        -
+          $ref: '#/components/schemas/PasswordBroker_EntryId'
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PasswordBroker_EntryMoveRequest'
+      responses:
+        '200':
+          description: 'Entry was successfully moved to the target EntryGroup'
   /system/api/backups:
     get:
       tags:
@@ -455,7 +539,7 @@ paths:
               properties:
                 backupFile:
                   description: 'a ZIP file with backup'
-                  type: file
+                  type: string
                   format: binary
               type: object
       responses:
@@ -638,13 +722,54 @@ components:
           format: date-time
           nullable: true
       type: object
+    PasswordBroker_EntryMoveRequest:
+      properties:
+        master_password:
+          type: string
+        entryGroupTarget:
+          description: EntryGroupId
+          type: string
+          format: uuid
+      type: object
+    PasswordBroker_EntryRequest:
+      properties:
+        title:
+          type: string
+          nullable: false
+      type: object
     PasswordBroker_EntryGroupId:
+      type: string
+      format: uuid
+    PasswordBroker_EntryId:
       type: string
       format: uuid
     PasswordBroker_GroupName:
       type: string
     PasswordBroker_MaterializedPath:
       type: string
+    PasswordBroker_Title:
+      type: string
+    PasswordBroker_Entry:
+      properties:
+        entry_id:
+          $ref: '#/components/schemas/PasswordBroker_EntryId'
+        entry_group_id:
+          $ref: '#/components/schemas/PasswordBroker_EntryGroupId'
+        title:
+          $ref: '#/components/schemas/PasswordBroker_Title'
+        created_at:
+          type: string
+          format: data-time
+          nullable: false
+        updated_at:
+          type: string
+          format: data-time
+          nullable: true
+        deleted_at:
+          type: string
+          format: data-time
+          nullable: true
+      type: object
     PasswordBroker_EntryGroup:
       properties:
         entry_group_id:

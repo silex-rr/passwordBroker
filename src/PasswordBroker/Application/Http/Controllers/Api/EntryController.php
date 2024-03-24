@@ -7,6 +7,18 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Http\JsonResponse;
+use OpenApi\Attributes\Delete;
+use OpenApi\Attributes\Get;
+use OpenApi\Attributes\Items;
+use OpenApi\Attributes\JsonContent;
+use OpenApi\Attributes\MediaType;
+use OpenApi\Attributes\Patch;
+use OpenApi\Attributes\PathParameter;
+use OpenApi\Attributes\Post;
+use OpenApi\Attributes\Put;
+use OpenApi\Attributes\RequestBody;
+use OpenApi\Attributes\Response;
+use OpenApi\Attributes\Schema;
 use PasswordBroker\Application\Http\Requests\EntryMoveRequest;
 use PasswordBroker\Application\Http\Requests\EntryRequest;
 use PasswordBroker\Application\Services\EntryService;
@@ -27,11 +39,51 @@ class EntryController extends Controller
         $this->authorizeResource(Entry::class, ['entry']);
     }
 
+    #[Get(
+        path: "/passwordBroker/api/entryGroups/{entryGroup:entry_group_id}/entries",
+        summary: "Get a list of Entries that belong to EntryGroup",
+        tags: ["PasswordBroker_EntryController"],
+        parameters: [
+            new PathParameter(parameter: "{entryGroup:entry_group_id}", ref: "#/components/schemas/PasswordBroker_EntryGroupId"),
+        ],
+        responses: [
+            new Response(
+                response: 200,
+                description: "List of Entries that belong to selected EntryGroup",
+                content: new JsonContent(
+                    type: "array",
+                    items: new Items(
+                        ref: "#/components/schemas/PasswordBroker_Entry",
+                    ),
+                ),
+            ),
+        ],
+    )]
     public function index(EntryGroup $entryGroup): JsonResponse
     {
         return new JsonResponse($entryGroup->entries()->get(), 200);
     }
 
+    #[Post(
+        path: "/passwordBroker/api/entryGroups/{entryGroup:entry_group_id}/entries",
+        summary: "Create new Entry in selected EntryGroup",
+        requestBody: new RequestBody(
+            content: new MediaType(
+                mediaType: "multipart/form-data",
+                schema: new Schema(ref: "#/components/schemas/PasswordBroker_EntryRequest"),
+            )
+        ),
+        tags: ["PasswordBroker_EntryController"],
+        parameters: [
+            new PathParameter(parameter: "{entryGroup:entry_group_id}", ref: "#/components/schemas/PasswordBroker_EntryGroupId"),
+        ],
+        responses: [
+            new Response(
+                response: 200,
+                description: "Entry was successfully created in selected EntryGroup",
+            ),
+        ],
+    )]
     public function store(EntryRequest $request): JsonResponse
     {
 
@@ -51,6 +103,28 @@ class EntryController extends Controller
         return new JsonResponse(['data'], 200);
     }
 
+
+    #[Put(
+        path: "/passwordBroker/api/entryGroups/{entryGroup:entry_group_id}/entries/{entry:entry_id}",
+        summary: "Update an Entry",
+        requestBody: new RequestBody(
+            content: new MediaType(
+                mediaType: "multipart/form-data",
+                schema: new Schema(ref: "#/components/schemas/PasswordBroker_EntryRequest"),
+            )
+        ),
+        tags: ["PasswordBroker_EntryController"],
+        parameters: [
+            new PathParameter(parameter: "{entryGroup:entry_group_id}", ref: "#/components/schemas/PasswordBroker_EntryGroupId"),
+            new PathParameter(parameter: "{entry:entry_id}", ref: "#/components/schemas/PasswordBroker_EntryId"),
+        ],
+        responses: [
+            new Response(
+                response: 200,
+                description: "Entry was successfully updated",
+            )
+        ],
+    )]
     public function update(EntryGroup $entryGroup, Entry $entry, EntryRequest $request): JsonResponse
     {
         $response = $this->dispatchSync(new UpdateEntry(
@@ -62,6 +136,27 @@ class EntryController extends Controller
         return new JsonResponse($response, 200);
     }
 
+    #[Patch(
+        path: "/passwordBroker/api/entryGroups/{entryGroup:entry_group_id}/entries/{entry:entry_id}",
+        summary: "Move an Entry to another EntryGroup",
+        requestBody: new RequestBody(
+            content: new MediaType(
+                mediaType: "multipart/form-data",
+                schema: new Schema(ref: "#/components/schemas/PasswordBroker_EntryMoveRequest"),
+            )
+        ),
+        tags: ["PasswordBroker_EntryController"],
+        parameters: [
+            new PathParameter(parameter: "{entryGroup:entry_group_id}", ref: "#/components/schemas/PasswordBroker_EntryGroupId"),
+            new PathParameter(parameter: "{entry:entry_id}", ref: "#/components/schemas/PasswordBroker_EntryId"),
+        ],
+        responses: [
+            new Response(
+                response: 200,
+                description: "Entry was successfully moved to the target EntryGroup",
+            )
+        ],
+    )]
     public function move(EntryGroup $entryGroupSource, Entry $entry, EntryMoveRequest $entryMoveRequest): JsonResponse
     {
         $response = $this->dispatchSync(new MoveEntry(
@@ -75,6 +170,21 @@ class EntryController extends Controller
         return new JsonResponse($response, 200);
     }
 
+    #[Delete(
+        path: "/passwordBroker/api/entryGroups/{entryGroup:entry_group_id}/entries/{entry:entry_id}",
+        summary: "Delete an Entry (mark as deleted)",
+        tags: ["PasswordBroker_EntryController"],
+        parameters: [
+            new PathParameter(parameter: "{entryGroup:entry_group_id}", ref: "#/components/schemas/PasswordBroker_EntryGroupId"),
+            new PathParameter(parameter: "{entry:entry_id}", ref: "#/components/schemas/PasswordBroker_EntryId"),
+        ],
+        responses: [
+            new Response(
+                response: 200,
+                description: "Entry was successfully deleted (marked as deleted)",
+            )
+        ],
+    )]
     public function destroy(EntryGroup $entryGroup, Entry $entry): JsonResponse
     {
         $response = $this->dispatchSync(new DestroyEntry(

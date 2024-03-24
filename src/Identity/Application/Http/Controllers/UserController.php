@@ -125,7 +125,7 @@ class UserController extends Controller
         summary: "Delete a user",
         tags: ["Identity_UserController"],
         parameters: [
-            new PathParameter(parameter: "/user/{user:user_id}", ref: "#/components/schemas/Identity_UserId")
+            new PathParameter(parameter: "{user:user_id}", ref: "#/components/schemas/Identity_UserId")
         ],
         responses: [
             new Response(
@@ -180,7 +180,7 @@ class UserController extends Controller
         summary: "Get a User",
         tags: ["Identity_UserController"],
         parameters: [
-            new PathParameter(parameter: "/user/{user:user_id}", ref: "#/components/schemas/Identity_UserId")
+            new PathParameter(parameter: "{user:user_id}", ref: "#/components/schemas/Identity_UserId")
         ],
         responses: [
             new Response(
