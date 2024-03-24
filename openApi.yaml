@@ -606,6 +606,55 @@ paths:
             text/plain: {  }
         '422':
           description: 'MasterPassword is wrong'
+  '/passwordBroker/api/entryGroups/{entryGroup:entry_group_id}/entries/{entry:entry_id}/fields/{field:field_id}/history':
+    get:
+      tags:
+        - PasswordBroker_EntryFieldHistoryController
+      summary: 'List of changes of a Field'
+      operationId: 406e0d43fe14db154be8b9faf14c4ef1
+      parameters:
+        -
+          $ref: '#/components/schemas/PasswordBroker_EntryGroupId'
+        -
+          $ref: '#/components/schemas/PasswordBroker_EntryId'
+        -
+          $ref: '#/components/schemas/PasswordBroker_FieldId'
+      responses:
+        '200':
+          description: 'List of Field changes'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PasswordBroker_EntryFieldHistory'
+  '/passwordBroker/api/entryGroups/{entryGroup:entry_group_id}/entries/{entry:entry_id}/fields/{field:field_id}/history/{fieldEditLog:field_edit_log_id}/decrypted':
+    post:
+      tags:
+        - PasswordBroker_EntryFieldHistoryController
+      summary: 'Get a decrypted value of a Field History'
+      operationId: d69c7ada44dbd7e2d441ccdcbfad446a
+      parameters:
+        -
+          $ref: '#/components/schemas/PasswordBroker_EntryGroupId'
+        -
+          $ref: '#/components/schemas/PasswordBroker_EntryId'
+        -
+          $ref: '#/components/schemas/PasswordBroker_FieldId'
+        -
+          $ref: '#/components/schemas/PasswordBroker_EntryFieldHistory'
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PasswordBroker_EntryFieldDecryptedRequest'
+      responses:
+        '200':
+          description: 'Decrypted value encoded in base64'
+          content:
+            text/plain: {  }
+        '422':
+          description: 'MasterPassword is wrong'
   /system/api/backups:
     get:
       tags:
@@ -1037,6 +1086,8 @@ components:
     PasswordBroker_FieldEditLogId:
       type: string
       format: uuid
+    PasswordBroker_EventType:
+      type: string
     PasswordBroker_FieldId:
       type: string
       format: uuid
@@ -1058,6 +1109,38 @@ components:
     PasswordBroker_ValueEncrypted:
       type: string
       format: binary
+    PasswordBroker_EntryFieldHistory:
+      properties:
+        field_edit_log_id:
+          $ref: '#/components/schemas/PasswordBroker_FieldEditLogId'
+        field_id:
+          $ref: '#/components/schemas/PasswordBroker_FieldId'
+        title:
+          $ref: '#/components/schemas/PasswordBroker_FieldTitle'
+        event_type:
+          $ref: '#/components/schemas/PasswordBroker_EventType'
+        value_encrypted:
+          $ref: '#/components/schemas/PasswordBroker_ValueEncrypted'
+        initialization_vector:
+          $ref: '#/components/schemas/PasswordBroker_InitializationVector'
+        is_deleted:
+          $ref: '#/components/schemas/PasswordBroker_IsDeleted'
+        updated_by:
+          $ref: '#/components/schemas/Identity_UserId'
+        login:
+          $ref: '#/components/schemas/PasswordBroker_Login'
+        type:
+          type: string
+          nullable: false
+        created_at:
+          type: string
+          format: date-time
+          nullable: false
+        updated_at:
+          type: string
+          format: date-time
+          nullable: true
+      type: object
     PasswordBroker_Field:
       properties:
         field_id:
