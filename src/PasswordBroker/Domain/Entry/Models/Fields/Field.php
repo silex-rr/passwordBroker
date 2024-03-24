@@ -13,6 +13,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use OpenApi\Attributes\Property;
+use OpenApi\Attributes\Schema;
 use PasswordBroker\Application\Events\FieldCreated;
 use PasswordBroker\Application\Events\FieldForceDeleted;
 use PasswordBroker\Application\Events\FieldRestored;
@@ -43,6 +45,22 @@ use Symfony\Component\Mime\Encoder\Base64Encoder;
  * @property UserIdAttribute $created_by
  * @property UserIdAttribute $updated_by
  */
+#[Schema(
+    schema: "PasswordBroker_Field",
+    properties: [
+        new Property(property: "field_id", ref: "#/components/schemas/PasswordBroker_FieldId"),
+        new Property(property: "entry_id", ref: "#/components/schemas/PasswordBroker_EntryId"),
+        new Property(property: "title", ref: "#/components/schemas/PasswordBroker_FieldTitle"),
+        new Property(property: "type", type: "string", enum: [Password::TYPE, Link::TYPE, Note::TYPE, File::TYPE, TOTP::TYPE],),
+        new Property(property: "value_encrypted", ref: "#/components/schemas/PasswordBroker_ValueEncrypted"),
+        new Property(property: "initialization_vector", ref: "#/components/schemas/PasswordBroker_InitializationVector"),
+        new Property(property: "created_by", ref: "#/components/schemas/Identity_UserId"),
+        new Property(property: "updated_by", ref: "#/components/schemas/Identity_UserId"),
+        new Property(property: "created_at", type: "string", format: "date-time"),
+        new Property(property: "updated_at", type: "string", format: "date-time", nullable: true,),
+        new Property(property: "deleted_at", type: "string", format: "date-time", nullable: true,),
+    ],
+)]
 abstract class Field extends Model
 {
     use HasUuids;

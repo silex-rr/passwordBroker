@@ -4,8 +4,10 @@ namespace PasswordBroker\Domain\Entry\Models\Fields\Attributes;
 
 use App\Models\Abstracts\AbstractValue;
 use InvalidArgumentException;
+use OpenApi\Attributes\Schema;
 use Ramsey\Uuid\Uuid;
 
+#[Schema(schema: "PasswordBroker_FieldEditLogId", type: "string", format: "uuid")]
 class FieldEditLogId extends AbstractValue
 {
     public function __construct(?string $value)

@@ -5,14 +5,33 @@ namespace PasswordBroker\Application\Http\Requests;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\RequiredIf;
+use OpenApi\Attributes\Property;
+use OpenApi\Attributes\Schema;
 use PasswordBroker\Domain\Entry\Models\Entry;
 use PasswordBroker\Domain\Entry\Models\Fields\Field;
+use PasswordBroker\Domain\Entry\Models\Fields\File;
+use PasswordBroker\Domain\Entry\Models\Fields\Link;
+use PasswordBroker\Domain\Entry\Models\Fields\Note;
 use PasswordBroker\Domain\Entry\Models\Fields\Password;
+use PasswordBroker\Domain\Entry\Models\Fields\TOTP;
 use PasswordBroker\Infrastructure\Validation\Rules\EntryFieldTitleDoesNotExistInEntryFields;
 
 /**
  * @property Entry $entry
  */
+#[Schema(
+    schema: "PasswordBroker_EntryFieldStoreRequest",
+    properties: [
+        new Property(property: "title", ref: "#/components/schemas/PasswordBroker_FieldTitle", nullable: true),
+        new Property(property: "type", type: "string", enum: [File::TYPE, Link::TYPE, Note::TYPE, Password::TYPE, TOTP::TYPE]),
+        new Property(property: "login", ref: "#/components/schemas/PasswordBroker_Login", nullable: true),
+        new Property(property: "value_encrypted", ref: "#/components/schemas/PasswordBroker_ValueEncrypted", nullable: true),
+        new Property(property: "initialization_vector", ref: "#/components/schemas/PasswordBroker_InitializationVector", nullable: true),
+        new Property(property: "master_password", type: "string", nullable: true),
+        new Property(property: "value", type: "string", nullable: true),
+        new Property(property: "file", ref: "#/components/schemas/PasswordBroker_File", nullable: true),
+    ],
+)]
 class EntryFieldStoreRequest extends FormRequest
 {
     public function authorize() : bool
