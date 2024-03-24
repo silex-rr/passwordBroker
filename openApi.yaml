@@ -437,6 +437,175 @@ paths:
       responses:
         '200':
           description: 'Entry was successfully moved to the target EntryGroup'
+  '/passwordBroker/api/entryGroups/{entryGroup:entry_group_id}/entries/{entry:entry_id}/fields':
+    get:
+      tags:
+        - PasswordBroker_EntryFieldController
+      summary: 'List of Fields that belong to an Entry'
+      operationId: dd25bbe9b1fa9dd5cc128ccb6b327288
+      parameters:
+        -
+          $ref: '#/components/schemas/PasswordBroker_EntryGroupId'
+        -
+          $ref: '#/components/schemas/PasswordBroker_EntryId'
+      responses:
+        '200':
+          description: 'List of Fields'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  oneOf: [{ $ref: '#/components/schemas/PasswordBroker_File' }, { $ref: '#/components/schemas/PasswordBroker_Link' }, { $ref: '#/components/schemas/PasswordBroker_Note' }, { $ref: '#/components/schemas/PasswordBroker_Password' }, { $ref: '#/components/schemas/PasswordBroker_TOTP' }]
+    post:
+      tags:
+        - PasswordBroker_EntryFieldController
+      summary: 'Add new Field to an Entry'
+      operationId: 20ba1219dd20c09e2a1632ffa65ecdee
+      parameters:
+        -
+          $ref: '#/components/schemas/PasswordBroker_EntryGroupId'
+        -
+          $ref: '#/components/schemas/PasswordBroker_EntryId'
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PasswordBroker_EntryFieldStoreRequest'
+      responses:
+        '200':
+          description: 'Field successfully created'
+        '422':
+          description: 'MasterPassword is wrong'
+  '/passwordBroker/api/entryGroups/{entryGroup:entry_group_id}/entries/{entry:entry_id}/fields/{field:field_id}':
+    get:
+      tags:
+        - PasswordBroker_EntryFieldController
+      summary: 'Get a Field'
+      operationId: 07a8f40e13b0de7ae3967869a3bf80b5
+      parameters:
+        -
+          $ref: '#/components/schemas/PasswordBroker_EntryGroupId'
+        -
+          $ref: '#/components/schemas/PasswordBroker_EntryId'
+        -
+          $ref: '#/components/schemas/PasswordBroker_FieldId'
+      responses:
+        '200':
+          description: 'Field object'
+          content:
+            application/json:
+              schema:
+                type: object
+                oneOf:
+                  - { $ref: '#/components/schemas/PasswordBroker_File' }
+                  - { $ref: '#/components/schemas/PasswordBroker_Link' }
+                  - { $ref: '#/components/schemas/PasswordBroker_Note' }
+                  - { $ref: '#/components/schemas/PasswordBroker_Password' }
+                  - { $ref: '#/components/schemas/PasswordBroker_TOTP' }
+    put:
+      tags:
+        - PasswordBroker_EntryFieldController
+      summary: 'Update a Field'
+      operationId: e09a5b6a17403fb46afa2773d456a5af
+      parameters:
+        -
+          $ref: '#/components/schemas/PasswordBroker_EntryGroupId'
+        -
+          $ref: '#/components/schemas/PasswordBroker_EntryId'
+        -
+          $ref: '#/components/schemas/PasswordBroker_FieldId'
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PasswordBroker_EntryFieldUpdateRequest'
+      responses:
+        '200':
+          description: 'A field was updated'
+        '422':
+          description: 'MasterPassword is wrong'
+    delete:
+      tags:
+        - PasswordBroker_EntryFieldController
+      summary: 'Delete a Field (mark as deleted)'
+      operationId: 58d6fa498eacd4af95e350423725aa93
+      parameters:
+        -
+          $ref: '#/components/schemas/PasswordBroker_EntryGroupId'
+        -
+          $ref: '#/components/schemas/PasswordBroker_EntryId'
+        -
+          $ref: '#/components/schemas/PasswordBroker_FieldId'
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PasswordBroker_EntryFieldDestroyRequest'
+      responses:
+        '200':
+          description: 'A field was deleted (marked as deleted)'
+        '422':
+          description: 'MasterPassword is wrong'
+  '/passwordBroker/api/entryGroups/{entryGroup:entry_group_id}/entries/{entry:entry_id}/fields/{field:field_id}/totp':
+    post:
+      tags:
+        - PasswordBroker_EntryFieldController
+      summary: 'Get a Temporary One Time Password'
+      operationId: c4b9a8c2bd081f5ac2c0f10d3603b8ab
+      parameters:
+        -
+          $ref: '#/components/schemas/PasswordBroker_EntryGroupId'
+        -
+          $ref: '#/components/schemas/PasswordBroker_EntryId'
+        -
+          $ref: '#/components/schemas/PasswordBroker_FieldId'
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PasswordBroker_EntryFieldDecryptedRequest'
+      responses:
+        '200':
+          description: 'TOTP with some data'
+          content:
+            application/json:
+              schema:
+                properties:
+                  time: { type: string, format: date-time }
+                  code: { type: integer }
+                  epoch: { type: string }
+                  period: { type: string }
+                  expiresIn: { type: integer }
+                  expiresAt: { type: string, format: date-time }
+                type: object
+        '422':
+          description: 'MasterPassword is wrong'
+  '/passwordBroker/api/entryGroups/{entryGroup:entry_group_id}/entries/{entry:entry_id}/fields/{field:field_id}/decrypted':
+    post:
+      tags:
+        - PasswordBroker_EntryFieldController
+      summary: 'Get a decrypted value'
+      operationId: 6a016908010a8e3d247d7a8e9d549da1
+      parameters:
+        -
+          $ref: '#/components/schemas/PasswordBroker_EntryGroupId'
+        -
+          $ref: '#/components/schemas/PasswordBroker_EntryId'
+        -
+          $ref: '#/components/schemas/PasswordBroker_FieldId'
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PasswordBroker_EntryFieldDecryptedRequest'
+      responses:
+        '200':
+          description: 'Decrypted value encoded in base64'
+          content:
+            text/plain: {  }
+        '422':
+          description: 'MasterPassword is wrong'
   /system/api/backups:
     get:
       tags:
@@ -722,6 +891,84 @@ components:
           format: date-time
           nullable: true
       type: object
+    PasswordBroker_EntryFieldDecryptedRequest:
+      type: string
+    PasswordBroker_EntryFieldDestroyRequest:
+      properties:
+        master_password:
+          type: string
+      type: object
+    PasswordBroker_EntryFieldStoreRequest:
+      properties:
+        title:
+          oneOf:
+            -
+              $ref: '#/components/schemas/PasswordBroker_FieldTitle'
+          nullable: true
+        type:
+          type: string
+          enum:
+            - file
+            - link
+            - note
+            - password
+            - TOTP
+        login:
+          oneOf:
+            -
+              $ref: '#/components/schemas/PasswordBroker_Login'
+          nullable: true
+        value_encrypted:
+          oneOf:
+            -
+              $ref: '#/components/schemas/PasswordBroker_ValueEncrypted'
+          nullable: true
+        initialization_vector:
+          oneOf:
+            -
+              $ref: '#/components/schemas/PasswordBroker_InitializationVector'
+          nullable: true
+        master_password:
+          type: string
+          nullable: true
+        value:
+          type: string
+          nullable: true
+        file:
+          oneOf:
+            -
+              $ref: '#/components/schemas/PasswordBroker_File'
+          nullable: true
+      type: object
+    PasswordBroker_EntryFieldUpdateRequest:
+      properties:
+        title:
+          oneOf:
+            -
+              $ref: '#/components/schemas/PasswordBroker_FieldTitle'
+          nullable: true
+        login:
+          oneOf:
+            -
+              $ref: '#/components/schemas/PasswordBroker_Login'
+          nullable: true
+        value_encrypted:
+          oneOf:
+            -
+              $ref: '#/components/schemas/PasswordBroker_ValueEncrypted'
+          nullable: true
+        initialization_vector:
+          oneOf:
+            -
+              $ref: '#/components/schemas/PasswordBroker_InitializationVector'
+          nullable: true
+        master_password:
+          type: string
+          nullable: true
+        value:
+          type: string
+          nullable: true
+      type: object
     PasswordBroker_EntryMoveRequest:
       properties:
         master_password:
@@ -787,6 +1034,94 @@ components:
           type: date-time
           nullable: true
       type: object
+    PasswordBroker_FieldEditLogId:
+      type: string
+      format: uuid
+    PasswordBroker_FieldId:
+      type: string
+      format: uuid
+    PasswordBroker_FileMime:
+      type: string
+    PasswordBroker_FileName:
+      type: string
+    PasswordBroker_FileSize:
+      type: integer
+    PasswordBroker_InitializationVector:
+      type: string
+      format: binary
+    PasswordBroker_IsDeleted:
+      type: boolean
+    PasswordBroker_Login:
+      type: string
+    PasswordBroker_FieldTitle:
+      type: string
+    PasswordBroker_ValueEncrypted:
+      type: string
+      format: binary
+    PasswordBroker_Field:
+      properties:
+        field_id:
+          $ref: '#/components/schemas/PasswordBroker_FieldId'
+        entry_id:
+          $ref: '#/components/schemas/PasswordBroker_EntryId'
+        title:
+          $ref: '#/components/schemas/PasswordBroker_FieldTitle'
+        type:
+          type: string
+          enum:
+            - password
+            - link
+            - note
+            - file
+            - TOTP
+        value_encrypted:
+          $ref: '#/components/schemas/PasswordBroker_ValueEncrypted'
+        initialization_vector:
+          $ref: '#/components/schemas/PasswordBroker_InitializationVector'
+        created_by:
+          $ref: '#/components/schemas/Identity_UserId'
+        updated_by:
+          $ref: '#/components/schemas/Identity_UserId'
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+          nullable: true
+        deleted_at:
+          type: string
+          format: date-time
+          nullable: true
+      type: object
+    PasswordBroker_File:
+      allOf:
+        -
+          $ref: '#/components/schemas/PasswordBroker_Field'
+        -
+          $ref: '#/components/schemas/PasswordBroker_FileName'
+        -
+          $ref: '#/components/schemas/PasswordBroker_FileSize'
+        -
+          $ref: '#/components/schemas/PasswordBroker_FileMime'
+    PasswordBroker_Link:
+      allOf:
+        -
+          $ref: '#/components/schemas/PasswordBroker_Field'
+    PasswordBroker_Note:
+      allOf:
+        -
+          $ref: '#/components/schemas/PasswordBroker_Field'
+    PasswordBroker_Password:
+      allOf:
+        -
+          $ref: '#/components/schemas/PasswordBroker_Field'
+        -
+          $ref: '#/components/schemas/PasswordBroker_Login'
+    PasswordBroker_TOTP:
+      allOf:
+        -
+          $ref: '#/components/schemas/PasswordBroker_Field'
     System_BackupSearchRequest:
       properties:
         q:

@@ -2,6 +2,8 @@
 
 namespace PasswordBroker\Domain\Entry\Models\Fields;
 
+use OpenApi\Attributes\Property;
+use OpenApi\Attributes\Schema;
 use PasswordBroker\Domain\Entry\Models\Fields\Attributes\FileName;
 use PasswordBroker\Domain\Entry\Models\Fields\Attributes\FileSize;
 
@@ -9,6 +11,15 @@ use PasswordBroker\Domain\Entry\Models\Fields\Attributes\FileSize;
  * @property FileName $file_name
  * @property FileSize $file_size
  */
+#[Schema(
+    schema: "PasswordBroker_File",
+    allOf: [
+        new Schema(ref: "#/components/schemas/PasswordBroker_Field"),
+        new Property(property: "file_name", ref: "#/components/schemas/PasswordBroker_FileName",),
+        new Property(property: "file_size", ref: "#/components/schemas/PasswordBroker_FileSize",),
+        new Property(property: "file_mime", ref: "#/components/schemas/PasswordBroker_FileMime",),
+    ],
+)]
 class File extends Field
 {
     public const TYPE = 'file';

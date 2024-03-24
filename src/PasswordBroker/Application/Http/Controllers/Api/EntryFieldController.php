@@ -4,8 +4,21 @@ namespace PasswordBroker\Application\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use Carbon\Carbon;
+use Identity\Domain\User\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
+use OpenApi\Attributes\Delete;
+use OpenApi\Attributes\Get;
+use OpenApi\Attributes\Items;
+use OpenApi\Attributes\JsonContent;
+use OpenApi\Attributes\MediaType;
+use OpenApi\Attributes\PathParameter;
+use OpenApi\Attributes\Post;
+use OpenApi\Attributes\Property;
+use OpenApi\Attributes\Put;
+use OpenApi\Attributes\RequestBody;
+use OpenApi\Attributes\Response as ResponseOA;
+use OpenApi\Attributes\Schema;
 use PasswordBroker\Application\Events\FieldDecrypted;
 use PasswordBroker\Application\Http\Requests\EntryFieldDecryptedRequest;
 use PasswordBroker\Application\Http\Requests\EntryFieldDestroyRequest;
@@ -42,20 +55,107 @@ class EntryFieldController extends Controller
         return $resourceAbilityMap;
     }
 
+
+    #[Get(
+        path: "/passwordBroker/api/entryGroups/{entryGroup:entry_group_id}/entries/{entry:entry_id}/fields",
+        summary: "List of Fields that belong to an Entry",
+        tags: ["PasswordBroker_EntryFieldController"],
+        parameters: [
+            new PathParameter(parameter: "{entryGroup:entry_group_id}", ref: "#/components/schemas/PasswordBroker_EntryGroupId"),
+            new PathParameter(parameter: "{entry:entry_id}", ref: "#/components/schemas/PasswordBroker_EntryId"),
+        ],
+        responses: [
+            new ResponseOA(
+                response: 200,
+                description: "List of Fields",
+                content: new JsonContent(
+                    type: "array",
+                    items: new Items(oneOf: [
+                        new Schema(ref: "#/components/schemas/PasswordBroker_File"),
+                        new Schema(ref: "#/components/schemas/PasswordBroker_Link"),
+                        new Schema(ref: "#/components/schemas/PasswordBroker_Note"),
+                        new Schema(ref: "#/components/schemas/PasswordBroker_Password"),
+                        new Schema(ref: "#/components/schemas/PasswordBroker_TOTP"),
+                    ]),
+                ),
+            ),
+        ],
+    )]
     public function index(EntryGroup $entryGroup, Entry $entry): JsonResponse
     {
         return new JsonResponse($entry->fields(), 200);
     }
 
+    #[Get(
+        path: "/passwordBroker/api/entryGroups/{entryGroup:entry_group_id}/entries/{entry:entry_id}/fields/{field:field_id}",
+        summary: "Get a Field",
+        tags: ["PasswordBroker_EntryFieldController"],
+        parameters: [
+            new PathParameter(parameter: "{entryGroup:entry_group_id}", ref: "#/components/schemas/PasswordBroker_EntryGroupId"),
+            new PathParameter(parameter: "{entry:entry_id}", ref: "#/components/schemas/PasswordBroker_EntryId"),
+            new PathParameter(parameter: "{field:field_id}", ref: "#/components/schemas/PasswordBroker_FieldId"),
+        ],
+        responses: [
+            new ResponseOA(
+                response: 200,
+                description: "Field object",
+                content: new JsonContent(
+                    type: "object",
+                    oneOf: [
+                        new Schema(ref: "#/components/schemas/PasswordBroker_File"),
+                        new Schema(ref: "#/components/schemas/PasswordBroker_Link"),
+                        new Schema(ref: "#/components/schemas/PasswordBroker_Note"),
+                        new Schema(ref: "#/components/schemas/PasswordBroker_Password"),
+                        new Schema(ref: "#/components/schemas/PasswordBroker_TOTP"),
+                    ],
+                ),
+            ),
+        ],
+    )]
     public function show(EntryGroup $entryGroup, Entry $entry, Field $field): JsonResponse
     {
         return new JsonResponse($field, 200);
     }
 
+    #[Post(
+        path: "/passwordBroker/api/entryGroups/{entryGroup:entry_group_id}/entries/{entry:entry_id}/fields/{field:field_id}/totp",
+        summary: "Get a Temporary One Time Password",
+        requestBody: new RequestBody(
+            content: new MediaType(
+                mediaType: "multipart/form-data",
+                schema: new Schema(ref: "#/components/schemas/PasswordBroker_EntryFieldDecryptedRequest"),
+            ),
+        ),
+        tags: ["PasswordBroker_EntryFieldController"],
+        parameters: [
+            new PathParameter(parameter: "{entryGroup:entry_group_id}", ref: "#/components/schemas/PasswordBroker_EntryGroupId"),
+            new PathParameter(parameter: "{entry:entry_id}", ref: "#/components/schemas/PasswordBroker_EntryId"),
+            new PathParameter(parameter: "{field:field_id}", ref: "#/components/schemas/PasswordBroker_FieldId"),
+        ],
+        responses: [
+            new ResponseOA(
+                response: 200,
+                description: "TOTP with some data",
+                content: new JsonContent(
+                    properties: [
+                        new Property(property: "time", type: "string", format: "date-time",),
+                        new Property(property: "code", type: "integer",),
+                        new Property(property: "epoch", type: "string",),
+                        new Property(property: "period", type: "string",),
+                        new Property(property: "expiresIn", type: "integer",),
+                        new Property(property: "expiresAt", type: "string", format: "date-time",),
+                    ],
+                    type: "object",
+                ),
+            ),
+            new ResponseOA(
+                response: 422,
+                description: "MasterPassword is wrong",
+            ),
+        ],
+    )]
     public function showTOTP(EntryGroup $entryGroup, Entry $entry, Field $field, EntryFieldDecryptedRequest $request): JsonResponse
     {
-
-
         try {
             $decryptField = $this->entryGroupService->decryptField(field: $field, master_password: $request->getMasterPassword());
 
@@ -87,6 +187,35 @@ class EntryFieldController extends Controller
 
     }
 
+    #[Post(
+        path: "/passwordBroker/api/entryGroups/{entryGroup:entry_group_id}/entries/{entry:entry_id}/fields/{field:field_id}/decrypted",
+        summary: "Get a decrypted value",
+        requestBody: new RequestBody(
+            content: new MediaType(
+                mediaType: "multipart/form-data",
+                schema: new Schema(ref: "#/components/schemas/PasswordBroker_EntryFieldDecryptedRequest"),
+            ),
+        ),
+        tags: ["PasswordBroker_EntryFieldController"],
+        parameters: [
+            new PathParameter(parameter: "{entryGroup:entry_group_id}", ref: "#/components/schemas/PasswordBroker_EntryGroupId"),
+            new PathParameter(parameter: "{entry:entry_id}", ref: "#/components/schemas/PasswordBroker_EntryId"),
+            new PathParameter(parameter: "{field:field_id}", ref: "#/components/schemas/PasswordBroker_FieldId"),
+        ],
+        responses: [
+            new ResponseOA(
+                response: 200,
+                description: "Decrypted value encoded in base64",
+                content: new MediaType(
+                    mediaType: "text/plain"
+                )
+            ),
+            new ResponseOA(
+                response: 422,
+                description: "MasterPassword is wrong",
+            ),
+        ],
+    )]
     public function showDecrypted(EntryGroup $entryGroup, Entry $entry, Field $field, EntryFieldDecryptedRequest $request)
         : JsonResponse|Response
     {
@@ -114,6 +243,31 @@ class EntryFieldController extends Controller
         }
     }
 
+    #[Post(
+        path: "/passwordBroker/api/entryGroups/{entryGroup:entry_group_id}/entries/{entry:entry_id}/fields",
+        summary: "Add new Field to an Entry",
+        requestBody: new RequestBody(
+            content: new MediaType(
+                mediaType: "multipart/form-data",
+                schema: new Schema(ref: "#/components/schemas/PasswordBroker_EntryFieldStoreRequest"),
+            ),
+        ),
+        tags: ["PasswordBroker_EntryFieldController"],
+        parameters: [
+            new PathParameter(parameter: "{entryGroup:entry_group_id}", ref: "#/components/schemas/PasswordBroker_EntryGroupId"),
+            new PathParameter(parameter: "{entry:entry_id}", ref: "#/components/schemas/PasswordBroker_EntryId"),
+        ],
+        responses: [
+            new ResponseOA(
+                response: 200,
+                description: "Field successfully created",
+            ),
+            new ResponseOA(
+                response: 422,
+                description: "MasterPassword is wrong",
+            ),
+        ],
+    )]
     public function store(EntryGroup $entryGroup, Entry $entry, EntryFieldStoreRequest $request): JsonResponse
     {
         try {
@@ -145,10 +299,40 @@ class EntryFieldController extends Controller
         return new JsonResponse($result, 200);
     }
 
+    #[Put(
+        path: "/passwordBroker/api/entryGroups/{entryGroup:entry_group_id}/entries/{entry:entry_id}/fields/{field:field_id}",
+        summary: "Update a Field",
+        requestBody: new RequestBody(
+            content: new MediaType(
+                mediaType: "multipart/form-data",
+                schema: new Schema(ref: "#/components/schemas/PasswordBroker_EntryFieldUpdateRequest"),
+            ),
+        ),
+        tags: ["PasswordBroker_EntryFieldController"],
+        parameters: [
+            new PathParameter(parameter: "{entryGroup:entry_group_id}", ref: "#/components/schemas/PasswordBroker_EntryGroupId"),
+            new PathParameter(parameter: "{entry:entry_id}", ref: "#/components/schemas/PasswordBroker_EntryId"),
+            new PathParameter(parameter: "{field:field_id}", ref: "#/components/schemas/PasswordBroker_FieldId"),
+        ],
+        responses: [
+            new ResponseOA(
+                response: 200,
+                description: "A field was updated",
+            ),
+            new ResponseOA(
+                response: 422,
+                description: "MasterPassword is wrong",
+            ),
+        ],
+    )]
     public function update(EntryGroup $entryGroup, Entry $entry, Field $field, EntryFieldUpdateRequest $request): JsonResponse
     {
+        /**
+         * @var User $user
+         */
+        $user = auth()->user();
         $result = $this->dispatchSync(new UpdateField(
-            user: auth()->user(),
+            user: $user,
             entry: $entry,
             entryGroup: $entryGroup,
             field: $field,
@@ -163,6 +347,32 @@ class EntryFieldController extends Controller
         return new JsonResponse($result, 200);
     }
 
+    #[Delete(
+        path: "/passwordBroker/api/entryGroups/{entryGroup:entry_group_id}/entries/{entry:entry_id}/fields/{field:field_id}",
+        summary: "Delete a Field (mark as deleted)",
+        requestBody: new RequestBody(
+            content: new MediaType(
+                mediaType: "multipart/form-data",
+                schema: new Schema(ref: "#/components/schemas/PasswordBroker_EntryFieldDestroyRequest"),
+            ),
+        ),
+        tags: ["PasswordBroker_EntryFieldController"],
+        parameters: [
+            new PathParameter(parameter: "{entryGroup:entry_group_id}", ref: "#/components/schemas/PasswordBroker_EntryGroupId"),
+            new PathParameter(parameter: "{entry:entry_id}", ref: "#/components/schemas/PasswordBroker_EntryId"),
+            new PathParameter(parameter: "{field:field_id}", ref: "#/components/schemas/PasswordBroker_FieldId"),
+        ],
+        responses: [
+            new ResponseOA(
+                response: 200,
+                description: "A field was deleted (marked as deleted)",
+            ),
+            new ResponseOA(
+                response: 422,
+                description: "MasterPassword is wrong",
+            ),
+        ],
+    )]
     public function destroy(EntryGroup $entryGroup, Entry $entry, Field $field, EntryFieldDestroyRequest $request): JsonResponse
     {
         try {
