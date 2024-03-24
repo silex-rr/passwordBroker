@@ -27,7 +27,7 @@ class RecoveryController extends Controller
                         new Property(
                             property: "backupFile",
                             description: "a ZIP file with backup",
-                            type: "file",
+                            type: "string",
                             format: "binary"
                         ),
                     ],
