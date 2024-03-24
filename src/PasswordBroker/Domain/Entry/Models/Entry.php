@@ -11,6 +11,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Collection;
+use OpenApi\Attributes\Property;
+use OpenApi\Attributes\Schema;
 use PasswordBroker\Application\Events\EntryCreated;
 use PasswordBroker\Application\Events\EntryForceDeleted;
 use PasswordBroker\Application\Events\EntryRestored;
@@ -39,6 +41,18 @@ use PasswordBroker\Infrastructure\Validation\Handlers\EntryValidationHandler;
  *
  * @method static EntryFactory factory
  */
+#[Schema(
+    schema: "PasswordBroker_Entry",
+    properties: [
+        new Property(property: "entry_id", ref: "#/components/schemas/PasswordBroker_EntryId"),
+        new Property(property: "entry_group_id", ref: "#/components/schemas/PasswordBroker_EntryGroupId"),
+        new Property(property: "title", ref: "#/components/schemas/PasswordBroker_Title"),
+        new Property(property: "created_at", type: "string", format: "data-time", nullable: false,),
+        new Property(property: "updated_at", type: "string", format: "data-time", nullable: true,),
+        new Property(property: "deleted_at", type: "string", format: "data-time", nullable: true,),
+    ],
+    type: "object",
+)]
 class Entry extends Model
 {
     use ModelDomainConstructor;

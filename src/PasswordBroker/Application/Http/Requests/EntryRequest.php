@@ -4,6 +4,8 @@ namespace PasswordBroker\Application\Http\Requests;
 
 use App\Common\Application\Traits\RequestAllWithCasts;
 use Illuminate\Foundation\Http\FormRequest;
+use OpenApi\Attributes\Property;
+use OpenApi\Attributes\Schema;
 use PasswordBroker\Domain\Entry\Models\Entry;
 use PasswordBroker\Domain\Entry\Models\EntryGroup;
 use PasswordBroker\Infrastructure\Validation\Rules\EntryTitleDoesNotExistInEntryGroup;
@@ -11,6 +13,12 @@ use PasswordBroker\Infrastructure\Validation\Rules\EntryTitleDoesNotExistInEntry
 /**
  * @property EntryGroup $entryGroup
  */
+#[Schema(
+    schema: "PasswordBroker_EntryRequest",
+    properties: [
+        new Property(property: "title", type: "string", nullable: false,),
+    ],
+)]
 class EntryRequest extends FormRequest
 {
     use RequestAllWithCasts;
