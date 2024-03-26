@@ -3,6 +3,8 @@
 namespace PasswordBroker\Application\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use OpenApi\Attributes\Property;
+use OpenApi\Attributes\Schema;
 use PasswordBroker\Domain\Entry\Models\EntryGroup;
 
 /**
@@ -48,6 +50,7 @@ class EntryFieldHistorySearchRequest extends FormRequest
         ];
     }
 
+    #[Schema(schema: "PasswordBroker_EntryFieldHistorySearchRequest_q", description: "Search query", type: "string", default: "",)]
     public function getQuery(): string
     {
         return $this->q ?? '';
@@ -59,6 +62,7 @@ class EntryFieldHistorySearchRequest extends FormRequest
         }
         return EntryGroup::where('entry_group_id', $this->entryGroupInclude)->firstOrFail();
     }
+
     public function getEntryGroupExclude(): ?EntryGroup
     {
         if (is_null($this->entryGroupExclude)) {
@@ -67,13 +71,15 @@ class EntryFieldHistorySearchRequest extends FormRequest
         return EntryGroup::where('entry_group_id', $this->entryGroupExclude)->firstOrFail();
     }
 
+    #[Schema(schema: "PasswordBroker_EntryFieldHistorySearchRequest_perPage", type: "integer", default: 15, minimum: 1)]
     public function getPerPage(): int
     {
         return $this->perPage ?? 15;
     }
+
+    #[Schema(schema: "PasswordBroker_EntryFieldHistorySearchRequest_page", type: "integer", default: 1, minimum: 1)]
     public function getPage(): int
     {
         return $this->page ?? 1;
     }
-
 }
