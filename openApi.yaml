@@ -1058,6 +1058,40 @@ paths:
           description: 'User successfully removed from the EntryGroup'
         '404':
           description: 'User was not found in the EntryGroup'
+  /passwordBroker/api/entrySearch:
+    get:
+      tags:
+        - PasswordBroker_EntrySearchController
+      summary: 'Get a List of users who belongs to that EntryGroup'
+      operationId: 31bd85f1fc348a9971daf5c8d7e75fbe
+      parameters:
+        -
+          name: q
+          in: query
+          required: false
+          schema:
+            $ref: '#/components/schemas/PasswordBroker_EntrySearchRequest_q'
+        -
+          name: page
+          in: query
+          required: false
+          schema:
+            $ref: '#/components/schemas/PasswordBroker_EntrySearchRequest_page'
+        -
+          name: perPage
+          in: query
+          required: false
+          schema:
+            $ref: '#/components/schemas/PasswordBroker_EntrySearchRequest_perPage'
+      responses:
+        '200':
+          description: 'Founded Entries'
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - { $ref: '#/components/schemas/Common_Paginator' }
+                  - { description: 'Entry set as data type', properties: { data: { type: array, items: { allOf: [{ $ref: '#/components/schemas/PasswordBroker_Entry' }, { properties: { entryGroup: { $ref: '#/components/schemas/PasswordBroker_EntryGroup' } }, type: object }] } } }, type: object }
   /system/api/backups:
     get:
       tags:
@@ -1484,6 +1518,18 @@ components:
           type: string
           nullable: false
       type: object
+    PasswordBroker_EntrySearchRequest_q:
+      description: 'Search query'
+      type: string
+      default: ''
+    PasswordBroker_EntrySearchRequest_perPage:
+      type: integer
+      default: 15
+      minimum: 1
+    PasswordBroker_EntrySearchRequest_page:
+      type: integer
+      default: 1
+      minimum: 1
     PasswordBroker_EntryGroupId:
       type: string
       format: uuid
