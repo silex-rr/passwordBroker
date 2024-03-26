@@ -1,0 +1,1733 @@
+openapi: 3.0.0
+info:
+  title: 'PasswordBroker API'
+  description: ''
+  version: v1
+paths:
+  '/identity/api/userApplications/{userApplication:user_application_id}':
+    get:
+      tags:
+        - Identity_UserApplicationController
+      summary: 'Detail info fro User Application'
+      operationId: f08f9b65756e857f18b3bcb7e4991205
+      parameters:
+        -
+          name: 'userApplication:user_application_id'
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/Identity_UserApplicationId'
+      responses:
+        '200':
+          description: 'User Application Data'
+          content:
+            application/json:
+              schema:
+                properties:
+                  userApplication: { $ref: '#/components/schemas/Identity_UserApplication' }
+                type: object
+  /identity/api/userApplications:
+    post:
+      tags:
+        - Identity_UserApplicationController
+      summary: 'Create new instance of User Application'
+      operationId: e9bdc472172fb41698c7566c34c07033
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Identity_CreateUserApplicationRequest'
+      responses:
+        '200':
+          description: 'User Application was successfully created'
+          content:
+            application/json:
+              schema:
+                properties:
+                  userApplication: { $ref: '#/components/schemas/Identity_UserApplication' }
+                type: object
+  '/identity/api/userApplication/{userApplication:user_application_id}/offlineDatabaseMode':
+    get:
+      tags:
+        - Identity_UserApplicationController
+      summary: 'Check if the UserApplication is in Offline Database mode'
+      operationId: 01335891dd2fbc924c7c7ad735e28acf
+      parameters:
+        -
+          name: 'userApplication:user_application_id'
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/Identity_UserApplicationId'
+      responses:
+        '200':
+          description: 'User Application offline database mode status is delivered'
+          content:
+            application/json:
+              schema:
+                properties:
+                  status: { $ref: '#/components/schemas/Identity_IsOfflineDatabaseMode' }
+                type: object
+    put:
+      tags:
+        - Identity_UserApplicationController
+      summary: 'Switch UserApplication offlineDatabase mode'
+      operationId: c7d26b092f1616a506bf864d92e8967e
+      parameters:
+        -
+          name: 'userApplication:user_application_id'
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/Identity_UserApplicationId'
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Identity_UpdateOfflineDatabaseModeRequest'
+      responses:
+        '200':
+          description: 'UserApplication OfflineDatabaseMode switched'
+  '/identity/api/userApplication/{userApplication:user_application_id}/isOfflineDatabaseRequiredUpdate':
+    get:
+      tags:
+        - Identity_UserApplicationController
+      summary: 'Check if the UserApplication OfflineDatabase needs to be updated'
+      operationId: 2fc1dcd944de462d149d4fbbfdcdfe06
+      parameters:
+        -
+          name: 'userApplication:user_application_id'
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/Identity_UserApplicationId'
+      responses:
+        '200':
+          description: 'User Application OfflineDatabase sync status is delivered'
+          content:
+            application/json:
+              schema:
+                properties:
+                  status: { $ref: '#/components/schemas/Identity_IsOfflineDatabaseRequiredUpdate' }
+                type: object
+  '/identity/api/userApplication/{userApplication:user_application_id}/isRsaPrivateRequiredUpdate':
+    get:
+      tags:
+        - Identity_UserApplicationController
+      summary: 'Check if the UserApplication RSA keys needs to be updated'
+      operationId: 987bd9aad89e25a28a77d20d0f59a669
+      parameters:
+        -
+          name: 'userApplication:user_application_id'
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/Identity_UserApplicationId'
+      responses:
+        '200':
+          description: 'User Application RSA keys sync status is delivered'
+          content:
+            application/json:
+              schema:
+                properties:
+                  status: { $ref: '#/components/schemas/Identity_IsRsaPrivateRequiredUpdate' }
+                type: object
+  /identity/api/login:
+    post:
+      tags:
+        - Identity_UserAuthController
+      summary: 'Authentication endpoint'
+      operationId: 8afc80759bef9d0bc5c9797201805148
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Identity_LoginRequest'
+      responses:
+        '200':
+          description: 'Provide auth token if token_is_required was true'
+          content:
+            application/json:
+              schema:
+                properties:
+                  message: { type: string, default: 'Login successful' }
+                  token: { description: 'provided only if token_is_required was true', type: string, nullable: true }
+                  user: { $ref: '#/components/schemas/Identity_User' }
+                type: object
+        '401':
+          description: 'Failed login attempt'
+          content:
+            application/json:
+              schema:
+                properties:
+                  message: { type: string, default: 'Invalid email or password' }
+                type: object
+  /identity/api/logout:
+    get:
+      tags:
+        - Identity_UserAuthController
+      summary: 'Logout endpoint'
+      operationId: 6d702d8005eb07acc3d321c6fd9275d4
+      responses:
+        '200':
+          description: 'Logged out successfully'
+          content:
+            application/json:
+              schema:
+                properties:
+                  message: { type: string, default: 'Logged Out' }
+                type: object
+  /identity/api/token:
+    post:
+      tags:
+        - Identity_UserAuthController
+      summary: 'Get a token'
+      operationId: 0a1d13e3658ad507791dc7020e7e43d6
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Identity_GetOrCreateTokenRequest'
+      responses:
+        '200':
+          description: 'Auth Token and User object'
+          content:
+            application/json:
+              schema:
+                properties:
+                  token: { type: string }
+                  user: { $ref: '#/components/schemas/Identity_User' }
+                type: object
+  /identity/api/me:
+    get:
+      tags:
+        - Identity_UserAuthController
+      summary: 'Return a logged in user'
+      operationId: c437d11330dfc7c97aa577b3af84833f
+      responses:
+        '200':
+          description: 'Logged in User or message guest|firstUser, firstUser - system does not have any registered user'
+          content:
+            application/json:
+              schema:
+                properties:
+                  message: { type: string, enum: [loggedIn, guest, firstUser] }
+                  user: { oneOf: [{ $ref: '#/components/schemas/Identity_User' }], nullable: true }
+                type: object
+  /identity/api/users/search:
+    get:
+      tags:
+        - Identity_UserController
+      summary: 'Users list'
+      operationId: ff3c8c656d0fbe284e83596b112d4361
+      parameters:
+        -
+          name: q
+          in: query
+          required: false
+          schema:
+            $ref: '#/components/schemas/Identity_UsersSearchRequest_q'
+        -
+          name: perPage
+          in: query
+          required: false
+          schema:
+            $ref: '#/components/schemas/Identity_UsersSearchRequest_perPage'
+        -
+          name: page
+          in: query
+          required: false
+          schema:
+            $ref: '#/components/schemas/Identity_UsersSearchRequest_page'
+        -
+          name: entryGroupInclude
+          in: query
+          required: false
+          schema:
+            $ref: '#/components/schemas/Identity_UsersSearchRequest_entryGroupInclude'
+        -
+          name: entryGroupExclude
+          in: query
+          required: false
+          schema:
+            $ref: '#/components/schemas/Identity_UsersSearchRequest_entryGroupExclude'
+      responses:
+        '200':
+          description: 'List of user with pagination'
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - { $ref: '#/components/schemas/Common_Paginator' }
+                  - { description: 'User set as data type', properties: { data: { type: array, items: { $ref: '#/components/schemas/Identity_User' } } }, type: object }
+  '/identity/api/user/{user:user_id}':
+    get:
+      tags:
+        - Identity_UserController
+      summary: 'Get a User'
+      operationId: 827686a62e03dec93d84a62fa06691fc
+      parameters:
+        -
+          name: 'user:user_id'
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/Identity_UserId'
+      responses:
+        '200':
+          description: 'A user object'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Identity_User'
+    put:
+      tags:
+        - Identity_UserController
+      summary: 'Update a user'
+      operationId: 61509a33dddf83dcdb81c5e64aa9d42a
+      parameters:
+        -
+          name: 'user:user_id'
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/Identity_UserId'
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Identity_UpdateUserRequest'
+      responses:
+        '200':
+          description: 'User was successfully updated'
+    delete:
+      tags:
+        - Identity_UserController
+      summary: 'Delete a user'
+      operationId: 0eb7fee767da0cc531b33750a6c93991
+      parameters:
+        -
+          name: 'user:user_id'
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/Identity_UserId'
+      responses:
+        '200':
+          description: 'User was successfully removed'
+  /identity/api/registration:
+    post:
+      tags:
+        - Identity_UserController
+      summary: 'Registration a new user'
+      operationId: feb403b7718c83ff0cc7334a50b4fe36
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Identity_RegisterUserRequest'
+      responses:
+        '200':
+          description: 'User was registered'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Identity_User'
+  /identity/api/getCbcSalt:
+    get:
+      tags:
+        - Identity_UserController
+      summary: 'Get a User CBC salt'
+      operationId: 06b37c1983ad5dcf17b7719d86b0d378
+      responses:
+        '200':
+          description: 'Base64 encoded user CBC salt'
+          content:
+            application/json:
+              schema:
+                properties:
+                  timestamp: { type: string, format: timestamp }
+                  salt_base64: { type: string, format: base64 }
+                type: object
+  /identity/api/getPrivateRsa:
+    get:
+      tags:
+        - Identity_UserController
+      summary: 'Get a User Privet RSA Key'
+      operationId: 7b0257eb74a95eb93f43b04711ba1833
+      responses:
+        '200':
+          description: 'Base64 encoded user Private RSA Key'
+          content:
+            application/json:
+              schema:
+                properties:
+                  timestamp: { type: string, format: timestamp }
+                  rsa_private_key_base64: { type: string, format: base64 }
+                type: object
+  '/passwordBroker/api/entryGroups/{entryGroup:entry_group_id}/entries':
+    get:
+      tags:
+        - PasswordBroker_EntryController
+      summary: 'Get a list of Entries that belong to EntryGroup'
+      operationId: 80d7dd9fcfd804a5aab53202a906e4fd
+      parameters:
+        -
+          name: 'entryGroup:entry_group_id'
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/PasswordBroker_EntryGroupId'
+      responses:
+        '200':
+          description: 'List of Entries that belong to selected EntryGroup'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PasswordBroker_Entry'
+    post:
+      tags:
+        - PasswordBroker_EntryController
+      summary: 'Create new Entry in selected EntryGroup'
+      operationId: 2ed75e28873acb6c8069a181812a78af
+      parameters:
+        -
+          name: 'entryGroup:entry_group_id'
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/PasswordBroker_EntryGroupId'
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PasswordBroker_EntryRequest'
+      responses:
+        '200':
+          description: 'Entry was successfully created in selected EntryGroup'
+  '/passwordBroker/api/entryGroups/{entryGroup:entry_group_id}/entries/{entry:entry_id}':
+    put:
+      tags:
+        - PasswordBroker_EntryController
+      summary: 'Update an Entry'
+      operationId: c79377d8b5864ffa20445662a48d85a9
+      parameters:
+        -
+          name: 'entryGroup:entry_group_id'
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/PasswordBroker_EntryGroupId'
+        -
+          name: 'entry:entry_id'
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/PasswordBroker_EntryId'
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PasswordBroker_EntryRequest'
+      responses:
+        '200':
+          description: 'Entry was successfully updated'
+    delete:
+      tags:
+        - PasswordBroker_EntryController
+      summary: 'Delete an Entry (mark as deleted)'
+      operationId: 0151bf17357923e74563bf4f83ae40af
+      parameters:
+        -
+          name: 'entryGroup:entry_group_id'
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/PasswordBroker_EntryGroupId'
+        -
+          name: 'entry:entry_id'
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/PasswordBroker_EntryId'
+      responses:
+        '200':
+          description: 'Entry was successfully deleted (marked as deleted)'
+    patch:
+      tags:
+        - PasswordBroker_EntryController
+      summary: 'Move an Entry to another EntryGroup'
+      operationId: 1b883ba2c009b770dc488f630cac91bb
+      parameters:
+        -
+          name: 'entryGroup:entry_group_id'
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/PasswordBroker_EntryGroupId'
+        -
+          name: 'entry:entry_id'
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/PasswordBroker_EntryId'
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PasswordBroker_EntryMoveRequest'
+      responses:
+        '200':
+          description: 'Entry was successfully moved to the target EntryGroup'
+  '/passwordBroker/api/entryGroups/{entryGroup:entry_group_id}/entries/{entry:entry_id}/fields':
+    get:
+      tags:
+        - PasswordBroker_EntryFieldController
+      summary: 'List of Fields that belong to an Entry'
+      operationId: dd25bbe9b1fa9dd5cc128ccb6b327288
+      parameters:
+        -
+          name: 'entryGroup:entry_group_id'
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/PasswordBroker_EntryGroupId'
+        -
+          name: 'entry:entry_id'
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/PasswordBroker_EntryId'
+      responses:
+        '200':
+          description: 'List of Fields'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  oneOf: [{ $ref: '#/components/schemas/PasswordBroker_File' }, { $ref: '#/components/schemas/PasswordBroker_Link' }, { $ref: '#/components/schemas/PasswordBroker_Note' }, { $ref: '#/components/schemas/PasswordBroker_Password' }, { $ref: '#/components/schemas/PasswordBroker_TOTP' }]
+    post:
+      tags:
+        - PasswordBroker_EntryFieldController
+      summary: 'Add new Field to an Entry'
+      operationId: 20ba1219dd20c09e2a1632ffa65ecdee
+      parameters:
+        -
+          name: 'entryGroup:entry_group_id'
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/PasswordBroker_EntryGroupId'
+        -
+          name: 'entry:entry_id'
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/PasswordBroker_EntryId'
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PasswordBroker_EntryFieldStoreRequest'
+      responses:
+        '200':
+          description: 'Field successfully created'
+        '422':
+          description: 'MasterPassword is wrong'
+  '/passwordBroker/api/entryGroups/{entryGroup:entry_group_id}/entries/{entry:entry_id}/fields/{field:field_id}':
+    get:
+      tags:
+        - PasswordBroker_EntryFieldController
+      summary: 'Get a Field'
+      operationId: 07a8f40e13b0de7ae3967869a3bf80b5
+      parameters:
+        -
+          name: 'entryGroup:entry_group_id'
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/PasswordBroker_EntryGroupId'
+        -
+          name: 'entry:entry_id'
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/PasswordBroker_EntryId'
+        -
+          name: 'field:field_id'
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/PasswordBroker_FieldId'
+      responses:
+        '200':
+          description: 'Field object'
+          content:
+            application/json:
+              schema:
+                type: object
+                oneOf:
+                  - { $ref: '#/components/schemas/PasswordBroker_File' }
+                  - { $ref: '#/components/schemas/PasswordBroker_Link' }
+                  - { $ref: '#/components/schemas/PasswordBroker_Note' }
+                  - { $ref: '#/components/schemas/PasswordBroker_Password' }
+                  - { $ref: '#/components/schemas/PasswordBroker_TOTP' }
+    put:
+      tags:
+        - PasswordBroker_EntryFieldController
+      summary: 'Update a Field'
+      operationId: e09a5b6a17403fb46afa2773d456a5af
+      parameters:
+        -
+          name: 'entryGroup:entry_group_id'
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/PasswordBroker_EntryGroupId'
+        -
+          name: 'entry:entry_id'
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/PasswordBroker_EntryId'
+        -
+          name: 'field:field_id'
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/PasswordBroker_FieldId'
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PasswordBroker_EntryFieldUpdateRequest'
+      responses:
+        '200':
+          description: 'A field was updated'
+        '422':
+          description: 'MasterPassword is wrong'
+    delete:
+      tags:
+        - PasswordBroker_EntryFieldController
+      summary: 'Delete a Field (mark as deleted)'
+      operationId: 58d6fa498eacd4af95e350423725aa93
+      parameters:
+        -
+          name: 'entryGroup:entry_group_id'
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/PasswordBroker_EntryGroupId'
+        -
+          name: 'entry:entry_id'
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/PasswordBroker_EntryId'
+        -
+          name: 'field:field_id'
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/PasswordBroker_FieldId'
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PasswordBroker_EntryFieldDestroyRequest'
+      responses:
+        '200':
+          description: 'A field was deleted (marked as deleted)'
+        '422':
+          description: 'MasterPassword is wrong'
+  '/passwordBroker/api/entryGroups/{entryGroup:entry_group_id}/entries/{entry:entry_id}/fields/{field:field_id}/totp':
+    post:
+      tags:
+        - PasswordBroker_EntryFieldController
+      summary: 'Get a Temporary One Time Password'
+      operationId: c4b9a8c2bd081f5ac2c0f10d3603b8ab
+      parameters:
+        -
+          name: 'entryGroup:entry_group_id'
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/PasswordBroker_EntryGroupId'
+        -
+          name: 'entry:entry_id'
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/PasswordBroker_EntryId'
+        -
+          name: 'field:field_id'
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/PasswordBroker_FieldId'
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PasswordBroker_EntryFieldDecryptedRequest'
+      responses:
+        '200':
+          description: 'TOTP with some data'
+          content:
+            application/json:
+              schema:
+                properties:
+                  time: { type: string, format: date-time }
+                  code: { type: integer }
+                  epoch: { type: string }
+                  period: { type: string }
+                  expiresIn: { type: integer }
+                  expiresAt: { type: string, format: date-time }
+                type: object
+        '422':
+          description: 'MasterPassword is wrong'
+  '/passwordBroker/api/entryGroups/{entryGroup:entry_group_id}/entries/{entry:entry_id}/fields/{field:field_id}/decrypted':
+    post:
+      tags:
+        - PasswordBroker_EntryFieldController
+      summary: 'Get a decrypted value'
+      operationId: 6a016908010a8e3d247d7a8e9d549da1
+      parameters:
+        -
+          name: 'entryGroup:entry_group_id'
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/PasswordBroker_EntryGroupId'
+        -
+          name: 'entry:entry_id'
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/PasswordBroker_EntryId'
+        -
+          name: 'field:field_id'
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/PasswordBroker_FieldId'
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PasswordBroker_EntryFieldDecryptedRequest'
+      responses:
+        '200':
+          description: 'Decrypted value encoded in base64'
+          content:
+            text/plain: {  }
+        '422':
+          description: 'MasterPassword is wrong'
+  '/passwordBroker/api/entryGroups/{entryGroup:entry_group_id}/entries/{entry:entry_id}/fields/{field:field_id}/history':
+    get:
+      tags:
+        - PasswordBroker_EntryFieldHistoryController
+      summary: 'List of changes of a Field'
+      operationId: 406e0d43fe14db154be8b9faf14c4ef1
+      parameters:
+        -
+          name: 'entryGroup:entry_group_id'
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/PasswordBroker_EntryGroupId'
+        -
+          name: 'entry:entry_id'
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/PasswordBroker_EntryId'
+        -
+          name: 'field:field_id'
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/PasswordBroker_FieldId'
+      responses:
+        '200':
+          description: 'List of Field changes'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PasswordBroker_EntryFieldHistory'
+  '/passwordBroker/api/entryGroups/{entryGroup:entry_group_id}/entries/{entry:entry_id}/fields/{field:field_id}/history/{fieldEditLog:field_edit_log_id}/decrypted':
+    post:
+      tags:
+        - PasswordBroker_EntryFieldHistoryController
+      summary: 'Get a decrypted value of a Field History'
+      operationId: d69c7ada44dbd7e2d441ccdcbfad446a
+      parameters:
+        -
+          name: 'entryGroup:entry_group_id'
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/PasswordBroker_EntryGroupId'
+        -
+          name: 'entry:entry_id'
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/PasswordBroker_EntryId'
+        -
+          name: 'field:field_id'
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/PasswordBroker_FieldId'
+        -
+          name: 'fieldEditLog:field_edit_log_id'
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/PasswordBroker_EntryFieldHistory'
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PasswordBroker_EntryFieldDecryptedRequest'
+      responses:
+        '200':
+          description: 'Decrypted value encoded in base64'
+          content:
+            text/plain: {  }
+        '422':
+          description: 'MasterPassword is wrong'
+  /passwordBroker/api/entryGroups:
+    get:
+      tags:
+        - PasswordBroker_EntryGroupController
+      summary: 'List of EntryGroups that the User has access'
+      operationId: cd0737ec41b72ff31788e59ff8fc5918
+      responses:
+        '200':
+          description: 'List of EntryGroups'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PasswordBroker_EntryGroup'
+    post:
+      tags:
+        - PasswordBroker_EntryGroupController
+      summary: 'List of Groups as a tree of that EntryGroups that the User has access'
+      operationId: dd4f434f14bf3789532220380af58faf
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PasswordBroker_EntryGroupRequest'
+      responses:
+        '200':
+          description: 'EntryGroup Was successfully created'
+  /passwordBroker/api/entryGroupsWithFields:
+    get:
+      tags:
+        - PasswordBroker_EntryGroupController
+      summary: 'List of EntryGroups with fields also with a tree of that Groups that the User has access'
+      operationId: 0bde163a758a9f3e510b0799b71d523c
+      responses:
+        '200':
+          description: 'List of EntryGroups'
+          content:
+            application/json:
+              schema:
+                properties:
+                  timestamp: { type: string, format: date-time }
+                  data: { properties: { groups: { type: array, items: { $ref: '#/components/schemas/PasswordBroker_EntryGroup' } }, trees: { type: array, items: { properties: { entry_group_id: { $ref: '#/components/schemas/PasswordBroker_EntryGroupId' }, title: { $ref: '#/components/schemas/PasswordBroker_GroupName' }, materialized_path: { $ref: '#/components/schemas/PasswordBroker_MaterializedPath' }, role: { enum: [admin, moderator, member] }, children: { description: 'children with the same structure', type: array, items: {  } } }, type: object } } }, type: object }
+                type: object
+  /passwordBroker/api/entryGroupsAsTree:
+    get:
+      tags:
+        - PasswordBroker_EntryGroupController
+      summary: 'List of Groups as a tree of that EntryGroups that the User has access'
+      operationId: 514e787bd6b7e3f21c700f6120f93d6c
+      responses:
+        '200':
+          description: 'Tree of EntryGroups'
+          content:
+            application/json:
+              schema:
+                properties:
+                  timestamp: { type: string, format: date-time }
+                  data: { properties: { trees: { type: array, items: { properties: { entry_group_id: { $ref: '#/components/schemas/PasswordBroker_EntryGroupId' }, title: { $ref: '#/components/schemas/PasswordBroker_GroupName' }, materialized_path: { $ref: '#/components/schemas/PasswordBroker_MaterializedPath' }, role: { enum: [admin, moderator, member] }, children: { description: 'children with the same structure', type: array, items: {  } } }, type: object } } }, type: object }
+                type: object
+  '/passwordBroker/api/entryGroups/{entryGroup:entry_group_id}':
+    get:
+      tags:
+        - PasswordBroker_EntryGroupController
+      summary: 'Get an EntryGroup'
+      operationId: 246bccdade39600b0da47724bbf22f4a
+      parameters:
+        -
+          name: 'entryGroup:entry_group_id'
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/PasswordBroker_EntryGroupId'
+      responses:
+        '200':
+          description: EntryGroup
+          content:
+            application/json:
+              schema:
+                properties:
+                  entryGroup: { $ref: '#/components/schemas/PasswordBroker_EntryGroup' }
+                  role: { description: 'auth user role in that group', enum: [admin, moderator, member] }
+                type: object
+    patch:
+      tags:
+        - PasswordBroker_EntryGroupController
+      summary: 'Move an EntryGroup to other EntryGroup (change parent EntryGroup)'
+      operationId: e943e25bf546405bc0a8c2419fc9483f
+      parameters:
+        -
+          name: 'entryGroup:entry_group_id'
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/PasswordBroker_EntryGroupId'
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PasswordBroker_EntryGroupMoveRequest'
+      responses:
+        '200':
+          description: 'EntryGroup Was successfully moved'
+  '/entryGroups/{entryGroup:entry_group_id}':
+    delete:
+      tags:
+        - PasswordBroker_EntryGroupController
+      summary: 'Remove an EntryGroup (mark it as deleted)'
+      operationId: 63e3c5bedbf95253d1dd97bad2e912f1
+      parameters:
+        -
+          name: 'entryGroup:entry_group_id'
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/PasswordBroker_EntryGroupId'
+      responses:
+        '200':
+          description: 'EntryGroup was deleted (marked as deleted)'
+  '/passwordBroker/api/entryGroups/{entryGroup:entry_group_id}/history':
+    get:
+      tags:
+        - PasswordBroker_EntryGroupHistoryController
+      summary: 'Get an EntryGroup history'
+      operationId: 71c37dc11d7e83fe473a104d3b68c20e
+      parameters:
+        -
+          name: 'entryGroup:entry_group_id'
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/PasswordBroker_EntryGroupId'
+      responses:
+        '200':
+          description: 'History successfully received'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  allOf: [{ $ref: '#/components/schemas/PasswordBroker_EntryFieldHistory' }, { properties: { field: { allOf: [{ $ref: '#/components/schemas/PasswordBroker_Field' }, { properties: { entry: { $ref: '#/components/schemas/PasswordBroker_Entry' } }, type: object }] }, user: { $ref: '#/components/schemas/Identity_User' } }, type: object }]
+  /passwordBroker/api/entryGroup/history:
+    get:
+      tags:
+        - PasswordBroker_EntryGroupHistoryController
+      summary: 'Search in EntryGroup history'
+      operationId: d1ee7c9d6a687b9b1d7744ab42eea1dc
+      parameters:
+        -
+          name: q
+          in: query
+          required: false
+          schema:
+            $ref: '#/components/schemas/PasswordBroker_EntryFieldHistorySearchRequest_q'
+        -
+          name: page
+          in: query
+          required: false
+          schema:
+            $ref: '#/components/schemas/PasswordBroker_EntryFieldHistorySearchRequest_page'
+        -
+          name: perPage
+          in: query
+          required: false
+          schema:
+            $ref: '#/components/schemas/PasswordBroker_EntryFieldHistorySearchRequest_perPage'
+        -
+          name: entryGroupInclude
+          in: query
+          required: false
+          schema:
+            $ref: '#/components/schemas/PasswordBroker_EntryGroupId'
+        -
+          name: entryGroupExclude
+          in: query
+          required: false
+          schema:
+            $ref: '#/components/schemas/PasswordBroker_EntryGroupId'
+      responses:
+        '200':
+          description: 'Search result'
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - { $ref: '#/components/schemas/Common_Paginator' }
+                  - { description: 'User set as data type', properties: { data: { type: array, items: { allOf: [{ $ref: '#/components/schemas/PasswordBroker_EntryFieldHistory' }, { properties: { entry: { $ref: '#/components/schemas/PasswordBroker_Entry' } }, type: object }] } } }, type: object }
+  /system/api/backups:
+    get:
+      tags:
+        - System_BackupController
+      summary: 'Backup entities list'
+      operationId: 1cdd20acd2c39eb2bbc267e626cf450e
+      parameters:
+        -
+          name: q
+          in: query
+          required: false
+          schema:
+            $ref: '#/components/schemas/System_BackupSearchRequest_q'
+        -
+          name: perPage
+          in: query
+          required: false
+          schema:
+            $ref: '#/components/schemas/System_BackupSearchRequest_perPage'
+        -
+          name: page
+          in: query
+          required: false
+          schema:
+            $ref: '#/components/schemas/System_BackupSearchRequest_page'
+      responses:
+        '200':
+          description: 'List of backups with pagination'
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - { $ref: '#/components/schemas/Common_Paginator' }
+                  - { description: 'Backup set as data type', properties: { data: { type: array, items: { $ref: '#/components/schemas/System_Backup' } } }, type: object }
+    post:
+      tags:
+        - System_BackupController
+      summary: 'Create new Backup'
+      operationId: f6d7c03a1667c4ae9470922fdf58e1c0
+      responses:
+        '200':
+          description: 'Backup entity was successfully created and put in the queue for executing'
+  '/backups/{backup:backup_id}':
+    get:
+      tags:
+        - System_BackupController
+      summary: 'Show a Backup entity'
+      operationId: 9e51625c7d80eac2fad5593b565bdfc9
+      parameters:
+        -
+          name: 'backup:backup_id'
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/System_BackupId'
+      responses:
+        '200':
+          $ref: '#/components/schemas/System_Backup'
+  /system/api/setting/backupSetting/backup:
+    get:
+      tags:
+        - System_BackupSettingController
+      summary: 'Return current backup settings'
+      description: 'Show the backup setting.'
+      operationId: 6c57b4b0003b67253f74acd355a59d26
+      responses:
+        '200':
+          description: 'Backup Settings'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/System_BackupSetting'
+    post:
+      tags:
+        - System_BackupSettingController
+      summary: 'Update Backup Settings'
+      operationId: dcd3a145b5d846138b4f6639831aa949
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/System_BackupSetting'
+      responses:
+        '200':
+          description: 'Backup Settings was successfully updated'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/System_BackupSetting'
+  /system/api/recovery:
+    post:
+      tags:
+        - System_RecoveryController
+      summary: 'Recovery system from a Backup'
+      operationId: 48f70fac57b4d8b7f9b73bedf5a49adc
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              properties:
+                backupFile:
+                  description: 'a ZIP file with backup'
+                  type: string
+                  format: binary
+              type: object
+      responses:
+        '200':
+          description: 'System successfully recovered from backup'
+          content:
+            application/json:
+              schema:
+                properties:
+                  status: { type: string, default: done }
+                type: object
+components:
+  schemas:
+    Identity_CreateUserApplicationRequest:
+      properties:
+        clientId:
+          type: string
+          format: uuid
+          nullable: true
+      type: object
+    Identity_GetOrCreateTokenRequest:
+      properties:
+        token_name:
+          type: string
+          nullable: false
+      type: object
+    Identity_LoginRequest:
+      properties:
+        email:
+          type: string
+          format: email
+          nullable: false
+        password:
+          type: string
+          format: password
+          nullable: false
+        token_is_required:
+          type: boolean
+          nullable: true
+        token_name:
+          type: string
+          nullable: true
+      type: object
+    Identity_RegisterUserRequest:
+      properties:
+        user:
+          properties:
+            email:
+              type: string
+              format: email
+              nullable: false
+            name:
+              type: string
+              nullable: false
+            password:
+              type: string
+              format: password
+              nullable: false
+            password_confirmation:
+              type: string
+              format: password
+              nullable: false
+            master_password:
+              type: string
+              format: password
+              nullable: false
+            master_password_confirmation:
+              type: string
+              format: password
+              nullable: false
+          type: object
+      type: object
+    Identity_UpdateOfflineDatabaseModeRequest:
+      properties:
+        status:
+          type: boolean
+      type: object
+    Identity_UpdateUserRequest:
+      properties:
+        email:
+          $ref: '#/components/schemas/Identity_UpdateUserRequest_email'
+        username:
+          $ref: '#/components/schemas/Identity_UpdateUserRequest_username'
+        password:
+          $ref: '#/components/schemas/Identity_UpdateUserRequest_password'
+      type: object
+    Identity_UpdateUserRequest_email:
+      type: string
+      format: email
+    Identity_UpdateUserRequest_username:
+      type: string
+      nullable: true
+    Identity_UpdateUserRequest_password:
+      type: string
+      format: password
+      nullable: true
+    Identity_UsersSearchRequest_q:
+      type: string
+      nullable: true
+    Identity_UsersSearchRequest_entryGroupInclude:
+      type: string
+      format: uuid
+      nullable: true
+    Identity_UsersSearchRequest_entryGroupExclude:
+      type: string
+      format: uuid
+      nullable: true
+    Identity_UsersSearchRequest_perPage:
+      type: integer
+      minimum: 1
+      example: 15
+      nullable: true
+    Identity_UsersSearchRequest_page:
+      type: integer
+      maximum: 100
+      minimum: 1
+      example: 1
+      nullable: true
+    Identity_ClientId:
+      type: string
+      format: uuid
+    Identity_IsOfflineDatabaseMode:
+      type: boolean
+    Identity_IsOfflineDatabaseRequiredUpdate:
+      type: boolean
+    Identity_IsRsaPrivateRequiredUpdate:
+      type: boolean
+    Identity_UserApplicationId:
+      type: string
+      format: uuid
+    Identity_UserApplication:
+      properties:
+        userApplicationId:
+          $ref: '#/components/schemas/Identity_UserApplicationId'
+        clientId:
+          $ref: '#/components/schemas/Identity_ClientId'
+        isOfflineDatabaseRequiredUpdate:
+          $ref: '#/components/schemas/Identity_IsOfflineDatabaseRequiredUpdate'
+        isRsaPrivateRequiredUpdate:
+          $ref: '#/components/schemas/Identity_IsRsaPrivateRequiredUpdate'
+        isOfflineDatabaseMode:
+          $ref: '#/components/schemas/Identity_IsOfflineDatabaseMode'
+        offlineDatabaseFetchedAt:
+          type: string
+          format: date-time
+        rsaPrivateFetchedAt:
+          type: string
+          format: date-time
+      type: object
+    Identity_Email:
+      type: string
+      format: email
+    Identity_IsAdmin:
+      type: boolean
+    Identity_PublicKey:
+      type: string
+      format: binary
+    Identity_UserId:
+      type: string
+      format: uuid
+    Identity_UserName:
+      type: string
+    Identity_User:
+      properties:
+        user_id:
+          $ref: '#/components/schemas/Identity_UserId'
+        public_key:
+          $ref: '#/components/schemas/Identity_PublicKey'
+        is_admin:
+          $ref: '#/components/schemas/Identity_IsAdmin'
+        name:
+          $ref: '#/components/schemas/Identity_UserName'
+        email:
+          $ref: '#/components/schemas/Identity_Email'
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+          nullable: true
+      type: object
+    PasswordBroker_EntryFieldDecryptedRequest:
+      type: string
+    PasswordBroker_EntryFieldDestroyRequest:
+      properties:
+        master_password:
+          type: string
+      type: object
+    PasswordBroker_EntryFieldHistorySearchRequest_q:
+      description: 'Search query'
+      type: string
+      default: ''
+    PasswordBroker_EntryFieldHistorySearchRequest_perPage:
+      type: integer
+      default: 15
+      minimum: 1
+    PasswordBroker_EntryFieldHistorySearchRequest_page:
+      type: integer
+      default: 1
+      minimum: 1
+    PasswordBroker_EntryFieldStoreRequest:
+      properties:
+        title:
+          oneOf:
+            -
+              $ref: '#/components/schemas/PasswordBroker_FieldTitle'
+          nullable: true
+        type:
+          type: string
+          enum:
+            - file
+            - link
+            - note
+            - password
+            - TOTP
+        login:
+          oneOf:
+            -
+              $ref: '#/components/schemas/PasswordBroker_Login'
+          nullable: true
+        value_encrypted:
+          oneOf:
+            -
+              $ref: '#/components/schemas/PasswordBroker_ValueEncrypted'
+          nullable: true
+        initialization_vector:
+          oneOf:
+            -
+              $ref: '#/components/schemas/PasswordBroker_InitializationVector'
+          nullable: true
+        master_password:
+          type: string
+          nullable: true
+        value:
+          type: string
+          nullable: true
+        file:
+          oneOf:
+            -
+              $ref: '#/components/schemas/PasswordBroker_File'
+          nullable: true
+      type: object
+    PasswordBroker_EntryFieldUpdateRequest:
+      properties:
+        title:
+          oneOf:
+            -
+              $ref: '#/components/schemas/PasswordBroker_FieldTitle'
+          nullable: true
+        login:
+          oneOf:
+            -
+              $ref: '#/components/schemas/PasswordBroker_Login'
+          nullable: true
+        value_encrypted:
+          oneOf:
+            -
+              $ref: '#/components/schemas/PasswordBroker_ValueEncrypted'
+          nullable: true
+        initialization_vector:
+          oneOf:
+            -
+              $ref: '#/components/schemas/PasswordBroker_InitializationVector'
+          nullable: true
+        master_password:
+          type: string
+          nullable: true
+        value:
+          type: string
+          nullable: true
+      type: object
+    PasswordBroker_EntryGroupMoveRequest:
+      properties:
+        entryGroupTarget:
+          oneOf:
+            -
+              $ref: '#/components/schemas/PasswordBroker_EntryGroupId'
+          nullable: true
+      type: object
+    PasswordBroker_EntryGroupRequest:
+      properties:
+        name:
+          $ref: '#/components/schemas/PasswordBroker_GroupName'
+        parent_entry_group_id:
+          $ref: '#/components/schemas/PasswordBroker_EntryGroupId'
+      type: object
+    PasswordBroker_EntryMoveRequest:
+      properties:
+        master_password:
+          type: string
+        entryGroupTarget:
+          description: EntryGroupId
+          type: string
+          format: uuid
+      type: object
+    PasswordBroker_EntryRequest:
+      properties:
+        title:
+          type: string
+          nullable: false
+      type: object
+    PasswordBroker_EntryGroupId:
+      type: string
+      format: uuid
+    PasswordBroker_EntryId:
+      type: string
+      format: uuid
+    PasswordBroker_GroupName:
+      type: string
+    PasswordBroker_MaterializedPath:
+      type: string
+    PasswordBroker_Title:
+      type: string
+    PasswordBroker_Entry:
+      properties:
+        entry_id:
+          $ref: '#/components/schemas/PasswordBroker_EntryId'
+        entry_group_id:
+          $ref: '#/components/schemas/PasswordBroker_EntryGroupId'
+        title:
+          $ref: '#/components/schemas/PasswordBroker_Title'
+        created_at:
+          type: string
+          format: date-time
+          nullable: false
+        updated_at:
+          type: string
+          format: date-time
+          nullable: true
+        deleted_at:
+          type: string
+          format: date-time
+          nullable: true
+      type: object
+    PasswordBroker_EntryGroup:
+      properties:
+        entry_group_id:
+          $ref: '#/components/schemas/PasswordBroker_EntryGroupId'
+        name:
+          $ref: '#/components/schemas/PasswordBroker_GroupName'
+        materialized_path:
+          $ref: '#/components/schemas/PasswordBroker_MaterializedPath'
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+          nullable: true
+        deleted_at:
+          type: string
+          format: date-time
+          nullable: true
+      type: object
+    PasswordBroker_FieldEditLogId:
+      type: string
+      format: uuid
+    PasswordBroker_EventType:
+      type: string
+    PasswordBroker_FieldId:
+      type: string
+      format: uuid
+    PasswordBroker_FileMime:
+      type: string
+    PasswordBroker_FileName:
+      type: string
+    PasswordBroker_FileSize:
+      type: integer
+    PasswordBroker_InitializationVector:
+      type: string
+      format: binary
+    PasswordBroker_IsDeleted:
+      type: boolean
+    PasswordBroker_Login:
+      type: string
+    PasswordBroker_FieldTitle:
+      type: string
+    PasswordBroker_ValueEncrypted:
+      type: string
+      format: binary
+    PasswordBroker_EntryFieldHistory:
+      properties:
+        field_edit_log_id:
+          $ref: '#/components/schemas/PasswordBroker_FieldEditLogId'
+        field_id:
+          $ref: '#/components/schemas/PasswordBroker_FieldId'
+        title:
+          $ref: '#/components/schemas/PasswordBroker_FieldTitle'
+        event_type:
+          $ref: '#/components/schemas/PasswordBroker_EventType'
+        value_encrypted:
+          $ref: '#/components/schemas/PasswordBroker_ValueEncrypted'
+        initialization_vector:
+          $ref: '#/components/schemas/PasswordBroker_InitializationVector'
+        is_deleted:
+          $ref: '#/components/schemas/PasswordBroker_IsDeleted'
+        updated_by:
+          $ref: '#/components/schemas/Identity_UserId'
+        login:
+          $ref: '#/components/schemas/PasswordBroker_Login'
+        type:
+          type: string
+          nullable: false
+        created_at:
+          type: string
+          format: date-time
+          nullable: false
+        updated_at:
+          type: string
+          format: date-time
+          nullable: true
+      type: object
+    PasswordBroker_Field:
+      properties:
+        field_id:
+          $ref: '#/components/schemas/PasswordBroker_FieldId'
+        entry_id:
+          $ref: '#/components/schemas/PasswordBroker_EntryId'
+        title:
+          $ref: '#/components/schemas/PasswordBroker_FieldTitle'
+        type:
+          type: string
+          enum:
+            - password
+            - link
+            - note
+            - file
+            - TOTP
+        value_encrypted:
+          $ref: '#/components/schemas/PasswordBroker_ValueEncrypted'
+        initialization_vector:
+          $ref: '#/components/schemas/PasswordBroker_InitializationVector'
+        created_by:
+          $ref: '#/components/schemas/Identity_UserId'
+        updated_by:
+          $ref: '#/components/schemas/Identity_UserId'
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+          nullable: true
+        deleted_at:
+          type: string
+          format: date-time
+          nullable: true
+      type: object
+    PasswordBroker_File:
+      allOf:
+        -
+          $ref: '#/components/schemas/PasswordBroker_Field'
+        -
+          $ref: '#/components/schemas/PasswordBroker_FileName'
+        -
+          $ref: '#/components/schemas/PasswordBroker_FileSize'
+        -
+          $ref: '#/components/schemas/PasswordBroker_FileMime'
+    PasswordBroker_Link:
+      allOf:
+        -
+          $ref: '#/components/schemas/PasswordBroker_Field'
+    PasswordBroker_Note:
+      allOf:
+        -
+          $ref: '#/components/schemas/PasswordBroker_Field'
+    PasswordBroker_Password:
+      allOf:
+        -
+          $ref: '#/components/schemas/PasswordBroker_Field'
+        -
+          $ref: '#/components/schemas/PasswordBroker_Login'
+    PasswordBroker_TOTP:
+      allOf:
+        -
+          $ref: '#/components/schemas/PasswordBroker_Field'
+    PasswordBroker_Role_Admin:
+      allOf:
+        -
+          $ref: '#/components/schemas/PasswordBroker_Role'
+      additionalProperties:
+        properties:
+          role:
+            enum:
+              - admin
+        type: object
+    PasswordBroker_Role_Member:
+      allOf:
+        -
+          $ref: '#/components/schemas/PasswordBroker_Role'
+      additionalProperties:
+        properties:
+          role:
+            enum:
+              - member
+        type: object
+    PasswordBroker_Role_Moderator:
+      allOf:
+        -
+          $ref: '#/components/schemas/PasswordBroker_Role'
+      additionalProperties:
+        properties:
+          role:
+            enum:
+              - moderator
+        type: object
+    PasswordBroker_Role:
+      properties:
+        user_id:
+          $ref: '#/components/schemas/Identity_UserId'
+        entry_group_id:
+          $ref: '#/components/schemas/PasswordBroker_EntryGroupId'
+      type: object
+    System_BackupSearchRequest:
+      properties:
+        q:
+          description: 'query search by backup name'
+          type: string
+          example: part_of_backup_name
+          nullable: true
+        perPage:
+          type: integer
+          example: 15
+          nullable: true
+        page:
+          type: integer
+          example: 1
+          nullable: true
+      type: object
+    System_BackupSearchRequest_q:
+      type: string
+      nullable: true
+    System_BackupSearchRequest_perPage:
+      type: integer
+      minimum: 1
+      example: 15
+      nullable: true
+    System_BackupSearchRequest_page:
+      type: integer
+      maximum: 100
+      minimum: 1
+      example: 1
+      nullable: true
+    System_BackupCreated:
+      type: string
+      format: date-time
+    System_BackupDeleted:
+      type: string
+      format: date-time
+      nullable: true
+    System_BackupId:
+      type: string
+      format: uuid
+    System_BackupPassword:
+      type: string
+      nullable: true
+    System_BackupState:
+      type: string
+      enum:
+        - await
+        - creating
+        - created
+        - error
+        - deleted
+    System_ErrorMessage:
+      type: string
+      nullable: true
+    System_FileName:
+      type: string
+    System_Size:
+      type: integer
+    System_Backup:
+      properties:
+        backup_id:
+          $ref: '#/components/schemas/System_BackupId'
+        file_name:
+          $ref: '#/components/schemas/System_FileName'
+        state:
+          $ref: '#/components/schemas/System_BackupState'
+        size:
+          $ref: '#/components/schemas/System_Size'
+        backup_created:
+          $ref: '#/components/schemas/System_BackupCreated'
+        backup_deleted:
+          $ref: '#/components/schemas/System_BackupDeleted'
+        error_message:
+          $ref: '#/components/schemas/System_ErrorMessage'
+        password:
+          $ref: '#/components/schemas/System_BackupPassword'
+      type: object
+    System_Email:
+      type: string
+      format: email
+    System_Enable:
+      type: boolean
+    System_Password:
+      type: string
+    System_Schedule:
+      type: array
+      items:
+        type: integer
+        format: hours
+    System_BackupSetting:
+      properties:
+        schedule:
+          $ref: '#/components/schemas/System_Schedule'
+        enable:
+          oneOf:
+            -
+              $ref: '#/components/schemas/System_Enable'
+          nullable: true
+        email_enable:
+          oneOf:
+            -
+              $ref: '#/components/schemas/System_Enable'
+          nullable: true
+        email:
+          $ref: '#/components/schemas/System_Email'
+        archive_password:
+          $ref: '#/components/schemas/System_Password'
+      type: object
+    Common_Paginator:
+      properties:
+        data: {  }
+        current_page:
+          type: integer
+          minimum: 1
+        last_page:
+          type: integer
+          minimum: 1
+        per_page:
+          type: integer
+          minimum: 1
+        total:
+          type: integer
+          minimum: 0
+      type: object

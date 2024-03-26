@@ -47,9 +47,9 @@ use PasswordBroker\Infrastructure\Validation\Handlers\EntryValidationHandler;
         new Property(property: "entry_id", ref: "#/components/schemas/PasswordBroker_EntryId"),
         new Property(property: "entry_group_id", ref: "#/components/schemas/PasswordBroker_EntryGroupId"),
         new Property(property: "title", ref: "#/components/schemas/PasswordBroker_Title"),
-        new Property(property: "created_at", type: "string", format: "data-time", nullable: false,),
-        new Property(property: "updated_at", type: "string", format: "data-time", nullable: true,),
-        new Property(property: "deleted_at", type: "string", format: "data-time", nullable: true,),
+        new Property(property: "created_at", type: "string", format: "date-time", nullable: false,),
+        new Property(property: "updated_at", type: "string", format: "date-time", nullable: true,),
+        new Property(property: "deleted_at", type: "string", format: "date-time", nullable: true,),
     ],
     type: "object",
 )]
