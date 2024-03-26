@@ -12,10 +12,10 @@ use PasswordBroker\Application\Events\RoleAdminDeleted;
     schema: "PasswordBroker_Role_Admin",
     allOf: [
         new Schema(ref: "#/components/schemas/PasswordBroker_Role"),
+        new AdditionalProperties(properties: [
+            new Property(property: "role", enum: ["admin"]),
+        ]),
     ],
-    additionalProperties: new AdditionalProperties(properties: [
-        new Property(property: "role", enum: ["admin"]),
-    ])
 )]
 class Admin extends Role
 {

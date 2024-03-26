@@ -990,6 +990,74 @@ paths:
                 allOf:
                   - { $ref: '#/components/schemas/Common_Paginator' }
                   - { description: 'User set as data type', properties: { data: { type: array, items: { allOf: [{ $ref: '#/components/schemas/PasswordBroker_EntryFieldHistory' }, { properties: { entry: { $ref: '#/components/schemas/PasswordBroker_Entry' } }, type: object }] } } }, type: object }
+  '/passwordBroker/api/entryGroups/{entryGroup:entry_group_id}/users/':
+    get:
+      tags:
+        - PasswordBroker_EntryGroupUserController
+      summary: 'Get a List of users who belongs to that EntryGroup'
+      operationId: d35dea6c24a53207911e0f8f365465c5
+      parameters:
+        -
+          name: 'entryGroup:entry_group_id'
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/PasswordBroker_EntryGroupId'
+      responses:
+        '200':
+          description: 'List of users'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  oneOf: [{ $ref: '#/components/schemas/PasswordBroker_Role_Admin' }, { $ref: '#/components/schemas/PasswordBroker_Role_Moderator' }, { $ref: '#/components/schemas/PasswordBroker_Role_Member' }]
+    post:
+      tags:
+        - PasswordBroker_EntryGroupUserController
+      summary: 'Add a User to an EntryGroup with a Role'
+      operationId: 4b760a87b554af25c3b16899bc71d4dd
+      parameters:
+        -
+          name: 'entryGroup:entry_group_id'
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/PasswordBroker_EntryGroupId'
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PasswordBroker_EntryGroupUserRequest'
+      responses:
+        '200':
+          description: 'User successfully add to the EntryGroup'
+        '422':
+          description: 'Wrong master_password'
+  '/passwordBroker/api/entryGroups/{entryGroup:entry_group_id}/users/{user:user_id}':
+    delete:
+      tags:
+        - PasswordBroker_EntryGroupUserController
+      summary: 'Remove a User from an EntryGroup'
+      operationId: 6824d6ae1447402894fa19e5bf3a034f
+      parameters:
+        -
+          name: 'entryGroup:entry_group_id'
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/PasswordBroker_EntryGroupId'
+        -
+          name: 'user:user_id'
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/Identity_UserId'
+      responses:
+        '200':
+          description: 'User successfully removed from the EntryGroup'
+        '404':
+          description: 'User was not found in the EntryGroup'
   /system/api/backups:
     get:
       tags:
@@ -1380,6 +1448,27 @@ components:
         parent_entry_group_id:
           $ref: '#/components/schemas/PasswordBroker_EntryGroupId'
       type: object
+    PasswordBroker_EntryGroupUserRequest:
+      properties:
+        target_user_id:
+          $ref: '#/components/schemas/Identity_UserId'
+        role:
+          oneOf:
+            -
+              $ref: '#/components/schemas/PasswordBroker_Role_Admin'
+            -
+              $ref: '#/components/schemas/PasswordBroker_Role_Moderator'
+            -
+              $ref: '#/components/schemas/PasswordBroker_Role_Member'
+        encrypted_aes_password:
+          oneOf:
+            -
+              $ref: '#/components/schemas/PasswordBroker_EncryptedAesPassword'
+          nullable: true
+        master_password:
+          type: string
+          nullable: true
+      type: object
     PasswordBroker_EntryMoveRequest:
       properties:
         master_password:
@@ -1574,32 +1663,34 @@ components:
       allOf:
         -
           $ref: '#/components/schemas/PasswordBroker_Role'
-      additionalProperties:
-        properties:
-          role:
-            enum:
-              - admin
-        type: object
+        -
+          properties:
+            role:
+              enum:
+                - admin
+          type: object
+    PasswordBroker_EncryptedAesPassword:
+      type: string
     PasswordBroker_Role_Member:
       allOf:
         -
           $ref: '#/components/schemas/PasswordBroker_Role'
-      additionalProperties:
-        properties:
-          role:
-            enum:
-              - member
-        type: object
+        -
+          properties:
+            role:
+              enum:
+                - member
+          type: object
     PasswordBroker_Role_Moderator:
       allOf:
         -
           $ref: '#/components/schemas/PasswordBroker_Role'
-      additionalProperties:
-        properties:
-          role:
-            enum:
-              - moderator
-        type: object
+        -
+          properties:
+            role:
+              enum:
+                - moderator
+          type: object
     PasswordBroker_Role:
       properties:
         user_id:
