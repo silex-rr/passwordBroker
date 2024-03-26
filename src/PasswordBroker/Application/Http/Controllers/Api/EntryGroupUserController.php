@@ -5,6 +5,16 @@ namespace PasswordBroker\Application\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use Identity\Domain\User\Models\User;
 use Illuminate\Http\JsonResponse;
+use OpenApi\Attributes\Delete;
+use OpenApi\Attributes\Get;
+use OpenApi\Attributes\Items;
+use OpenApi\Attributes\JsonContent;
+use OpenApi\Attributes\MediaType;
+use OpenApi\Attributes\PathParameter;
+use OpenApi\Attributes\Post;
+use OpenApi\Attributes\RequestBody;
+use OpenApi\Attributes\Response;
+use OpenApi\Attributes\Schema;
 use PasswordBroker\Application\Http\Requests\EntryGroupUserRequest;
 use PasswordBroker\Application\Services\EntryGroupService;
 use PasswordBroker\Domain\Entry\Models\EntryGroup;
@@ -41,12 +51,67 @@ class EntryGroupUserController extends Controller
         ];
     }
 
-
+    #[Get(
+        path: "/passwordBroker/api/entryGroups/{entryGroup:entry_group_id}/users/",
+        summary: "Get a List of users who belongs to that EntryGroup",
+        tags: ["PasswordBroker_EntryGroupUserController"],
+        parameters: [
+            new PathParameter(
+                name: "entryGroup:entry_group_id",
+                required: true,
+                schema: new Schema(ref: "#/components/schemas/PasswordBroker_EntryGroupId")
+            ),
+        ],
+        responses: [
+            new Response(
+                response: 200,
+                description: "List of users",
+                content: new JsonContent(
+                    type: "array",
+                    items: new Items(
+                        oneOf: [
+                            new Schema(ref: "#/components/schemas/PasswordBroker_Role_Admin"),
+                            new Schema(ref: "#/components/schemas/PasswordBroker_Role_Moderator"),
+                            new Schema(ref: "#/components/schemas/PasswordBroker_Role_Member"),
+                        ],
+                    ),
+                ),
+            )
+        ],
+    )]
     public function index(EntryGroup $entryGroup): JsonResponse
     {
         return new JsonResponse($entryGroup->users(), 200);
     }
 
+    #[Post(
+        path: "/passwordBroker/api/entryGroups/{entryGroup:entry_group_id}/users/",
+        summary: "Add a User to an EntryGroup with a Role",
+        requestBody: new RequestBody(
+            content: new MediaType(
+                mediaType: "multipart/form-data",
+                schema: new Schema(ref: "#/components/schemas/PasswordBroker_EntryGroupUserRequest")
+            ),
+        ),
+        tags: ["PasswordBroker_EntryGroupUserController"],
+        parameters: [
+            new PathParameter(
+                name: "entryGroup:entry_group_id",
+                required: true,
+                schema: new Schema(ref: "#/components/schemas/PasswordBroker_EntryGroupId")
+            ),
+        ],
+        responses: [
+            new Response(
+                response: 200,
+                description: "User successfully add to the EntryGroup",
+            ),
+            new Response(
+                response: 422,
+                description: "Wrong master_password",
+            ),
+        ],
+    )]
     public function store(EntryGroup $entryGroup, EntryGroupUserRequest $request): JsonResponse
     {
         $params = [
@@ -95,9 +160,29 @@ class EntryGroupUserController extends Controller
         return new JsonResponse([], 200);
     }
 
+    #[Delete(
+        path: "/passwordBroker/api/entryGroups/{entryGroup:entry_group_id}/users/{user:user_id}",
+        summary: "Remove a User from an EntryGroup",
+        tags: ["PasswordBroker_EntryGroupUserController"],
+        parameters: [
+            new PathParameter(
+                name: "entryGroup:entry_group_id",
+                required: true,
+                schema: new Schema(ref: "#/components/schemas/PasswordBroker_EntryGroupId"),
+            ),
+            new PathParameter(
+                name: "user:user_id",
+                required: true,
+                schema: new Schema(ref: "#/components/schemas/Identity_UserId"),
+            ),
+        ],
+        responses: [
+            new Response(response: 200, description: "User successfully removed from the EntryGroup",),
+            new Response(response: 404, description: "User was not found in the EntryGroup",),
+        ],
+    )]
     public function destroy(EntryGroup $entryGroup, User $user): JsonResponse
     {
-
         /**
          * @var Admin $admin
          */

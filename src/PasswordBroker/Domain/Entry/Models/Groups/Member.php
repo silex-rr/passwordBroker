@@ -12,10 +12,10 @@ use PasswordBroker\Application\Events\RoleMemberDeleted;
     schema: "PasswordBroker_Role_Member",
     allOf: [
         new Schema(ref: "#/components/schemas/PasswordBroker_Role"),
+        new AdditionalProperties(properties: [
+            new Property(property: "role", enum: ["member"]),
+        ]),
     ],
-    additionalProperties: new AdditionalProperties(properties: [
-        new Property(property: "role", enum: ["member"]),
-    ])
 )]
 class Member extends Role
 {

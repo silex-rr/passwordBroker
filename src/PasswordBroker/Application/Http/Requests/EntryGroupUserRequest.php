@@ -5,10 +5,27 @@ namespace PasswordBroker\Application\Http\Requests;
 use Identity\Domain\User\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use OpenApi\Attributes\Property;
+use OpenApi\Attributes\Schema;
 use PasswordBroker\Domain\Entry\Models\Groups\Admin;
 use PasswordBroker\Domain\Entry\Models\Groups\Member;
 use PasswordBroker\Domain\Entry\Models\Groups\Moderator;
 
+#[Schema(
+    schema: "PasswordBroker_EntryGroupUserRequest",
+    properties: [
+        new Property(property: "target_user_id", ref: "#/components/schemas/Identity_UserId",),
+        new Property(
+            property: "role",
+            oneOf: [
+                new Schema(ref: "#/components/schemas/PasswordBroker_Role_Admin"),
+                new Schema(ref: "#/components/schemas/PasswordBroker_Role_Moderator"),
+                new Schema(ref: "#/components/schemas/PasswordBroker_Role_Member"),
+            ]),
+        new Property(property: "encrypted_aes_password", ref: "#/components/schemas/PasswordBroker_EncryptedAesPassword", nullable: true,),
+        new Property(property: "master_password", type: "string", nullable: true,),
+    ],
+)]
 class EntryGroupUserRequest extends FormRequest
 {
     public function authorize() : bool
