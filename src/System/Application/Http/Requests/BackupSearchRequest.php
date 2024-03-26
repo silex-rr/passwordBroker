@@ -26,14 +26,6 @@ use PasswordBroker\Domain\Entry\Models\EntryGroup;
 )]
 class BackupSearchRequest extends FormRequest
 {
-    #[Schema(schema: "System_BackupSearchRequest_q", type: "string", nullable: true)]
-    public ?string $q = null;
-    #[Schema(schema: "System_BackupSearchRequest_perPage", type: "integer", minimum: 1, example: 15, nullable: true)]
-    public ?int $perPage = null;
-    #[Schema(schema: "System_BackupSearchRequest_page", type: "integer", maximum: 100, minimum: 1, example: 1, nullable: true)]
-    public ?int $page = null;
-
-
     public function authorize(): bool
     {
         return true;
@@ -60,34 +52,22 @@ class BackupSearchRequest extends FormRequest
         ];
     }
 
+    #[Schema(schema: "System_BackupSearchRequest_q", type: "string", nullable: true)]
     public function getQuery(): string
     {
         return $this->q ?? '';
     }
 
-    public function getEntryGroupInclude(): ?EntryGroup
-    {
-        if (is_null($this->entryGroupInclude)) {
-            return null;
-        }
-        return EntryGroup::where('entry_group_id', $this->entryGroupInclude)->firstOrFail();
-    }
-    public function getEntryGroupExclude(): ?EntryGroup
-    {
-        if (is_null($this->entryGroupExclude)) {
-            return null;
-        }
-        return EntryGroup::where('entry_group_id', $this->entryGroupExclude)->firstOrFail();
-    }
-
+    #[Schema(schema: "System_BackupSearchRequest_perPage", type: "integer", minimum: 1, example: 15, nullable: true)]
     public function getPerPage(): int
     {
         return $this->perPage ?? 15;
     }
+
+    #[Schema(schema: "System_BackupSearchRequest_page", type: "integer", maximum: 100, minimum: 1, example: 1, nullable: true)]
     public function getPage(): int
     {
         return $this->page ?? 1;
     }
-
 
 }

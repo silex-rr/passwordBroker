@@ -1092,6 +1092,20 @@ paths:
                 allOf:
                   - { $ref: '#/components/schemas/Common_Paginator' }
                   - { description: 'Entry set as data type', properties: { data: { type: array, items: { allOf: [{ $ref: '#/components/schemas/PasswordBroker_Entry' }, { properties: { entryGroup: { $ref: '#/components/schemas/PasswordBroker_EntryGroup' } }, type: object }] } } }, type: object }
+  /passwordBroker/api/import:
+    post:
+      tags:
+        - PasswordBroker_ImportController
+      summary: 'Import Data from other sources [KeePass]'
+      operationId: a9df1e4bda39c58c5f42a8b3cdb1f8f5
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PasswordBroker_ImportRequest'
+      responses:
+        '200':
+          description: 'Data successfully imported from a File'
   /system/api/backups:
     get:
       tags:
@@ -1530,6 +1544,15 @@ components:
       type: integer
       default: 1
       minimum: 1
+    PasswordBroker_ImportRequest:
+      properties:
+        file:
+          description: 'a XML file - export from KeePass'
+          type: string
+          format: binary
+        master_password:
+          type: string
+      type: object
     PasswordBroker_EntryGroupId:
       type: string
       format: uuid
