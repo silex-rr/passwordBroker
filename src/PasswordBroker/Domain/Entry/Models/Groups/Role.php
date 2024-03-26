@@ -10,6 +10,8 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use OpenApi\Attributes\Property;
+use OpenApi\Attributes\Schema;
 use PasswordBroker\Domain\Entry\Contracts\RoleInterface;
 use PasswordBroker\Domain\Entry\Models\Casts\EntryGroupId;
 use PasswordBroker\Domain\Entry\Models\EntryGroup;
@@ -21,6 +23,13 @@ use Symfony\Component\Mime\Encoder\Base64Encoder;
  * @property \PasswordBroker\Domain\Entry\Models\Attributes\EntryGroupId $entry_group_id
  * @property Attributes\EncryptedAesPassword $encrypted_aes_password
  */
+#[Schema(
+    schema: "PasswordBroker_Role",
+    properties: [
+        new Property(property: "user_id", ref: "#/components/schemas/Identity_UserId"),
+        new Property(property: "entry_group_id", ref: "#/components/schemas/PasswordBroker_EntryGroupId"),
+    ],
+)]
 abstract class Role extends Model
     implements RoleInterface
 {

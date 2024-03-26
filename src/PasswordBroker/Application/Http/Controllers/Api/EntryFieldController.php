@@ -61,8 +61,8 @@ class EntryFieldController extends Controller
         summary: "List of Fields that belong to an Entry",
         tags: ["PasswordBroker_EntryFieldController"],
         parameters: [
-            new PathParameter(parameter: "{entryGroup:entry_group_id}", ref: "#/components/schemas/PasswordBroker_EntryGroupId"),
-            new PathParameter(parameter: "{entry:entry_id}", ref: "#/components/schemas/PasswordBroker_EntryId"),
+            new PathParameter(name: "entryGroup:entry_group_id", required: true, schema: new Schema(ref: "#/components/schemas/PasswordBroker_EntryGroupId")),
+            new PathParameter(name: "entry:entry_id", required: true, schema: new Schema(ref: "#/components/schemas/PasswordBroker_EntryId")),
         ],
         responses: [
             new ResponseOA(
@@ -91,9 +91,9 @@ class EntryFieldController extends Controller
         summary: "Get a Field",
         tags: ["PasswordBroker_EntryFieldController"],
         parameters: [
-            new PathParameter(parameter: "{entryGroup:entry_group_id}", ref: "#/components/schemas/PasswordBroker_EntryGroupId"),
-            new PathParameter(parameter: "{entry:entry_id}", ref: "#/components/schemas/PasswordBroker_EntryId"),
-            new PathParameter(parameter: "{field:field_id}", ref: "#/components/schemas/PasswordBroker_FieldId"),
+            new PathParameter(name: "entryGroup:entry_group_id", required: true, schema: new Schema(ref: "#/components/schemas/PasswordBroker_EntryGroupId")),
+            new PathParameter(name: "entry:entry_id", required: true, schema: new Schema(ref: "#/components/schemas/PasswordBroker_EntryId")),
+            new PathParameter(name: "field:field_id", required: true, schema: new Schema(ref: "#/components/schemas/PasswordBroker_FieldId")),
         ],
         responses: [
             new ResponseOA(
@@ -128,9 +128,9 @@ class EntryFieldController extends Controller
         ),
         tags: ["PasswordBroker_EntryFieldController"],
         parameters: [
-            new PathParameter(parameter: "{entryGroup:entry_group_id}", ref: "#/components/schemas/PasswordBroker_EntryGroupId"),
-            new PathParameter(parameter: "{entry:entry_id}", ref: "#/components/schemas/PasswordBroker_EntryId"),
-            new PathParameter(parameter: "{field:field_id}", ref: "#/components/schemas/PasswordBroker_FieldId"),
+            new PathParameter(name: "entryGroup:entry_group_id", required: true, schema: new Schema(ref: "#/components/schemas/PasswordBroker_EntryGroupId")),
+            new PathParameter(name: "entry:entry_id", required: true, schema: new Schema(ref: "#/components/schemas/PasswordBroker_EntryId")),
+            new PathParameter(name: "field:field_id", required: true, schema: new Schema(ref: "#/components/schemas/PasswordBroker_FieldId")),
         ],
         responses: [
             new ResponseOA(
@@ -198,9 +198,9 @@ class EntryFieldController extends Controller
         ),
         tags: ["PasswordBroker_EntryFieldController"],
         parameters: [
-            new PathParameter(parameter: "{entryGroup:entry_group_id}", ref: "#/components/schemas/PasswordBroker_EntryGroupId"),
-            new PathParameter(parameter: "{entry:entry_id}", ref: "#/components/schemas/PasswordBroker_EntryId"),
-            new PathParameter(parameter: "{field:field_id}", ref: "#/components/schemas/PasswordBroker_FieldId"),
+            new PathParameter(name: "entryGroup:entry_group_id", required: true, schema: new Schema(ref: "#/components/schemas/PasswordBroker_EntryGroupId")),
+            new PathParameter(name: "entry:entry_id", required: true, schema: new Schema(ref: "#/components/schemas/PasswordBroker_EntryId")),
+            new PathParameter(name: "field:field_id", required: true, schema: new Schema(ref: "#/components/schemas/PasswordBroker_FieldId")),
         ],
         responses: [
             new ResponseOA(
@@ -254,8 +254,8 @@ class EntryFieldController extends Controller
         ),
         tags: ["PasswordBroker_EntryFieldController"],
         parameters: [
-            new PathParameter(parameter: "{entryGroup:entry_group_id}", ref: "#/components/schemas/PasswordBroker_EntryGroupId"),
-            new PathParameter(parameter: "{entry:entry_id}", ref: "#/components/schemas/PasswordBroker_EntryId"),
+            new PathParameter(name: "entryGroup:entry_group_id", required: true, schema: new Schema(ref: "#/components/schemas/PasswordBroker_EntryGroupId")),
+            new PathParameter(name: "entry:entry_id", required: true, schema: new Schema(ref: "#/components/schemas/PasswordBroker_EntryId")),
         ],
         responses: [
             new ResponseOA(
@@ -310,9 +310,9 @@ class EntryFieldController extends Controller
         ),
         tags: ["PasswordBroker_EntryFieldController"],
         parameters: [
-            new PathParameter(parameter: "{entryGroup:entry_group_id}", ref: "#/components/schemas/PasswordBroker_EntryGroupId"),
-            new PathParameter(parameter: "{entry:entry_id}", ref: "#/components/schemas/PasswordBroker_EntryId"),
-            new PathParameter(parameter: "{field:field_id}", ref: "#/components/schemas/PasswordBroker_FieldId"),
+            new PathParameter(name: "entryGroup:entry_group_id", required: true, schema: new Schema(ref: "#/components/schemas/PasswordBroker_EntryGroupId")),
+            new PathParameter(name: "entry:entry_id", required: true, schema: new Schema(ref: "#/components/schemas/PasswordBroker_EntryId")),
+            new PathParameter(name: "field:field_id", required: true, schema: new Schema(ref: "#/components/schemas/PasswordBroker_FieldId")),
         ],
         responses: [
             new ResponseOA(
@@ -358,9 +358,9 @@ class EntryFieldController extends Controller
         ),
         tags: ["PasswordBroker_EntryFieldController"],
         parameters: [
-            new PathParameter(parameter: "{entryGroup:entry_group_id}", ref: "#/components/schemas/PasswordBroker_EntryGroupId"),
-            new PathParameter(parameter: "{entry:entry_id}", ref: "#/components/schemas/PasswordBroker_EntryId"),
-            new PathParameter(parameter: "{field:field_id}", ref: "#/components/schemas/PasswordBroker_FieldId"),
+            new PathParameter(name: "entryGroup:entry_group_id", required: true, schema: new Schema(ref: "#/components/schemas/PasswordBroker_EntryGroupId")),
+            new PathParameter(name: "entry:entry_id", required: true, schema: new Schema(ref: "#/components/schemas/PasswordBroker_EntryId")),
+            new PathParameter(name: "field:field_id", required: true, schema: new Schema(ref: "#/components/schemas/PasswordBroker_FieldId")),
         ],
         responses: [
             new ResponseOA(

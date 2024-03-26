@@ -40,9 +40,9 @@ class EntryFieldHistoryController extends Controller
         summary: "List of changes of a Field",
         tags: ["PasswordBroker_EntryFieldHistoryController"],
         parameters: [
-            new PathParameter(parameter: "{entryGroup:entry_group_id}", ref: "#/components/schemas/PasswordBroker_EntryGroupId"),
-            new PathParameter(parameter: "{entry:entry_id}", ref: "#/components/schemas/PasswordBroker_EntryId"),
-            new PathParameter(parameter: "{field:field_id}", ref: "#/components/schemas/PasswordBroker_FieldId"),
+            new PathParameter(name: "entryGroup:entry_group_id", required: true, schema: new Schema(ref: "#/components/schemas/PasswordBroker_EntryGroupId")),
+            new PathParameter(name: "entry:entry_id", required: true, schema: new Schema(ref: "#/components/schemas/PasswordBroker_EntryId")),
+            new PathParameter(name: "field:field_id", required: true, schema: new Schema(ref: "#/components/schemas/PasswordBroker_FieldId")),
         ],
         responses: [
             new ResponseOA(
@@ -71,10 +71,10 @@ class EntryFieldHistoryController extends Controller
         ),
         tags: ["PasswordBroker_EntryFieldHistoryController"],
         parameters: [
-            new PathParameter(parameter: "{entryGroup:entry_group_id}", ref: "#/components/schemas/PasswordBroker_EntryGroupId"),
-            new PathParameter(parameter: "{entry:entry_id}", ref: "#/components/schemas/PasswordBroker_EntryId"),
-            new PathParameter(parameter: "{field:field_id}", ref: "#/components/schemas/PasswordBroker_FieldId"),
-            new PathParameter(parameter: "{fieldEditLog:field_edit_log_id}", ref: "#/components/schemas/PasswordBroker_EntryFieldHistory"),
+            new PathParameter(name: "entryGroup:entry_group_id", required: true, schema: new Schema(ref: "#/components/schemas/PasswordBroker_EntryGroupId")),
+            new PathParameter(name: "entry:entry_id", required: true, schema: new Schema(ref: "#/components/schemas/PasswordBroker_EntryId")),
+            new PathParameter(name: "field:field_id", required: true, schema: new Schema(ref: "#/components/schemas/PasswordBroker_FieldId")),
+            new PathParameter(name: "fieldEditLog:field_edit_log_id", required: true, schema: new Schema(ref: "#/components/schemas/PasswordBroker_EntryFieldHistory")),
         ],
         responses: [
             new ResponseOA(

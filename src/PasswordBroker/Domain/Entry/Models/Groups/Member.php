@@ -2,9 +2,21 @@
 
 namespace PasswordBroker\Domain\Entry\Models\Groups;
 
+use OpenApi\Attributes\AdditionalProperties;
+use OpenApi\Attributes\Property;
+use OpenApi\Attributes\Schema;
 use PasswordBroker\Application\Events\RoleMemberCreated;
 use PasswordBroker\Application\Events\RoleMemberDeleted;
 
+#[Schema(
+    schema: "PasswordBroker_Role_Member",
+    allOf: [
+        new Schema(ref: "#/components/schemas/PasswordBroker_Role"),
+    ],
+    additionalProperties: new AdditionalProperties(properties: [
+        new Property(property: "role", enum: ["member"]),
+    ])
+)]
 class Member extends Role
 {
     public const ROLE_NAME = 'member';

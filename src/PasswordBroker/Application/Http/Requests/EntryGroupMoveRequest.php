@@ -3,12 +3,20 @@
 namespace PasswordBroker\Application\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use OpenApi\Attributes\Property;
+use OpenApi\Attributes\Schema;
 use PasswordBroker\Domain\Entry\Models\Entry;
 use PasswordBroker\Domain\Entry\Models\EntryGroup;
 
 /**
  * @property EntryGroup $entryGroup
  */
+#[Schema(
+    schema: "PasswordBroker_EntryGroupMoveRequest",
+    properties: [
+        new Property("entryGroupTarget", ref: "#/components/schemas/PasswordBroker_EntryGroupId", nullable: true),
+    ],
+)]
 class EntryGroupMoveRequest extends FormRequest
 {
     public function authorize() : bool

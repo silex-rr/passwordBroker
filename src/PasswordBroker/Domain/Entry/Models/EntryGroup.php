@@ -49,9 +49,9 @@ use Symfony\Component\Mime\Encoder\Base64Encoder;
         new Property(property: "entry_group_id", ref: "#/components/schemas/PasswordBroker_EntryGroupId"),
         new Property(property: "name", ref: "#/components/schemas/PasswordBroker_GroupName"),
         new Property(property: "materialized_path", ref: "#/components/schemas/PasswordBroker_MaterializedPath"),
-        new Property(property: "created_at", type: "date-time"),
-        new Property(property: "updated_at", type: "date-time", nullable: true),
-        new Property(property: "deleted_at", type: "date-time", nullable: true),
+        new Property(property: "created_at", type: "string", format: "date-time"),
+        new Property(property: "updated_at", type: "string", format: "date-time", nullable: true),
+        new Property(property: "deleted_at", type: "string", format: "date-time", nullable: true),
     ],
     type: "object",
 )]

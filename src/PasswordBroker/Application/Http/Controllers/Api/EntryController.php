@@ -44,7 +44,7 @@ class EntryController extends Controller
         summary: "Get a list of Entries that belong to EntryGroup",
         tags: ["PasswordBroker_EntryController"],
         parameters: [
-            new PathParameter(parameter: "{entryGroup:entry_group_id}", ref: "#/components/schemas/PasswordBroker_EntryGroupId"),
+            new PathParameter(name: "entryGroup:entry_group_id", required: true, schema: new Schema(ref: "#/components/schemas/PasswordBroker_EntryGroupId")),
         ],
         responses: [
             new Response(
@@ -75,7 +75,7 @@ class EntryController extends Controller
         ),
         tags: ["PasswordBroker_EntryController"],
         parameters: [
-            new PathParameter(parameter: "{entryGroup:entry_group_id}", ref: "#/components/schemas/PasswordBroker_EntryGroupId"),
+            new PathParameter(name: "entryGroup:entry_group_id", required: true, schema: new Schema(ref: "#/components/schemas/PasswordBroker_EntryGroupId")),
         ],
         responses: [
             new Response(
@@ -114,10 +114,10 @@ class EntryController extends Controller
             )
         ),
         tags: ["PasswordBroker_EntryController"],
-        parameters: [
-            new PathParameter(parameter: "{entryGroup:entry_group_id}", ref: "#/components/schemas/PasswordBroker_EntryGroupId"),
-            new PathParameter(parameter: "{entry:entry_id}", ref: "#/components/schemas/PasswordBroker_EntryId"),
-        ],
+        parameters: array(
+            new PathParameter(name: "entryGroup:entry_group_id", required: true, schema: new Schema(ref: "#/components/schemas/PasswordBroker_EntryGroupId")),
+            new PathParameter(name: "entry:entry_id", required: true, schema: new Schema(ref: "#/components/schemas/PasswordBroker_EntryId")),
+        ),
         responses: [
             new Response(
                 response: 200,
@@ -147,8 +147,8 @@ class EntryController extends Controller
         ),
         tags: ["PasswordBroker_EntryController"],
         parameters: [
-            new PathParameter(parameter: "{entryGroup:entry_group_id}", ref: "#/components/schemas/PasswordBroker_EntryGroupId"),
-            new PathParameter(parameter: "{entry:entry_id}", ref: "#/components/schemas/PasswordBroker_EntryId"),
+            new PathParameter(name: "entryGroup:entry_group_id", required: true, schema: new Schema(ref: "#/components/schemas/PasswordBroker_EntryGroupId")),
+            new PathParameter(name: "entry:entry_id", required: true, schema: new Schema(ref: "#/components/schemas/PasswordBroker_EntryId")),
         ],
         responses: [
             new Response(
@@ -175,8 +175,8 @@ class EntryController extends Controller
         summary: "Delete an Entry (mark as deleted)",
         tags: ["PasswordBroker_EntryController"],
         parameters: [
-            new PathParameter(parameter: "{entryGroup:entry_group_id}", ref: "#/components/schemas/PasswordBroker_EntryGroupId"),
-            new PathParameter(parameter: "{entry:entry_id}", ref: "#/components/schemas/PasswordBroker_EntryId"),
+            new PathParameter(name: "entryGroup:entry_group_id", required: true, schema: new Schema(ref: "#/components/schemas/PasswordBroker_EntryGroupId")),
+            new PathParameter(name: "entry:entry_id", required: true, schema: new Schema(ref: "#/components/schemas/PasswordBroker_EntryId")),
         ],
         responses: [
             new Response(
