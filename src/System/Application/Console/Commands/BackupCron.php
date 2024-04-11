@@ -51,7 +51,7 @@ class BackupCron extends Command
 
         if (!$backupSetting->getEnable()->getValue()
             || !in_array($carbon->hour, $backupSetting->getSchedule()->getValue(), true)
-            || Backup::where('backup_created', '>=', $carbon->format("Y-m-d H:00:00"))->exists()
+            || Backup::where('created_at', '>=', $carbon->format("Y-m-d H:00:00"))->exists()
         ) {
             return Command::SUCCESS;
         }
