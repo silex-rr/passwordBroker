@@ -1,5 +1,7 @@
 <?php
 
+use Identity\Application\Http\Controllers\InviteController;
+use Identity\Application\Http\Controllers\RecoveryController;
 use Identity\Application\Http\Controllers\UserApplicationController;
 use Identity\Application\Http\Controllers\UserAuthController;
 use Identity\Application\Http\Controllers\UserController;
@@ -66,7 +68,18 @@ $routes = static function () {
         ->name('userApplicationIsRsaPrivateRequiredUpdate');
 };
 
-//Route::middleware('api')->group($routes);
-//Route::middleware('auth:sanctum')->group($routes);
 Route::middleware('auth.sanctum.cookie')->group($routes);
 
+Route::patch('/invite/{recoveryLink:key}', [InviteController::class, 'activate'])
+    ->name('invite_landing');
+
+Route::patch('/recovery/{recoveryLink:key}', [RecoveryController::class, 'activate'])
+    ->name('recovery_landing');
+
+Route::post('/recovery', [RecoveryController::class, 'store'])
+    ->name('recovery');
+
+Route::middleware('can:invite-new-user')->group(static function () {
+    Route::post('/invite', [InviteController::class, 'store'])
+        ->name('invite');
+});
