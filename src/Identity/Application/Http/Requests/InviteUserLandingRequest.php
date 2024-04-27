@@ -8,24 +8,29 @@ use Illuminate\Validation\Rules\Password;
 use OpenApi\Attributes\Property;
 use OpenApi\Attributes\Schema;
 
+/**
+ * @property
+ */
 #[Schema(
-    schema: "Identity_RegisterUserRequest",
+    schema: "Identity_InviteUserLandingRequest",
     properties: [
         new Property(
             property: "user",
             properties: [
-                new Property(property: "email", type: "string", format: "email", nullable: false),
-                new Property(property: "username", type: "string", nullable: false),
+                new Property(property: "username", type: "string", nullable: true),
                 new Property(property: "password", type: "string", format: "password", nullable: false),
                 new Property(property: "password_confirmation", type: "string", format: "password", nullable: false),
                 new Property(property: "master_password", type: "string", format: "password", nullable: false),
                 new Property(property: "master_password_confirmation", type: "string", format: "password", nullable: false),
             ],
         ),
+        new Property(
+            property: "fingerprint", type: "string", format: "json", nullable: true
+        )
     ],
     type: "object",
 )]
-class RegisterUserRequest extends FormRequest
+class InviteUserLandingRequest extends FormRequest
 {
     public function authorize(): bool
     {
@@ -37,8 +42,7 @@ class RegisterUserRequest extends FormRequest
         $table = app(User::class)->getTableFullName();
 
         return [
-            'user.email' => 'required|email|unique:' . $table . ',email',
-            'user.username' => 'required|min:1|unique:' . $table . ',name',
+            'user.username' => 'nullable|min:1|unique:' . $table . ',name',
             'user.password' => [
                 'required',
                 'confirmed', //password_confirmation
@@ -48,7 +52,8 @@ class RegisterUserRequest extends FormRequest
                 'required',
                 'confirmed',
                 Password::min(6)->letters()->numbers()
-            ]
+            ],
+            'fingerprint' => 'nullable|json',
         ];
     }
 

@@ -4,6 +4,76 @@ info:
   description: ''
   version: v1
 paths:
+  '/identity/api/invite/{recoveryLink:key}':
+    patch:
+      tags:
+        - Identity_InviteController
+      summary: 'Registration new User by Invitation Link'
+      operationId: aca0cb145ed891978cb828b381f01605
+      parameters:
+        -
+          name: 'recoveryLink:key'
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/Identity_RecoveryUserLandingRequest'
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Identity_InviteUserRequest'
+      responses:
+        '200':
+          description: 'User was successfully registered'
+  /identity/api/invite:
+    post:
+      tags:
+        - Identity_InviteController
+      summary: 'Create an Invitation Link'
+      operationId: 4a7cc71367b028da57fd4dc5ad1a1e22
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Identity_InviteUserRequest'
+      responses:
+        '200':
+          description: 'Invitation Link was successfully created'
+  '/identity/api/recovery/{recoveryLink:key}':
+    patch:
+      tags:
+        - Identity_RecoveryController
+      summary: 'Recovery a User Password'
+      operationId: 3ba36a75a55071466670dcf056999b68
+      parameters:
+        -
+          name: 'recoveryLink:key'
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/Identity_RecoveryUserLandingRequest'
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Identity_RecoveryUserRequest'
+      responses:
+        '200':
+          description: 'User password was successfully changed'
+  /identity/api/recovery:
+    post:
+      tags:
+        - Identity_RecoveryController
+      summary: 'Create an Recovery Password Link'
+      operationId: e733df065237458aa763352d0af56542
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Identity_RecoveryUserRequest'
+      responses:
+        '200':
+          description: 'Recovery Link was successfully created'
   '/identity/api/userApplications/{userApplication:user_application_id}':
     get:
       tags:
@@ -1235,6 +1305,52 @@ components:
           type: string
           nullable: false
       type: object
+    Identity_InviteUserLandingRequest:
+      properties:
+        user:
+          properties:
+            username:
+              type: string
+              nullable: true
+            password:
+              type: string
+              format: password
+              nullable: false
+            password_confirmation:
+              type: string
+              format: password
+              nullable: false
+            master_password:
+              type: string
+              format: password
+              nullable: false
+            master_password_confirmation:
+              type: string
+              format: password
+              nullable: false
+          type: object
+        fingerprint:
+          type: string
+          format: json
+          nullable: true
+      type: object
+    Identity_InviteUserRequest:
+      properties:
+        user:
+          properties:
+            email:
+              type: string
+              format: email
+              nullable: false
+            username:
+              type: string
+              nullable: true
+          type: object
+        fingerprint:
+          type: string
+          format: json
+          nullable: true
+      type: object
     Identity_LoginRequest:
       properties:
         email:
@@ -1252,6 +1368,55 @@ components:
           type: string
           nullable: true
       type: object
+    Identity_RecoveryUserLandingRequest:
+      properties:
+        user:
+          properties:
+            username:
+              type: string
+              nullable: true
+            password:
+              type: string
+              format: password
+              nullable: false
+            password_confirmation:
+              type: string
+              format: password
+              nullable: false
+            master_password:
+              type: string
+              format: password
+              nullable: false
+            master_password_confirmation:
+              type: string
+              format: password
+              nullable: false
+          type: object
+        fingerprint:
+          type: string
+          format: json
+          nullable: true
+      type: object
+    Identity_RecoveryUserRequest:
+      properties:
+        user:
+          properties:
+            email:
+              type: string
+              format: email
+              nullable: false
+          type: object
+        type:
+          type: string
+          enum:
+            - recovery
+            - invite
+          nullable: false
+        fingerprint:
+          type: string
+          format: json
+          nullable: true
+      type: object
     Identity_RegisterUserRequest:
       properties:
         user:
@@ -1260,7 +1425,7 @@ components:
               type: string
               format: email
               nullable: false
-            name:
+            username:
               type: string
               nullable: false
             password:
@@ -1366,6 +1531,23 @@ components:
     Identity_PublicKey:
       type: string
       format: binary
+    Identity_RecoveryLinkId:
+      type: string
+      format: uuid
+    Identity_RecoveryLinkKey:
+      type: string
+    System_RecoveryLinkStatus:
+      type: string
+      enum:
+        - await
+        - in_process
+        - activated
+        - outdated
+    System_RecoveryLinkType:
+      type: string
+      enum:
+        - recovery
+        - invite
     Identity_UserId:
       type: string
       format: uuid

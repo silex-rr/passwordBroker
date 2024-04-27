@@ -2,11 +2,12 @@
 
 namespace Identity\Application\Providers;
 
+use Identity\Application\Listeners\SendRecoveryLink;
 use Identity\Application\Listeners\UserApplicationSetOfflineDatabaseRequiredUpdate;
+use Identity\Domain\User\Events\UserRecoveryLinkWasCreated;
 use Identity\Domain\UserApplication\Events\UserApplicationOfflineDatabaseModeHasChanged;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 use PasswordBroker\Application\Events\EntryCreated;
-use PasswordBroker\Application\Events\EntryGroupCreated;
 use PasswordBroker\Application\Events\EntryGroupRestored;
 use PasswordBroker\Application\Events\EntryGroupTrashed;
 use PasswordBroker\Application\Events\EntryGroupUpdated;
@@ -32,6 +33,10 @@ class IdentityEventServiceProvider extends ServiceProvider
      * @var array<string, array<int, string>>
      */
     protected $listen = [
+        UserRecoveryLinkWasCreated::class => [
+            SendRecoveryLink::class,
+        ],
+        //User Application
         UserApplicationOfflineDatabaseModeHasChanged::class => [
             UserApplicationSetOfflineDatabaseRequiredUpdate::class,
         ],

@@ -3,25 +3,23 @@
 namespace Identity\Application\Providers;
 
 use App\Common\Application\Traits\ProviderMergeConfigRecursion;
-use Identity\Application\Http\Sessions\DatabaseSessionHandler;
 use Identity\Domain\User\Models\User;
 use Identity\Domain\User\Models\UserAccessToken;
 use Identity\Domain\UserApplication\Models\UserApplication;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Session;
 use Illuminate\Support\ServiceProvider;
 use Laravel\Sanctum\Sanctum;
 
 class IdentityServiceProvider extends ServiceProvider
 {
     use ProviderMergeConfigRecursion;
+
     private string $migrations_dir = 'Infrastructure'
-        . DIRECTORY_SEPARATOR . 'Database'
-        . DIRECTORY_SEPARATOR . 'migrations';
+    . DIRECTORY_SEPARATOR . 'Database'
+    . DIRECTORY_SEPARATOR . 'migrations';
     private string $configs_dir = 'Application'
-        . DIRECTORY_SEPARATOR . 'config';
+    . DIRECTORY_SEPARATOR . 'config';
 
     private string $base_path;
 
@@ -50,6 +48,10 @@ class IdentityServiceProvider extends ServiceProvider
         $this->mergeConfigRecursion(
             require $this->base_path . $this->configs_dir . DIRECTORY_SEPARATOR . 'database.connections.php',
             'database.connections'
+        );
+        $this->mergeConfigRecursion(
+            require $this->base_path . $this->configs_dir . DIRECTORY_SEPARATOR . 'view.paths.php',
+            'view.paths'
         );
         $this->bindRoutes();
 
@@ -80,14 +82,14 @@ class IdentityServiceProvider extends ServiceProvider
 
     public function bindRoutes(): void
     {
-        Route::bind('user', fn (string $user_id) => User::where('user_id', $user_id)->firstOrFail());
-        Route::bind('userApplication', fn (string $uuid)
-            => UserApplication::where('user_application_id', $uuid)->orWhere('client_id', $uuid)->firstOrFail());
+        Route::bind('user', fn(string $user_id) => User::where('user_id', $user_id)->firstOrFail());
+        Route::bind('userApplication', fn(string $uuid) => UserApplication::where('user_application_id', $uuid)->orWhere('client_id', $uuid)->firstOrFail());
     }
 
     private function defineGates(): void
     {
-        Gate::define('get-self-rsa-private-key', static fn (User $user) => $user->is_admin->getValue());
-        Gate::define('get-cbc-salt', static fn (User $user) => $user->is_admin->getValue());
+        Gate::define('get-self-rsa-private-key', static fn(User $user) => $user->is_admin->getValue());
+        Gate::define('get-cbc-salt', static fn(User $user) => $user->is_admin->getValue());
+        Gate::define('invite-new-user', static fn(User $user) => $user->is_admin->getValue());
     }
 }

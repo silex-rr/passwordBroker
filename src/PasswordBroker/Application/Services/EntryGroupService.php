@@ -4,38 +4,40 @@ namespace PasswordBroker\Application\Services;
 
 use Identity\Application\Services\RsaService;
 use Identity\Domain\User\Models\User;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use PasswordBroker\Domain\Entry\Models\Attributes\MaterializedPath;
 use PasswordBroker\Domain\Entry\Models\EntryGroup;
-use PasswordBroker\Domain\Entry\Models\Fields\Field;
 use PasswordBroker\Domain\Entry\Models\Fields\EntryFieldHistory;
+use PasswordBroker\Domain\Entry\Models\Fields\Field;
 use PasswordBroker\Domain\Entry\Models\Groups\Role;
+use phpseclib3\Crypt\RSA\PublicKey;
 use RuntimeException;
-use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\Mime\Encoder\Base64Encoder;
 
 class EntryGroupService
 {
     public function __construct(
-        private EventDispatcher            $dispatcher,
         private readonly EncryptionService $encryptionService,
-        private readonly RsaService $rsaService
-    ){
+        private readonly RsaService        $rsaService
+    )
+    {
 
     }
+
     public function addUserToGroupAsAdmin(User $user, EntryGroup $entryGroup, ?string $encrypted_aes_password = null, ?string $master_password = null): void
     {
         $encrypted_aes_password = $this->getEncryptedAesPassword($encrypted_aes_password, $master_password, $entryGroup, $user);
         $entryGroup->addAdmin($user, $encrypted_aes_password);
     }
+
     public function addUserToGroupAsModerator(User $user, EntryGroup $entryGroup, ?string $encrypted_aes_password = null, ?string $master_password = null): void
     {
         $encrypted_aes_password = $this->getEncryptedAesPassword($encrypted_aes_password, $master_password, $entryGroup, $user);
         $entryGroup->addModerator($user, $encrypted_aes_password);
     }
+
     public function addUserToGroupAsMember(User $user, EntryGroup $entryGroup, ?string $encrypted_aes_password = null, ?string $master_password = null): void
     {
         $encrypted_aes_password = $this->getEncryptedAesPassword($encrypted_aes_password, $master_password, $entryGroup, $user);
@@ -78,7 +80,13 @@ class EntryGroupService
         if (!is_string($encrypted_aes_password)) {
             throw new RuntimeException('Unable to get encrypted AES password for this Group');
         }
+
         return $encrypted_aes_password;
+    }
+
+    public function getEncryptedAesPasswordByPublicKey(string $decrypted_aes_password, PublicKey $publicKey)
+    {
+        return $publicKey->encrypt($decrypted_aes_password);
     }
 
     public function getDecryptedAesPassword(string $master_password, EntryGroup $entryGroup): string
@@ -90,7 +98,15 @@ class EntryGroupService
         $privateKey = $this->rsaService->getUserPrivateKey($auth_user->user_id, $master_password);
         $auth_encrypted_aes_password = $entryGroup->users()->where('user_id', $auth_user->user_id->getValue())
             ->firstOrFail()->encrypted_aes_password->getValue();
+
         return $privateKey->decrypt($auth_encrypted_aes_password);
+    }
+
+    public function getDecryptedAesPasswordForRole(string $master_password, Role $role, User $user): string
+    {
+        $privateKey = $this->rsaService->getUserPrivateKey($user->user_id, $master_password);
+
+        return $privateKey->decrypt($role->encrypted_aes_password->getValue());
     }
 
     public function groupsWithFields(User $user): Collection
@@ -98,8 +114,9 @@ class EntryGroupService
         Field::appendEncryptedValueBase64();
         Field::appendInitializationVectorBase64();
         Role::appendEncryptedAesPasswordBase64();
+
         return EntryGroup::with('entries.links', 'entries.files', 'entries.passwords', 'entries.notes')
-            ->with('admins', static fn (HasMany $builder) => $builder->where('user_id', $user->user_id->getValue()))
+            ->with('admins', static fn(HasMany $builder) => $builder->where('user_id', $user->user_id->getValue()))
             ->get();
     }
 
@@ -136,7 +153,7 @@ class EntryGroupService
             $children = collect([]);
             while ($id) {
                 if (!$entryGroupsById[$id]['entryGroup']->parentEntryGroup()->exists()) {
-                    if(!$tree->contains('entry_group_id', $id)) {
+                    if (!$tree->contains('entry_group_id', $id)) {
                         $treeChildren[$id] = $children;
                         $tree->add(
                             collect([
@@ -167,7 +184,7 @@ class EntryGroupService
                 $parent_id = $parent->entry_group_id->getValue();
 
                 if (array_key_exists($parent_id, $treeChildren)) {
-                    $children->each(fn ($child) => $treeChildren[$parent_id]->add($child));
+                    $children->each(fn($child) => $treeChildren[$parent_id]->add($child));
                     break;
                 }
 
@@ -253,6 +270,7 @@ class EntryGroupService
             master_password: $master_password,
             entryGroup: $field->entry()->firstOrFail()->entryGroup()->firstOrFail()
         );
+
         return $this->encryptionService->decrypt(
             data_encrypted: $fieldEditLog->value_encrypted->getValue(),
             decrypted_aes_password: $decryptedAesPassword,
@@ -270,6 +288,7 @@ class EntryGroupService
         if (is_null($secondGroup)) {
             return false;
         }
+
         return str_contains($secondGroup->materialized_path->getValue(), $fistGroup->entry_group_id->getValue());
     }
 }
