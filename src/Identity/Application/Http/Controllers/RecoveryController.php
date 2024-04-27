@@ -56,9 +56,9 @@ class RecoveryController extends Controller
             ),
         ],
     )]
-    public function activate(?RecoveryLink $recoveryLink, RecoveryUserLandingRequest $request): JsonResponse
+    public function activate(RecoveryLink $recoveryLink, RecoveryUserLandingRequest $request): JsonResponse
     {
-        if ($recoveryLink) {
+        if ($recoveryLink->exists) {
             $this->recoveryUserService->activateRecoveryLink(
                 recoveryLink: $recoveryLink,
                 password: $request->input('user.password'),
