@@ -3,6 +3,8 @@
 namespace Identity\Application\Providers;
 
 use App\Common\Application\Traits\ProviderMergeConfigRecursion;
+use Identity\Domain\User\Models\Casts\RecoveryLinkKey;
+use Identity\Domain\User\Models\RecoveryLink;
 use Identity\Domain\User\Models\User;
 use Identity\Domain\User\Models\UserAccessToken;
 use Identity\Domain\UserApplication\Models\UserApplication;
@@ -84,6 +86,13 @@ class IdentityServiceProvider extends ServiceProvider
     {
         Route::bind('user', fn(string $user_id) => User::where('user_id', $user_id)->firstOrFail());
         Route::bind('userApplication', fn(string $uuid) => UserApplication::where('user_application_id', $uuid)->orWhere('client_id', $uuid)->firstOrFail());
+        Route::bind('recoveryLink', function ($value, \Illuminate\Routing\Route $route) {
+            $bindingFields = $route->bindingFields();
+            if (array_key_exists('recoveryLink', $bindingFields)) {
+                return RecoveryLink::where($bindingFields['recoveryLink'], $value)->first() ?? new RecoveryLink();
+            }
+            return RecoveryLink::where('recovery_link_id', $value)->first();
+        });
     }
 
     private function defineGates(): void

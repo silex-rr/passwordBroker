@@ -60,9 +60,9 @@ class InviteController extends Controller
             ),
         ],
     )]
-    public function activate(?RecoveryLink $recoveryLink, InviteUserLandingRequest $request): JsonResponse
+    public function activate(RecoveryLink $recoveryLink, InviteUserLandingRequest $request): JsonResponse
     {
-        if ($recoveryLink) {
+        if ($recoveryLink->exists) {
             $this->recoveryUserService->activateRecoveryLink(
                 recoveryLink: $recoveryLink,
                 password: $request->input('user.password'),

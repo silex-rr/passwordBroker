@@ -202,6 +202,7 @@ return [
         Identity\Application\Providers\IdentityAuthServiceProvider::class,
         Identity\Application\Providers\IdentitySessionServiceProvider::class,
         Identity\Application\Providers\IdentityEventServiceProvider::class,
+        Identity\Application\Providers\IdentityConsoleServiceProvider::class,
         /*
          * PasswordBroker Domain
          */
@@ -214,6 +215,7 @@ return [
         System\Application\Providers\SystemServiceProvider::class,
         System\Application\Providers\SystemAuthServiceProvider::class,
         System\Application\Providers\SystemEventServiceProvider::class,
+        System\Application\Providers\SystemConsoleServiceProvider::class,
 
     ],
 

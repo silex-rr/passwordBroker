@@ -7,6 +7,7 @@ use Identity\Domain\User\Models\Attributes\IsAdmin;
 use Identity\Domain\User\Models\Attributes\PublicKey;
 use Identity\Domain\User\Models\Attributes\UserName;
 use Identity\Domain\User\Models\User;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use RuntimeException;
@@ -15,12 +16,10 @@ use function Symfony\Component\Translation\t;
 
 class UserRegistrationService
 {
-    private EventDispatcher $dispatcher;
-    private RsaService $rsaService;
-    public function __construct(EventDispatcher $dispatcher, RsaService $rsaService)
+    public function __construct(
+        private readonly RsaService $rsaService,
+    )
     {
-        $this->dispatcher = $dispatcher;
-        $this->rsaService = $rsaService;
     }
 
     public function execute(
@@ -36,7 +35,7 @@ class UserRegistrationService
          */
         $userAuth = Auth::user();
         $usersDontExist = User::doesntExist();
-        if (!$userAuth?->is_admin && !$usersDontExist) {
+        if (!$userAuth?->is_admin && !$usersDontExist && !App::runningInConsole()) {
             throw new RuntimeException('Only one user can be registered.');
         }
         if (!$isAdmin && $usersDontExist) {

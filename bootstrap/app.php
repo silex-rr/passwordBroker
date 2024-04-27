@@ -41,16 +41,6 @@ $app->singleton(
     App\Exceptions\Handler::class
 );
 
-$app->singleton(
-    Illuminate\Contracts\Console\Kernel::class,
-    Identity\Application\Console\Kernel::class
-);
-
-$app->singleton(
-    Illuminate\Contracts\Console\Kernel::class,
-    System\Application\Console\Kernel::class
-);
-
 /*
 |--------------------------------------------------------------------------
 | Return The Application
