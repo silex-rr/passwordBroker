@@ -50,7 +50,7 @@ class InviteController extends Controller
             new PathParameter(
                 name: "recoveryLink:key",
                 required: true,
-                schema: new Schema(ref: "#/components/schemas/Identity_RecoveryUserLandingRequest")
+                schema: new Schema(ref: "#/components/schemas/Identity_InviteUserLandingRequest")
             ),
         ],
         responses: [

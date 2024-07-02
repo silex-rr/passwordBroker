@@ -17,11 +17,8 @@ use OpenApi\Attributes\Schema;
         new Property(
             property: "user",
             properties: [
-                new Property(property: "username", type: "string", nullable: true),
                 new Property(property: "password", type: "string", format: "password", nullable: false),
                 new Property(property: "password_confirmation", type: "string", format: "password", nullable: false),
-                new Property(property: "master_password", type: "string", format: "password", nullable: false),
-                new Property(property: "master_password_confirmation", type: "string", format: "password", nullable: false),
             ],
         ),
         new Property(

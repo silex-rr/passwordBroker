@@ -16,7 +16,7 @@ paths:
           in: path
           required: true
           schema:
-            $ref: '#/components/schemas/Identity_RecoveryUserLandingRequest'
+            $ref: '#/components/schemas/Identity_InviteUserLandingRequest'
       requestBody:
         content:
           multipart/form-data:
@@ -1372,22 +1372,11 @@ components:
       properties:
         user:
           properties:
-            username:
-              type: string
-              nullable: true
             password:
               type: string
               format: password
               nullable: false
             password_confirmation:
-              type: string
-              format: password
-              nullable: false
-            master_password:
-              type: string
-              format: password
-              nullable: false
-            master_password_confirmation:
               type: string
               format: password
               nullable: false
