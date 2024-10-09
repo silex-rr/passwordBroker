@@ -99,15 +99,15 @@ readonly class RecoveryUserService
             default:
                 throw new RuntimeException('Unexpected Link Type');
         }
-
-
     }
 
     public function makeRecoveryUrl(RecoveryLink $recoveryLink): string
     {
         $route = route('recovery_landing', $recoveryLink);
-        if ($_ENV['APP_URL_FRONT']) {
-            $route = str_replace($_ENV['APP_URL'], $_ENV['APP_URL_FRONT'], $route);
+
+        $urlFront = config('app.url_front');
+        if ($urlFront) {
+            $route = str_replace(config('app.url'), $urlFront, $route);
         }
 
         return $route;
