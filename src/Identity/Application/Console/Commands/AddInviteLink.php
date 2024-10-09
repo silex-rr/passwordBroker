@@ -34,9 +34,11 @@ class AddInviteLink extends Command
 
     /**
      * @param UserRegistrationService $registrationService
-     * @param RecoveryUserService $recoveryUserService
-     * @param UserService $userService
-     * @param Dispatcher $dispatcher
+     * @param RecoveryUserService     $recoveryUserService
+     * @param UserService             $userService
+     * @param Dispatcher              $dispatcher
+     * @param PasswordGenerator       $passwordGenerator
+     *
      * @return int
      */
     public function handle(
@@ -66,7 +68,7 @@ class AddInviteLink extends Command
             "Is the information correct:\r\n"
             . "  Email   : " . $email . "\r\n"
             . "  Username: " . $username . "\r\n"
-            . "  Admin   : " . ($is_admin ? 'Y' : 'N') . "\r\n"
+            . "  Admin   : " . ($is_admin ? 'Yes' : 'No') . "\r\n"
         )) {
             return CommandAlias::SUCCESS;
         }
@@ -113,7 +115,8 @@ class AddInviteLink extends Command
 
         $dispatcher->dispatchSync(new CreateRecoveryLink($recoveryLink));
 
-        $this->info('Invite link for new user "' . $email . '": ' . $recoveryUserService->makeRecoveryUrl($recoveryLink));
+        $this->info("Invite link for new user {$username} {$email}: "
+            . $recoveryUserService->makeRecoveryUrl($recoveryLink));
 
         return CommandAlias::SUCCESS;
     }

@@ -28,8 +28,8 @@ class RecoveryLinkEmail extends Mailable
     public function content(): Content
     {
         $view = match ($this->recoveryLink->type) {
-            RecoveryLinkType::INVITE => 'recovery',
-            default => 'invite'
+            RecoveryLinkType::INVITE => 'invite',
+            default => 'recovery'
         };
 
         /**
