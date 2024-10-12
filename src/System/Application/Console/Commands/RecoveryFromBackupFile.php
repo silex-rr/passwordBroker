@@ -14,7 +14,7 @@ class RecoveryFromBackupFile extends Command
      *
      * @var string
      */
-    protected $signature = 'system:recoveryFromBackup {filePath}';
+    protected $signature = 'system:recoveryFromBackup {?filePath}';
 
     /**
      * The console command description.
@@ -32,6 +32,9 @@ class RecoveryFromBackupFile extends Command
     public function handle(RecoveryService $recoveryService): int
     {
         $filePath = $this->argument('filePath');
+        if (empty($filePath)) {
+            $filePath = $this->ask('Enter path to backup file: ');
+        }
         $password = $this->secret("Use password for backup: ", "");
 
         $this->info('Recovery From Backup Started');
