@@ -2,8 +2,10 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use PasswordBroker\Domain\Entry\Models\Fields\Attributes\TOTPHashAlgorithm;
+use PasswordBroker\Domain\Entry\Models\Fields\TOTP;
 
 return new class extends Migration
 {
@@ -14,7 +16,7 @@ return new class extends Migration
     {
         Schema::table('password_broker_entry_fields', function (Blueprint $table) {
             $table->integer('totp_timeout')
-                ->default(30)
+                ->default(null)
                 ->nullable()
                 ->after('login');
             $table->enum(
@@ -25,9 +27,15 @@ return new class extends Migration
                     TOTPHashAlgorithm::SHA512->value,
                 ]
             )->nullable()
-                ->default(TOTPHashAlgorithm::SHA1->value)
+                ->default(null)
                 ->after('totp_timeout');
         });
+        DB::table('password_broker_entry_fields')
+            ->where('type', '=', TOTP::TYPE)
+            ->update([
+                'totp_hash_algorithm' => TOTPHashAlgorithm::SHA1->value,
+                'totp_timeout' => 30,
+            ]);
     }
 
     /**
