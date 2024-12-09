@@ -8,7 +8,7 @@ trait EnumToArray
     {
         return array_reduce(self::cases(),
             static function (array $array, $value) {
-                $value[$array['name']] = $array[$value];
+                $array[$value->name] = $value->value;;
 
                 return $array;
             }, []);

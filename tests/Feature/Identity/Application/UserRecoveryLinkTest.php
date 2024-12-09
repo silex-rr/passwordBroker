@@ -86,7 +86,7 @@ class UserRecoveryLinkTest extends TestCase
                 'master_password_confirmation' => $masterPassword,
 
             ],
-        ])->assertStatus(Response::HTTP_OK);
+        ])->assertStatus(Response::HTTP_BAD_REQUEST);
 
         /**
          * @var RecoveryLink $realRecoveryLink
@@ -98,7 +98,7 @@ class UserRecoveryLinkTest extends TestCase
         $this->assertEquals(RecoveryLinkStatus::AWAIT, $realRecoveryLink->status);
     }
 
-    public function test_an_admin_can_create_a_invite_link(): void
+    public function test_an_admin_can_create_an_invite_link(): void
     {
         /**
          * @var User $system_admin

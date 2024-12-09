@@ -7,16 +7,19 @@ use Identity\Infrastructure\Factories\User\UserFactory;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Arr;
 use Illuminate\Testing\Fluent\AssertableJson;
 use PasswordBroker\Application\Services\EncryptionService;
 use PasswordBroker\Application\Services\EntryGroupService;
 use PasswordBroker\Domain\Entry\Models\Entry;
 use PasswordBroker\Domain\Entry\Models\EntryGroup;
+use PasswordBroker\Domain\Entry\Models\Fields\Attributes\TOTPHashAlgorithm;
 use PasswordBroker\Domain\Entry\Models\Fields\File;
 use PasswordBroker\Domain\Entry\Models\Fields\Password;
 use PasswordBroker\Domain\Entry\Models\Fields\TOTP;
 use PasswordBroker\Domain\Entry\Services\AddEntry;
 use PasswordBroker\Infrastructure\Validation\Handlers\EntryValidationHandler;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Mime\Encoder\Base64Encoder;
 use Tests\TestCase;
 
@@ -1040,6 +1043,67 @@ class EntryFieldsTest extends TestCase
 //            );
         $this->assertEquals(base64_decode($resp), $content);
 
+    }
+
+    public function test_moderator_can_add_a_totp_field_to_entry_belonged_to_their_group(): void
+    {
+        /**
+         * @var EntryGroup $entryGroup
+         * @var User $admin
+         * @var User $moderator
+         * @var Entry $entry
+         * @var EntryGroupService $entryGroupService
+         */
+        $entryGroup = EntryGroup::factory()->create();
+        [$admin, $moderator] = User::factory()->count(2)->create();
+        $entry = Entry::factory()->make();
+        $entryGroupService = app(EntryGroupService::class);
+
+        $entryGroupService->addUserToGroupAsAdmin($admin, $entryGroup);
+
+        $this->actingAs($admin);
+        dispatch_sync(new AddEntry($entry, $entryGroup, new EntryValidationHandler()));
+        $entryGroupService->addUserToGroupAsModerator($moderator, $entryGroup, null, UserFactory::MASTER_PASSWORD);
+        $this->actingAs($moderator);
+        /**
+         * @var Entry $entry
+         */
+        $entry = Entry::where('title', $entry->title)->firstOrFail();
+        $totpSecret = $this->faker->password(12, 32);
+
+        $entryNumOriginal = Entry::where('entry_id', $entry->entry_id)->firstOrFail()->fields()->count();
+
+        /**
+         * @var TOTPHashAlgorithm $hashAlgorithm
+         */
+        $hashAlgorithm = Arr::random(TOTPHashAlgorithm::cases());
+        $timeout = $this->faker->numberBetween(1, 100);
+        $title = 'totp_' . $this->faker->word();
+        $this->postJson(
+            route('entryFields', ['entryGroup' => $entryGroup, 'entry' => $entry]),
+            [
+                'title' => $title,
+                'type' => TOTP::TYPE,
+                'totp_hash_algorithm' => $hashAlgorithm->value,
+                'totp_timeout' => $timeout,
+                'value' => $totpSecret,
+                'master_password' => UserFactory::MASTER_PASSWORD,
+            ]
+        )->assertStatus(Response::HTTP_OK);
+
+        $fields = Entry::where('entry_id', $entry->entry_id)->firstOrFail()->fields();
+        $this->assertCount($entryNumOriginal + 1,
+            $fields
+        );
+
+        /**
+         * @var TOTP $totpFieldEntry
+         */
+        $totpFieldEntry = $fields->where('title', $title)->firstOrFail();
+
+        $this->assertEquals(TOTP::TYPE, $totpFieldEntry->type);
+        $this->assertEquals($hashAlgorithm, $totpFieldEntry->totp_hash_algorithm);
+        $this->assertEquals($timeout, $totpFieldEntry->totp_timeout->getValue());
     }
 
 }

@@ -20,7 +20,7 @@ use OpenApi\Attributes\PathParameter;
 use OpenApi\Attributes\Post;
 use OpenApi\Attributes\RequestBody;
 use OpenApi\Attributes\Schema;
-use phpseclib3\Crypt\Random;
+use PasswordBroker\Infrastructure\Services\PasswordGenerator;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -32,6 +32,7 @@ class InviteController extends Controller
         protected readonly UserRegistrationService $registrationService,
         protected readonly UserService             $userService,
         protected readonly RecoveryUserService     $recoveryUserService,
+        protected readonly PasswordGenerator       $passwordGenerator,
     )
     {
     }
@@ -69,9 +70,10 @@ class InviteController extends Controller
                 username: $request->input('user.username'),
                 master_password: $request->input('user.master_password')
             );
+            return new JsonResponse([], Response::HTTP_OK);
         }
 
-        return new JsonResponse([], Response::HTTP_OK);
+        return new JsonResponse([], Response::HTTP_BAD_REQUEST);
     }
 
     #[Post(
@@ -93,11 +95,12 @@ class InviteController extends Controller
     )]
     public function store(InviteUserRequest $request): JsonResponse
     {
+        $this->passwordGenerator->setLength(30);
         $user = $this->registrationService->execute(
             email: $request->input('user.email'),
             username: $request->input('user.username') ?? $this->userService->getUserUniqTemporaryName(),
-            password: Random::string(32),
-            master_password: Random::string(32),
+            password: $this->passwordGenerator->generate(),
+            master_password: $this->passwordGenerator->generate(),
         );
 
         $recoveryLink = $this->recoveryUserService->createRecoveryLink(
