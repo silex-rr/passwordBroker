@@ -8,6 +8,8 @@ use Illuminate\Foundation\Testing\WithFaker;
 use PasswordBroker\Application\Services\EncryptionService;
 use PasswordBroker\Domain\Entry\Models\Entry;
 use PasswordBroker\Domain\Entry\Models\EntryGroup;
+use PasswordBroker\Domain\Entry\Models\Fields\Attributes\TOTPHashAlgorithm;
+use PasswordBroker\Domain\Entry\Models\Fields\TOTP;
 use phpseclib3\Crypt\PublicKeyLoader;
 use phpseclib3\Crypt\Random;
 use phpseclib3\Crypt\Rijndael;
@@ -131,9 +133,11 @@ class EntryTest extends TestCase
         $secret = $this->faker->word;
 
         $note = $entry->addTOTP(
-            $user->user_id,
-            $secret,
-            $encryptionService->generateInitializationVector(),
+            userId             : $user->user_id,
+            TOPT_encrypted     : $secret,
+            initializing_vector: $encryptionService->generateInitializationVector(),
+            totp_hash_algorithm: TOTPHashAlgorithm::default(),
+            totp_timeout       : TOTP::DEFAULT_TIMEOUT
         );
 
         $this->assertEquals(

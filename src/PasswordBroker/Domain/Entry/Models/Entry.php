@@ -25,6 +25,8 @@ use PasswordBroker\Domain\Entry\Models\Fields\Attributes\FileSize;
 use PasswordBroker\Domain\Entry\Models\Fields\Attributes\InitializationVector;
 use PasswordBroker\Domain\Entry\Models\Fields\Attributes\Login;
 use PasswordBroker\Domain\Entry\Models\Fields\Attributes\Title;
+use PasswordBroker\Domain\Entry\Models\Fields\Attributes\TOTPHashAlgorithm;
+use PasswordBroker\Domain\Entry\Models\Fields\Attributes\TOTPTimeout;
 use PasswordBroker\Domain\Entry\Models\Fields\Attributes\ValueEncrypted;
 use PasswordBroker\Domain\Entry\Models\Fields\File;
 use PasswordBroker\Domain\Entry\Models\Fields\Link;
@@ -215,10 +217,12 @@ class Entry extends Model
     }
 
     public function addTOTP(
-        UserIdAttribute $userId,
-        string          $TOPT_encrypted,
-        string          $initializing_vector,
-        string          $title = ""
+        UserIdAttribute   $userId,
+        string            $TOPT_encrypted,
+        string            $initializing_vector,
+        TOTPHashAlgorithm $totp_hash_algorithm,
+        int               $totp_timeout,
+        string            $title = "",
     ): TOTP
     {
         $TOTP = new TOTP([
@@ -226,11 +230,14 @@ class Entry extends Model
             'title' => Title::fromNative($title),
             'value_encrypted' => ValueEncrypted::fromNative($TOPT_encrypted),
             'initialization_vector' => InitializationVector::fromNative($initializing_vector),
+            'totp_hash_algorithm' => $totp_hash_algorithm,
+            'totp_timeout' => TOTPTimeout::fromNative($totp_timeout),
             'created_by' => $userId,
             'updated_by' => $userId
         ]);
         $TOTP->field_id;
         $TOTP->save();
+
         return $TOTP;
     }
 

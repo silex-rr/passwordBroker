@@ -96,9 +96,10 @@ readonly class RecoveryUserService
                     password: $password,
                 ));
                 break;
-            default:
-                throw new RuntimeException('Unexpected Link Type');
         }
+
+        $recoveryLink->status = RecoveryLinkStatus::ACTIVATED;
+        $recoveryLink->save();
     }
 
     public function makeRecoveryUrl(RecoveryLink $recoveryLink): string
