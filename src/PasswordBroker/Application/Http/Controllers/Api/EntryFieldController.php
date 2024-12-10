@@ -31,6 +31,7 @@ use PasswordBroker\Domain\Entry\Models\EntryGroup;
 use PasswordBroker\Domain\Entry\Models\Fields\Attributes\TOTPHashAlgorithm;
 use PasswordBroker\Domain\Entry\Models\Fields\Field;
 use PasswordBroker\Domain\Entry\Models\Fields\Password;
+use PasswordBroker\Domain\Entry\Models\Fields\TOTP;
 use PasswordBroker\Domain\Entry\Services\AddFieldToEntry;
 use PasswordBroker\Domain\Entry\Services\DestroyEntryField;
 use PasswordBroker\Domain\Entry\Services\UpdateField;
@@ -162,10 +163,11 @@ class EntryFieldController extends Controller
             ),
         ],
     )]
-    public function showTOTP(EntryGroup                 $entryGroup,
-                             Entry                      $entry,
-                             Field                      $field,
-                             EntryFieldDecryptedRequest $request,
+    public function showTOTP(
+        EntryGroup                 $entryGroup,
+        Entry                      $entry,
+        Field                      $field,
+        EntryFieldDecryptedRequest $request,
     ): JsonResponse {
         try {
             $decryptField = $this->entryGroupService->decryptField(field          : $field,
@@ -351,10 +353,11 @@ class EntryFieldController extends Controller
             ),
         ],
     )]
-    public function update(EntryGroup              $entryGroup,
-                           Entry                   $entry,
-                           Field                   $field,
-                           EntryFieldUpdateRequest $request,
+    public function update(
+        EntryGroup              $entryGroup,
+        Entry                   $entry,
+        Field                   $field,
+        EntryFieldUpdateRequest $request,
     ): JsonResponse {
         /**
          * @var User $user
@@ -369,6 +372,8 @@ class EntryFieldController extends Controller
             value_encrypted      : $request->get('value_encrypted'),
             initialization_vector: $request->get('initialization_vector'),
             login                : $field->getType() === Password::TYPE ? $request->get('login') : null,
+            totp_hash_algorithm  : $field->getType() === TOTP::TYPE ? TOTPHashAlgorithm::from($request->get('totp_hash_algorithm')) : null,
+            totp_timeout         : $field->getType() === TOTP::TYPE ? $request->get('totp_timeout') : null,
             value                : $request->get('value'),
             master_password      : $request->get('master_password'),
         ));
@@ -405,10 +410,11 @@ class EntryFieldController extends Controller
             ),
         ],
     )]
-    public function destroy(EntryGroup               $entryGroup,
-                            Entry                    $entry,
-                            Field                    $field,
-                            EntryFieldDestroyRequest $request,
+    public function destroy(
+        EntryGroup               $entryGroup,
+        Entry                    $entry,
+        Field                    $field,
+        EntryFieldDestroyRequest $request,
     ): JsonResponse {
         try {
             $this->entryGroupService->decryptField(field: $field, master_password: $request->getMasterPassword());

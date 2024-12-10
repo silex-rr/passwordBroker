@@ -17,26 +17,31 @@ use PasswordBroker\Domain\Entry\Models\EntryGroup;
 use PasswordBroker\Domain\Entry\Models\Fields\Attributes\InitializationVector;
 use PasswordBroker\Domain\Entry\Models\Fields\Attributes\Login;
 use PasswordBroker\Domain\Entry\Models\Fields\Attributes\Title;
+use PasswordBroker\Domain\Entry\Models\Fields\Attributes\TOTPHashAlgorithm;
+use PasswordBroker\Domain\Entry\Models\Fields\Attributes\TOTPTimeout;
 use PasswordBroker\Domain\Entry\Models\Fields\Attributes\ValueEncrypted;
 use PasswordBroker\Domain\Entry\Models\Fields\Field;
 use PasswordBroker\Domain\Entry\Models\Fields\Password;
+use PasswordBroker\Domain\Entry\Models\Fields\TOTP;
 
 class UpdateField implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+
     public function __construct(
-        protected User       $user,
-        protected Entry      $entry,
-        protected EntryGroup $entryGroup,
-        protected Field      $field,
-        protected ?string    $title,
-        protected ?string    $value_encrypted,
-        protected ?string    $initialization_vector,
-        protected ?string    $login,
-        protected ?string    $value,
-        protected ?string    $master_password
-    )
-    {
+        protected User               $user,
+        protected Entry              $entry,
+        protected EntryGroup         $entryGroup,
+        protected Field              $field,
+        protected ?string            $title,
+        protected ?string            $value_encrypted,
+        protected ?string            $initialization_vector,
+        protected ?string            $login,
+        protected ?TOTPHashAlgorithm $totp_hash_algorithm,
+        protected ?int               $totp_timeout,
+        protected ?string            $value,
+        protected ?string            $master_password,
+    ) {
     }
 
     public function handle(): void
@@ -48,13 +53,15 @@ class UpdateField implements ShouldQueue
              * @var EntryGroupService $entryGroupService
              */
             $entryGroupService = app(EntryGroupService::class);
-            $decryptedAesPassword = $entryGroupService->getDecryptedAesPassword($this->master_password, $this->entryGroup);
+            $decryptedAesPassword = $entryGroupService->getDecryptedAesPassword($this->master_password,
+                $this->entryGroup);
             /**
              * @var EncryptionService $encryptionService
              */
             $encryptionService = app(EncryptionService::class);
             $this->initialization_vector = $encryptionService->generateInitializationVector();
-            $this->value_encrypted = $encryptionService->encrypt($this->value, $decryptedAesPassword, $this->initialization_vector);
+            $this->value_encrypted = $encryptionService->encrypt($this->value, $decryptedAesPassword,
+                $this->initialization_vector);
         }
 
         $fields_for_update = [];
@@ -64,7 +71,7 @@ class UpdateField implements ShouldQueue
             $fields_for_update['initialization_vector'] = InitializationVector::fromNative($this->initialization_vector);
         }
         if (!is_null($this->title)
-           && $this->field->title->getValue() !== $this->title
+            && $this->field->title->getValue() !== $this->title
         ) {
             $fields_for_update['title'] = Title::fromNative($this->title);
         }
@@ -72,6 +79,11 @@ class UpdateField implements ShouldQueue
             && $this->field->login->getValue() !== $this->login
         ) {
             $fields_for_update['login'] = Login::fromNative($this->login);
+        }
+
+        if ($this->field->getType() === TOTP::TYPE) {
+            $fields_for_update['totp_hash_algorithm'] = $this->totp_hash_algorithm;
+            $fields_for_update['totp_timeout'] = TOTPTimeout::fromNative($this->totp_timeout);
         }
 
         if (!empty($fields_for_update)) {
@@ -84,11 +96,19 @@ class UpdateField implements ShouldQueue
 
     public function validate(): void
     {
-        if ((int)is_null($this->value) + (int)is_null($this->master_password) === 1) {
+        if ((int) is_null($this->value) + (int) is_null($this->master_password) === 1) {
             throw new InvalidArgumentException('For updating the field value by insecure way both the master password and the value should be provided');
         }
-        if ((int)is_null($this->value_encrypted) + (int)is_null($this->initialization_vector) === 1) {
+        if ((int) is_null($this->value_encrypted) + (int) is_null($this->initialization_vector) === 1) {
             throw new InvalidArgumentException('For updating the field value by secure way both the encrypted value and the initialization vector should be provided');
+        }
+        if ($this->field->getType() === TOTP::TYPE) {
+            if (is_null($this->totp_hash_algorithm)) {
+                throw new InvalidArgumentException('For updating the TOTP hash algorithm the TOTP hash algorithm should be provided');
+            }
+            if (is_null($this->totp_timeout)) {
+                throw new InvalidArgumentException('For updating the TOTP timeout the TOTP timeout should be provided');
+            }
         }
     }
 }
