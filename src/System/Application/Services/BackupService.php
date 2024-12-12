@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use Doctrine\DBAL\Exception;
 use Illuminate\Contracts\Filesystem\Filesystem;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
 use PDO;
 use RuntimeException;
@@ -24,7 +25,9 @@ class BackupService
     /**
      * @param Backup|null $backup
      * @param string|null $password
+     *
      * @return Backup
+     * @throws Exception
      */
     public function makeBackup(?Backup $backup = null, ?string $password = null): Backup
     {
@@ -53,16 +56,16 @@ class BackupService
 
         $fileDatabasePath = $this->addDatabaseToZipArchive(zipArchive: $zipArchive, password: $password);
         $this->addFilesFromStoreToZipArchive(
-            zipArchive: $zipArchive,
-            filesystem: Storage::disk('cbc_salt'),
+            zipArchive   : $zipArchive,
+            filesystem   : Storage::disk('cbc_salt'),
             pathInArchive: 'cbc_salt/',
-            password: $password,
+            password     : $password,
         );
         $this->addFilesFromStoreToZipArchive(
-            zipArchive: $zipArchive,
-            filesystem: Storage::disk('identity_keys'),
+            zipArchive   : $zipArchive,
+            filesystem   : Storage::disk('identity_keys'),
             pathInArchive: 'identity_keys/',
-            password: $password,
+            password     : $password,
         );
 
         $this->addVersionToZipArchive(zipArchive: $zipArchive, password: $password);
@@ -81,7 +84,9 @@ class BackupService
     }
 
     /**
-     * @param ZipArchive $zipArchive
+     * @param ZipArchive  $zipArchive
+     * @param string|null $password
+     *
      * @return string database file path
      */
     private function addDatabaseToZipArchive(ZipArchive $zipArchive, ?string $password): string
@@ -97,26 +102,40 @@ class BackupService
         }
         fclose($fileDatabaseResource);
         unset($fileDatabaseResource);
+
         return $fileDatabasePath;
     }
 
     /**
-     * @param resource $fileResource
-     * @return string database name
-     * @throws Exception
+     * @param $fileResource
+     *
+     * @return string
      */
     public function makeDatabaseBackup($fileResource): string
     {
         $defaultConnection = DB::getDefaultConnection();
-        $abstractSchemaManager = DB::connection(DB::getDefaultConnection())->getDoctrineSchemaManager();
-        $tables = $abstractSchemaManager->listTableNames(); //tables
+        $connection = DB::connection(DB::getDefaultConnection());
 
         switch ($defaultConnection) {
             case 'mysql':
+                $tables = array_reduce(
+                    Schema::getTables(),
+                    function ($carry, $item) {
+                        $carry[] = $item['name'];
+
+                        return $carry;
+                    },
+                    []
+                );
                 $this->makeDatabaseBackupMySql($fileResource, $tables);
+
                 return $defaultConnection;
             case 'sqlite':
+                $pdo = $connection->getPdo();
+                $query = $pdo->query("SELECT `name` FROM sqlite_master WHERE `type`='table' AND `name` NOT LIKE 'sqlite_%'");
+                $tables = $query->fetchAll(PDO::FETCH_COLUMN);
                 $this->makeDatabaseBackupSQLite($fileResource, $tables);
+
                 return $defaultConnection;
             default:
                 throw new RuntimeException("Backup for " . $defaultConnection . " is not supported");
@@ -160,6 +179,7 @@ class BackupService
 
     /**
      * @param $tableStructure
+     *
      * @return mixed
      */
     public function getBlobFields($tableStructure): array
@@ -168,6 +188,7 @@ class BackupService
         if (preg_match_all('/`(.*)`\s[a-z]*blob/', $tableStructure, $matches)) {
             $blobFields = $matches[1];
         }
+
         return $blobFields;
     }
 
@@ -182,6 +203,7 @@ class BackupService
         if (in_array($field, $blobFields, true)) {
             return "UNHEX('" . bin2hex($value) . "')";
         }
+
         return "'" . addslashes($value) . "'";
     }
 
@@ -222,10 +244,11 @@ class BackupService
     }
 
     /**
-     * @param ZipArchive $zipArchive
-     * @param Filesystem $filesystem
-     * @param string $pathInArchive
+     * @param ZipArchive  $zipArchive
+     * @param Filesystem  $filesystem
+     * @param string      $pathInArchive
      * @param string|null $password
+     *
      * @return void
      */
     private function addFilesFromStoreToZipArchive(
@@ -233,8 +256,7 @@ class BackupService
         Filesystem $filesystem,
         string     $pathInArchive = '',
         ?string    $password = null,
-    ): void
-    {
+    ): void {
         foreach ($filesystem->allFiles('/') as $file) {
             $full_path = $pathInArchive . $file;
             $zipArchive->addFromString($full_path, $filesystem->get($file));
@@ -245,8 +267,9 @@ class BackupService
     }
 
     /**
-     * @param ZipArchive $zipArchive
+     * @param ZipArchive  $zipArchive
      * @param string|null $password
+     *
      * @return void
      */
     private function addVersionToZipArchive(ZipArchive $zipArchive, ?string $password): void
@@ -260,8 +283,9 @@ class BackupService
     }
 
     /**
-     * @param ZipArchive $zipArchive
+     * @param ZipArchive  $zipArchive
      * @param string|null $password
+     *
      * @return void
      */
     private function addEnvToZipArchive(ZipArchive $zipArchive, ?string $password): void
