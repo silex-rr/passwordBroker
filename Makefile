@@ -22,17 +22,10 @@ update:
     	echo "Backup skipped..." ; \
 	fi
 	@echo "Updating..."
-	docker-compose stop $(CONTAINER_NGINX)
-	docker-compose stop $(CONTAINER_SCHEDULER)
-	docker-compose stop $(CONTAINER_QUEUE)
-	docker-compose stop $(CONTAINER_FPM)
+	docker-compose down
 	git pull
-	docker-compose restart $(CONTAINER_PERMISSION)
-	docker-compose restart $(CONTAINER_COMPOSER)
-	docker-compose start $(CONTAINER_FPM)
-	docker-compose start $(CONTAINER_QUEUE)
-	docker-compose start $(CONTAINER_SCHEDULER)
-	docker-compose start $(CONTAINER_NGINX)
+	docker-compose up -d
+	docker-compose exec $(CONTAINER_FPM) php ./artisan migrate --force
 	@echo "Update completed & application restated"
 
 stop:
@@ -40,6 +33,9 @@ stop:
 
 start:
 	docker-compose start
+
+down:
+	docker-compose down
 
 backup:
 	docker-compose exec $(CONTAINER_FPM) php ./artisan system:createBackup

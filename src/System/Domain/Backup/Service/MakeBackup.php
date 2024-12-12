@@ -39,7 +39,7 @@ class MakeBackup implements ShouldQueue
             $this->backup->backup_created = new BackupCreated(Carbon::now());
             $this->backup->save();
             event(new BackupWasMade($this->backup));
-        } catch (Exception $e) {
+        } catch (\Doctrine\DBAL\Exception | Exception $e) {
             $this->backup->state = BackupState::ERROR;
             $this->backup->error_message = new ErrorMessage($e->getMessage());
             $this->backup->save();
