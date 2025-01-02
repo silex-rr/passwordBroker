@@ -1,6 +1,6 @@
 <?php
 
-namespace Identity\Application;
+namespace Tests\Feature\Identity\Application;
 
 use Identity\Application\Services\RsaService;
 use Identity\Domain\User\Models\Attributes\IsAdmin;

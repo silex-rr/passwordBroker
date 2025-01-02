@@ -1,9 +1,10 @@
 <?php
 
-namespace System\Application;
+namespace Tests\Feature\System\Application;
 
 use Carbon\Carbon;
 use Carbon\CarbonInterval;
+use Exception;
 use Identity\Domain\User\Models\User;
 use Illuminate\Bus\Dispatcher;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -93,11 +94,14 @@ class BackupTest extends TestCase
         });
     }
 
-    public function test_an_administrator_can_create_a_backup(): void
+    /**
+     * @throws Exception
+     */
+    public function test_an_administrator_can_create_a_backup_and_download_it(): void
     {
         $this->withoutExceptionHandling();
 
-        $user = User::factory()->systemAdministrator()->create();
+        $userAdministrator = User::factory()->systemAdministrator()->create();
         $carbon_now = Carbon::now();
         $carbon_now->sub(
             CarbonInterval::create(years: 0, months: 0, weeks: 0, days: 0, hours: 0, minutes: 0, seconds: 10)
@@ -118,7 +122,7 @@ class BackupTest extends TestCase
         $backupSetting->setArchivePassword(Password::fromNative($archivePassword));
         $backupSetting->save();
 
-        $this->actingAs($user);
+        $this->actingAs($userAdministrator);
 
         $backup_id = '';
 
@@ -132,7 +136,7 @@ class BackupTest extends TestCase
                 $json->where('state', BackupState::AWAIT->value)
                     ->where('backup_id', $setBackupId)
                     ->etc();
-                });
+            });
 
         $route_get_name = 'system_backup';
         $route_get = route($route_get_name, ['backup' => $backup_id]);
@@ -213,6 +217,13 @@ class BackupTest extends TestCase
         $this->assertTrue($hasSalt, 'Salt were not found in the backup');
         $this->assertTrue($hasDatabase, 'Database were not found in the backup');
         $this->assertTrue($hasEnv, '.env files were not found in the backup');
+
+        $download_route = route('system_backup_download', ['backup' => $backup_id]);
+
+        $this->get($download_route)->assertStatus(200)
+            ->assertHeader('Content-Type', 'application/zip')
+            ->assertHeader('Content-Disposition', 'attachment; filename=' . $backup_file_name)
+            ->assertHeader('Content-Length', $backup_size);
 
         fclose($tmp);
     }

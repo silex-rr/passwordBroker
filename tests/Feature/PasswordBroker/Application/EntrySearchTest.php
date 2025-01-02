@@ -1,6 +1,6 @@
 <?php
 
-namespace PasswordBroker\Application;
+namespace Tests\Feature\PasswordBroker\Application;
 
 use Exception;
 use Identity\Domain\User\Models\User;

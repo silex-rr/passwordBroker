@@ -1,6 +1,6 @@
 <?php
 
-namespace Identity\Application;
+namespace Tests\Feature\Identity\Application;
 
 use Identity\Domain\User\Models\User;
 use Identity\Domain\UserApplication\Models\Attributes\ClientId;

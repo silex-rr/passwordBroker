@@ -15,6 +15,8 @@ Route::middleware('auth.sanctum.cookie')->group(function (){
         Route::post('/backups', [BackupController::class, 'store']);
         Route::get('/backups/{backup:backup_id}', [BackupController::class, 'show'])
             ->name('system_backup');
+        Route::get('/backups/{backup:backup_id}/download', [BackupController::class, 'download'])
+            ->name('system_backup_download');
     });
 });
 
