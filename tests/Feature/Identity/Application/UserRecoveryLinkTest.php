@@ -1,6 +1,6 @@
 <?php
 
-namespace Identity\Application;
+namespace Tests\Feature\Identity\Application;
 
 use Identity\Domain\User\Models\Attributes\IsAdmin;
 use Identity\Domain\User\Models\Attributes\RecoveryLinkKey;

@@ -6,6 +6,7 @@ use App\Common\Infrastracture\Attributes\PaginatorAttribute;
 use App\Http\Controllers\Controller;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Storage;
 use OpenApi\Attributes\Get;
 use OpenApi\Attributes\Items;
 use OpenApi\Attributes\JsonContent;
@@ -15,6 +16,8 @@ use OpenApi\Attributes\Property;
 use OpenApi\Attributes\QueryParameter;
 use OpenApi\Attributes\Response;
 use OpenApi\Attributes\Schema;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 use System\Application\Http\Requests\BackupSearchRequest;
 use System\Application\Services\BackupService;
 use System\Domain\Backup\Models\Backup;
@@ -116,5 +119,44 @@ class BackupController extends Controller
     public function show(Backup $backup): JsonResponse
     {
         return new JsonResponse($backup, 200);
+    }
+
+    #[Get(
+        path: "/backups/{backup:backup_id}/download",
+        summary: "Download a Backup entity",
+        tags: ["System_BackupController"],
+        parameters: [
+            new PathParameter(
+                name: "backup:backup_id",
+                required: true,
+                schema: new Schema(ref: "#/components/schemas/System_BackupId")
+            ),
+        ],
+        responses: [
+            new Response(
+                response: 200,
+                description: "Backup file successfully downloaded",
+                content: [
+                    'application/octet-stream' => new Schema(
+                        type: "string",
+                        format: "binary"
+                    )
+                ]
+            ),
+            new Response(
+                response: 404,
+                description: "Backup file not found",
+            ),
+        ]
+    )]
+    public function download(Backup $backup): StreamedResponse
+    {
+        $backupFileName = $backup->file_name;
+
+        if (!Storage::disk('system_backup')->exists($backupFileName)) {
+            abort(404, 'Backup file not found.');
+        }
+
+        return Storage::disk('system_backup')->download($backupFileName);
     }
 }

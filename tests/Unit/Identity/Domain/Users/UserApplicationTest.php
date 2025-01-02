@@ -1,6 +1,6 @@
 <?php
 
-namespace Identity\Domain\Users;
+namespace Tests\Unit\Identity\Domain\Users;
 
 use Carbon\Carbon;
 use Identity\Domain\User\Models\User;

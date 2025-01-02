@@ -1,6 +1,6 @@
 <?php
 
-namespace PasswordBroker\Infrastructure;
+namespace Tests\Unit\PasswordBroker\Infrastructure;
 
 use PasswordBroker\Infrastructure\Services\PasswordGenerator;
 use Tests\TestCase;

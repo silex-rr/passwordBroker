@@ -1,6 +1,6 @@
 <?php
 
-namespace PasswordBroker\Application;
+namespace Tests\Feature\PasswordBroker\Application;
 
 use Identity\Domain\User\Models\User;
 use Identity\Infrastructure\Factories\User\UserFactory;

@@ -1,6 +1,6 @@
 <?php
 
-namespace PasswordBroker\Infrastructure;
+namespace Tests\Unit\PasswordBroker\Infrastructure;
 
 use Illuminate\Foundation\Testing\WithFaker;
 use PasswordBroker\Infrastructure\Services\TimeBasedOneTimePasswordGenerator;
