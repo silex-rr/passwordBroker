@@ -41,7 +41,7 @@ class UserRecoveryLinkTest extends TestCase
             'user' => $userAttributes,
         ])->assertStatus(200)
             ->assertJson(static function (AssertableJson $json) {
-                $json->has('inviteLinkUrl');
+                $json->has('inviteLinkUrl')->has('key');
             });
 
         $this->actingAs($user);
@@ -49,6 +49,39 @@ class UserRecoveryLinkTest extends TestCase
         $this->postJson(route('invite'), [
             'user' => $userAttributes,
         ])->assertStatus(403);
+    }
+
+    public function test_a_user_can_see_info_about_an_invite_link(): void
+    {
+        $userAttributes = [
+            'email' => $this->faker->email
+        ];
+        $system_admin = User::factory()->systemAdministrator()->create();
+
+        $inviteKey = null;
+
+        $setInviteKey = static function ($v) use (&$inviteKey): bool {
+            $inviteKey = $v;
+            return !empty($inviteKey);
+        };
+
+        $this->actingAs($system_admin);
+        $this->postJson(route('invite'), [
+            'user' => $userAttributes,
+        ])->assertStatus(200)
+            ->assertJson(static function (AssertableJson $json) use ($setInviteKey) {
+                $json->has('inviteLinkUrl')->where('key', $setInviteKey);
+            });
+
+        $this->actingAsGuest();
+        $this->getJson(route('invite_info', $inviteKey))
+            ->assertStatus(Response::HTTP_OK)
+            ->assertJson(static function (AssertableJson $json) use ($userAttributes) {
+                $json->where('email', $userAttributes['email'])
+                    ->has('name');
+            });
+
+        $this->actingAsGuest();
     }
 
     public function test_invite_landing_validate_key(): void
@@ -78,7 +111,7 @@ class UserRecoveryLinkTest extends TestCase
 
         $password = $passwordGenerator->generate();
         $masterPassword = $passwordGenerator->generate();
-        $this->patchJson(route('invite_landing', $recoveryLink), [
+        $this->postJson(route('invite_landing', $recoveryLink), [
             'user' => [
                 'password' => $password,
                 'password_confirmation' => $password,
@@ -141,7 +174,7 @@ class UserRecoveryLinkTest extends TestCase
 
         $this->actingAsGuest();
 
-        $this->patchJson(route('invite_landing', $recoveryLink), ['user' => $userAttributes])
+        $this->postJson(route('invite_landing', $recoveryLink), ['user' => $userAttributes])
             ->assertStatus(Response::HTTP_OK);
 
         $this->post(route('login'),
