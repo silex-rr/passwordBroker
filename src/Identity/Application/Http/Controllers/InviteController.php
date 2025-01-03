@@ -10,6 +10,7 @@ use Identity\Application\Services\UserRegistrationService;
 use Identity\Application\Services\UserService;
 use Identity\Domain\User\Models\Attributes\RecoveryLinkType;
 use Identity\Domain\User\Models\RecoveryLink;
+use Identity\Domain\User\Models\User;
 use Identity\Domain\User\Services\CreateRecoveryLink;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Bus\DispatchesJobs;
@@ -112,8 +113,24 @@ class InviteController extends Controller
         $this->dispatchSync(new CreateRecoveryLink($recoveryLink));
 
         return new JsonResponse(
-            ['inviteLinkUrl' => $this->recoveryUserService->makeRecoveryUrl($recoveryLink)],
+            [
+                'inviteLinkUrl' => $this->recoveryUserService->makeRecoveryUrl($recoveryLink),
+                'key' => $recoveryLink->key,
+            ],
             Response::HTTP_OK,
         );
+    }
+
+    public function show(RecoveryLink $recoveryLink): JsonResponse
+    {
+        /**
+         * @var User $user
+         */
+        $user = $recoveryLink->user()->first();
+
+        return new JsonResponse([
+            'name' => $user->name,
+            'email' => $user->email,
+        ], Response::HTTP_OK);
     }
 }

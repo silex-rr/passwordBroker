@@ -24,12 +24,15 @@ readonly class RecoveryUserService
         private FingerprintService $fingerprintService,
         private PasswordGenerator  $passwordGenerator,
         private Dispatcher         $dispatcher,
-    )
-    {
+    ) {
     }
 
-    public function createRecoveryLink(User $user, RecoveryLinkType $linkType, string $fingerprintFront = null, User $issuedByUser = null): RecoveryLink
-    {
+    public function createRecoveryLink(
+        User             $user,
+        RecoveryLinkType $linkType,
+        ?string           $fingerprintFront = null,
+        ?User             $issuedByUser = null,
+    ): RecoveryLink {
         $fingerprintFrontArray = [];
         if ($fingerprintFront) {
             try {
@@ -59,8 +62,7 @@ readonly class RecoveryUserService
         string       $password,
         ?string      $username = null,
         ?string      $master_password = null,
-    ): void
-    {
+    ): void {
         if ($recoveryLink->status !== RecoveryLinkStatus::AWAIT) {
             throw new RuntimeException('Link is '
                 . ($recoveryLink->status === RecoveryLinkStatus::OUTDATED ? 'outdated' : 'used'));
@@ -92,8 +94,8 @@ readonly class RecoveryUserService
             case RecoveryLinkType::INVITE:
                 $this->dispatcher->dispatchSync(new UpdateUser(
                     userTarget: $user,
-                    username: $username,
-                    password: $password,
+                    username  : $username,
+                    password  : $password,
                 ));
                 break;
         }
@@ -104,13 +106,16 @@ readonly class RecoveryUserService
 
     public function makeRecoveryUrl(RecoveryLink $recoveryLink): string
     {
-        $route = route('recovery_landing', $recoveryLink);
-
         $urlFront = config('app.url_front');
-        if ($urlFront) {
-            $route = str_replace(config('app.url'), $urlFront, $route);
+
+        if (!$urlFront) {
+            throw new RuntimeException('url_front is not set in env');
         }
 
-        return $route;
+        $urlFront = rtrim($urlFront, '/') . '/identity/';
+
+        $urlFront .= $recoveryLink->type === RecoveryLinkType::INVITE ? 'invite/' : 'recovery/';
+
+        return $urlFront . $recoveryLink->key->getValue();
     }
 }

@@ -4,6 +4,7 @@ namespace Identity\Application\Http\Requests;
 
 use Identity\Domain\User\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
 use OpenApi\Attributes\Property;
 use OpenApi\Attributes\Schema;
@@ -42,7 +43,14 @@ class InviteUserLandingRequest extends FormRequest
         $table = app(User::class)->getTableFullName();
 
         return [
-            'user.username' => 'nullable|min:1|unique:' . $table . ',name',
+            'user.username' => [
+                'nullable',
+                'min:1',
+                Rule::unique($table, 'name')
+                    ->where(function ($query) {
+                        $query->where('email', '!=', $this->input('user.email'));
+                    }),
+            ],
             'user.password' => [
                 'required',
                 'confirmed', //password_confirmation
