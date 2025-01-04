@@ -18,6 +18,7 @@ class EntryGroupPolicy
         if (is_null($user)) {
             return Response::denyWithStatus(401);
         }
+
         return null;
     }
 
@@ -29,10 +30,10 @@ class EntryGroupPolicy
     public function view(User $user, EntryGroup $entryGroup): Response
     {
         return $entryGroup->admins()->where('user_id', $user->user_id)->exists()
-            || $entryGroup->moderators()->where('user_id', $user->user_id)->exists()
-            || $entryGroup->members()->where('user_id', $user->user_id)->exists()
-                ? Response::allow()
-                : Response::denyWithStatus(403);
+        || $entryGroup->moderators()->where('user_id', $user->user_id)->exists()
+        || $entryGroup->members()->where('user_id', $user->user_id)->exists()
+            ? Response::allow()
+            : Response::denyWithStatus(403);
     }
 
     public function delete(User $user, EntryGroup $entryGroup): Response
@@ -65,10 +66,16 @@ class EntryGroupPolicy
             return Response::allow();
         }
         $entryGroupTarget = EntryGroup::where('entry_group_id', $entry_group_id)->firstOrFail();
+
         return $entryGroupTarget->admins()->where('user_id', $user->user_id->getValue())->exists()
-            || $entryGroupTarget->moderators()->where('user_id', $user->user_id->getValue())->exists()
-                ? Response::allow()
-                : Response::denyWithStatus(403, 'You do not have right to the target Entry Group');
+        || $entryGroupTarget->moderators()->where('user_id', $user->user_id->getValue())->exists()
+            ? Response::allow()
+            : Response::denyWithStatus(403, 'You do not have right to the target Entry Group');
+    }
+
+    public function update(User $user, EntryGroup $entryGroup): Response
+    {
+        return $this->delete($user, $entryGroup);
     }
 
     //// ROLE POLICY
@@ -81,15 +88,17 @@ class EntryGroupPolicy
         $entryGroup = request()->entryGroup;
 
         return $entryGroup->admins()->where('user_id', $user->user_id)->exists()
-            || $entryGroup->moderators()->where('user_id', $user->user_id)->exists()
-            || $entryGroup->members()->where('user_id', $user->user_id)->exists()
+        || $entryGroup->moderators()->where('user_id', $user->user_id)->exists()
+        || $entryGroup->members()->where('user_id', $user->user_id)->exists()
             ? Response::allow()
             : Response::denyWithStatus(403);
     }
+
     public function viewRole(User $user): Response
     {
         return Response::denyWithStatus(403);
     }
+
     public function createRole(User $user): Response
     {
         /**
@@ -103,10 +112,12 @@ class EntryGroupPolicy
 
         return Response::allow();
     }
+
     public function updateRole(User $user): Response
     {
         return $this->createRole($user);
     }
+
     public function deleteRole(User $user): Response
     {
         $response = $this->createRole($user);
