@@ -4,7 +4,6 @@ namespace PasswordBroker\Application\Providers;
 
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider;
 use PasswordBroker\Application\Policies\EntryFieldPolicy;
-use PasswordBroker\Application\Policies\EntryGroupHistoryPolicy;
 use PasswordBroker\Application\Policies\EntryGroupPolicy;
 use PasswordBroker\Application\Policies\EntryPolicy;
 use PasswordBroker\Domain\Entry\Models\Entry;
