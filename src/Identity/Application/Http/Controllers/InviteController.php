@@ -15,10 +15,13 @@ use Identity\Domain\User\Services\CreateRecoveryLink;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Foundation\Validation\ValidatesRequests;
+use OpenApi\Attributes\Get;
+use OpenApi\Attributes\JsonContent;
 use OpenApi\Attributes\MediaType;
 use OpenApi\Attributes\Patch;
 use OpenApi\Attributes\PathParameter;
 use OpenApi\Attributes\Post;
+use OpenApi\Attributes\Property;
 use OpenApi\Attributes\RequestBody;
 use OpenApi\Attributes\Schema;
 use PasswordBroker\Infrastructure\Services\PasswordGenerator;
@@ -121,6 +124,30 @@ class InviteController extends Controller
         );
     }
 
+    #[Get(
+        path: "/identity/api/invite",
+        summary: "Show an info for Invitation Link",
+        tags: ["Identity_InviteController"],
+        responses: [
+            new \OpenApi\Attributes\Response(
+                response: 200,
+                description: "Invite Link Data",
+                content: new JsonContent(
+                    properties: [
+                        new Property(
+                            property: "name",
+                            type: "string",
+                        ),
+                        new Property(
+                            property: "email",
+                            type: "string",
+                        ),
+                    ],
+                    type: "object",
+                )
+            )
+        ]
+    )]
     public function show(RecoveryLink $recoveryLink): JsonResponse
     {
         /**
