@@ -26,6 +26,21 @@ paths:
         '200':
           description: 'User was successfully registered'
   /identity/api/invite:
+    get:
+      tags:
+        - Identity_InviteController
+      summary: 'Show an info for Invitation Link'
+      operationId: 88502c25c7fd5ba1294aea9f1a6b8076
+      responses:
+        '200':
+          description: 'Invite Link Data'
+          content:
+            application/json:
+              schema:
+                properties:
+                  name: { type: string }
+                  email: { type: string }
+                type: object
     post:
       tags:
         - Identity_InviteController
@@ -1234,6 +1249,24 @@ paths:
       responses:
         '200':
           $ref: '#/components/schemas/System_Backup'
+  '/backups/{backup:backup_id}/download':
+    get:
+      tags:
+        - System_BackupController
+      summary: 'Download a Backup entity'
+      operationId: ab11b9c5c748eb3e1940344db7259284
+      parameters:
+        -
+          name: 'backup:backup_id'
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/System_BackupId'
+      responses:
+        '200':
+          description: 'Backup file successfully downloaded'
+        '404':
+          description: 'Backup file not found'
   /system/api/setting/backupSetting/backup:
     get:
       tags:
@@ -1481,37 +1514,6 @@ components:
       minimum: 1
       example: 1
       nullable: true
-    Identity_ClientId:
-      type: string
-      format: uuid
-    Identity_IsOfflineDatabaseMode:
-      type: boolean
-    Identity_IsOfflineDatabaseRequiredUpdate:
-      type: boolean
-    Identity_IsRsaPrivateRequiredUpdate:
-      type: boolean
-    Identity_UserApplicationId:
-      type: string
-      format: uuid
-    Identity_UserApplication:
-      properties:
-        userApplicationId:
-          $ref: '#/components/schemas/Identity_UserApplicationId'
-        clientId:
-          $ref: '#/components/schemas/Identity_ClientId'
-        isOfflineDatabaseRequiredUpdate:
-          $ref: '#/components/schemas/Identity_IsOfflineDatabaseRequiredUpdate'
-        isRsaPrivateRequiredUpdate:
-          $ref: '#/components/schemas/Identity_IsRsaPrivateRequiredUpdate'
-        isOfflineDatabaseMode:
-          $ref: '#/components/schemas/Identity_IsOfflineDatabaseMode'
-        offlineDatabaseFetchedAt:
-          type: string
-          format: date-time
-        rsaPrivateFetchedAt:
-          type: string
-          format: date-time
-      type: object
     Identity_Email:
       type: string
       format: email
@@ -1562,6 +1564,37 @@ components:
           format: date-time
           nullable: true
       type: object
+    Identity_ClientId:
+      type: string
+      format: uuid
+    Identity_IsOfflineDatabaseMode:
+      type: boolean
+    Identity_IsOfflineDatabaseRequiredUpdate:
+      type: boolean
+    Identity_IsRsaPrivateRequiredUpdate:
+      type: boolean
+    Identity_UserApplicationId:
+      type: string
+      format: uuid
+    Identity_UserApplication:
+      properties:
+        userApplicationId:
+          $ref: '#/components/schemas/Identity_UserApplicationId'
+        clientId:
+          $ref: '#/components/schemas/Identity_ClientId'
+        isOfflineDatabaseRequiredUpdate:
+          $ref: '#/components/schemas/Identity_IsOfflineDatabaseRequiredUpdate'
+        isRsaPrivateRequiredUpdate:
+          $ref: '#/components/schemas/Identity_IsRsaPrivateRequiredUpdate'
+        isOfflineDatabaseMode:
+          $ref: '#/components/schemas/Identity_IsOfflineDatabaseMode'
+        offlineDatabaseFetchedAt:
+          type: string
+          format: date-time
+        rsaPrivateFetchedAt:
+          type: string
+          format: date-time
+      type: object
     PasswordBroker_EntryFieldDecryptedRequest:
       type: string
     PasswordBroker_EntryFieldDestroyRequest:
@@ -1600,6 +1633,16 @@ components:
           oneOf:
             -
               $ref: '#/components/schemas/PasswordBroker_Login'
+          nullable: true
+        totp_hash_algorithm:
+          oneOf:
+            -
+              $ref: '#/components/schemas/PasswordBroker_TOTPHashAlgorithm'
+          nullable: true
+        totp_timeout:
+          oneOf:
+            -
+              $ref: '#/components/schemas/PasswordBroker_TOPTTimeout'
           nullable: true
         value_encrypted:
           oneOf:
@@ -1777,11 +1820,11 @@ components:
           format: date-time
           nullable: true
       type: object
+    PasswordBroker_EventType:
+      type: string
     PasswordBroker_FieldEditLogId:
       type: string
       format: uuid
-    PasswordBroker_EventType:
-      type: string
     PasswordBroker_FieldId:
       type: string
       format: uuid
@@ -1798,6 +1841,14 @@ components:
       type: boolean
     PasswordBroker_Login:
       type: string
+    PasswordBroker_TOTPHashAlgorithm:
+      type: string
+      enum:
+        - sha1
+        - sha256
+        - sha512
+    PasswordBroker_TOPTTimeout:
+      type: integer
     PasswordBroker_FieldTitle:
       type: string
     PasswordBroker_ValueEncrypted:
@@ -1899,6 +1950,10 @@ components:
       allOf:
         -
           $ref: '#/components/schemas/PasswordBroker_Field'
+        -
+          $ref: '#/components/schemas/PasswordBroker_TOTPHashAlgorithm'
+        -
+          $ref: '#/components/schemas/PasswordBroker_TOPTTimeout'
     PasswordBroker_Role_Admin:
       allOf:
         -
@@ -2062,3 +2117,52 @@ components:
           type: integer
           minimum: 0
       type: object
+tags:
+  -
+    name: Identity_InviteController
+    description: Identity_InviteController
+  -
+    name: Identity_RecoveryController
+    description: Identity_RecoveryController
+  -
+    name: Identity_UserApplicationController
+    description: Identity_UserApplicationController
+  -
+    name: Identity_UserAuthController
+    description: Identity_UserAuthController
+  -
+    name: Identity_UserController
+    description: Identity_UserController
+  -
+    name: PasswordBroker_EntryController
+    description: PasswordBroker_EntryController
+  -
+    name: PasswordBroker_EntryFieldController
+    description: PasswordBroker_EntryFieldController
+  -
+    name: PasswordBroker_EntryFieldHistoryController
+    description: PasswordBroker_EntryFieldHistoryController
+  -
+    name: PasswordBroker_EntryGroupController
+    description: PasswordBroker_EntryGroupController
+  -
+    name: PasswordBroker_EntryGroupHistoryController
+    description: PasswordBroker_EntryGroupHistoryController
+  -
+    name: PasswordBroker_EntryGroupUserController
+    description: PasswordBroker_EntryGroupUserController
+  -
+    name: PasswordBroker_EntrySearchController
+    description: PasswordBroker_EntrySearchController
+  -
+    name: PasswordBroker_ImportController
+    description: PasswordBroker_ImportController
+  -
+    name: System_BackupController
+    description: System_BackupController
+  -
+    name: System_BackupSettingController
+    description: System_BackupSettingController
+  -
+    name: System_RecoveryController
+    description: System_RecoveryController

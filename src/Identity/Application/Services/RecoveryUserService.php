@@ -8,6 +8,7 @@ use Identity\Domain\User\Models\Attributes\RecoveryLinkStatus;
 use Identity\Domain\User\Models\Attributes\RecoveryLinkType;
 use Identity\Domain\User\Models\RecoveryLink;
 use Identity\Domain\User\Models\User;
+use Identity\Domain\User\Services\ChangeMasterPasswordForUser;
 use Identity\Domain\User\Services\ChangePasswordForUser;
 use Identity\Domain\User\Services\UpdateUser;
 use Illuminate\Bus\Dispatcher;
@@ -96,6 +97,10 @@ readonly class RecoveryUserService
                     userTarget: $user,
                     username  : $username,
                     password  : $password,
+                ));
+                $this->dispatcher->dispatchSync(new ChangeMasterPasswordForUser(
+                    userTarget: $user,
+                    newMasterPassword: $master_password
                 ));
                 break;
         }
