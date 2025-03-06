@@ -142,4 +142,12 @@ class EntryGroupPolicy
 
         return Response::allow();
     }
+
+    public function entryBulkDelete(User $user, EntryGroup $entryGroup): Response
+    {
+        return $entryGroup->admins()->where('user_id', $user->user_id->getValue())->exists()
+            || $entryGroup->moderators()->where('user_id', $user->user_id->getValue())->exists()
+        ? Response::allow()
+        : Response::denyWithStatus(403, 'You do not have right to do bulk delete');
+    }
 }

@@ -30,8 +30,5 @@ class PasswordBrokerAuthServiceProvider extends AuthServiceProvider
      */
     public function boot(): void
     {
-//        $this->registerPolicies();
-
-        //
     }
 }
