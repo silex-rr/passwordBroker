@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use PasswordBroker\Application\Http\Controllers\Api\EntryBulkController;
 use PasswordBroker\Application\Http\Controllers\Api\EntryController;
 use PasswordBroker\Application\Http\Controllers\Api\EntryFieldController;
 use PasswordBroker\Application\Http\Controllers\Api\EntryFieldHistoryController;
@@ -55,6 +56,8 @@ Route::middleware('auth.sanctum.cookie')->group(function (){
     Route::put('/entryGroups/{entryGroup:entry_group_id}/entries/{entry:entry_id}', [EntryController::class, 'update']);
     Route::patch('/entryGroups/{entryGroup:entry_group_id}/entries/{entry:entry_id}', [EntryController::class, 'move']);
     Route::delete('/entryGroups/{entryGroup:entry_group_id}/entries/{entry:entry_id}', [EntryController::class, 'destroy']);
+
+    Route::post('/entryGroups/{entryGroup:entry_group_id}/entries/bulkEdit/delete', [EntryBulkController::class, 'destroy']);
 
     Route::get('/entrySearch', [EntrySearchController::class, 'index'])
         ->name('entrySearch');

@@ -42,6 +42,9 @@ use PasswordBroker\Infrastructure\Validation\Handlers\EntryValidationHandler;
  * @property Attributes\Title $title
  *
  * @method static EntryFactory factory
+ * @method static \Illuminate\Database\Eloquent\Builder|static where(string $column, mixed $operator = null, mixed $value = null, string $boolean = 'and')
+ * @method static \Illuminate\Database\Eloquent\Builder|static whereIn(string $column, array $values, string $boolean = 'and', bool $not = false)
+ * @method static \Illuminate\Database\Eloquent\Builder|static whereNull(string|array $columns, string $boolean = 'and', bool $not = false)
  */
 #[Schema(
     schema: "PasswordBroker_Entry",
