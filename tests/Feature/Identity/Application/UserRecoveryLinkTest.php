@@ -148,7 +148,8 @@ class UserRecoveryLinkTest extends TestCase
             'user' => $userAttributes,
         ])->assertStatus(200)
             ->assertJson(static function (AssertableJson $json) {
-                $json->has('inviteLinkUrl');
+                $json->has('inviteLinkUrl')
+                    ->has('key');
             });
 
         /**
