@@ -62,13 +62,12 @@ readonly class EntryService
                 )
             );
 
-            $field->save();
 
             /**
              * @var EntryFieldHistory $fieldHistory
              */
             foreach ($field->fieldHistories()->get() as $fieldHistory) {
-                $data_decrypted = $this->encryptionService->decrypt(
+                $data_decrypted_history = $this->encryptionService->decrypt(
                     data_encrypted        : $fieldHistory->value_encrypted->getValue(),
                     decrypted_aes_password: $decryptedAesPasswordFrom,
                     iv                    : $fieldHistory->initialization_vector->getValue()
@@ -76,7 +75,7 @@ readonly class EntryService
 
                 $fieldHistory->value_encrypted = new ValueEncrypted(
                     $this->encryptionService->encrypt(
-                        data: $data_decrypted,
+                        data: $data_decrypted_history,
                         pass: $decryptedAesPasswordTarget,
                         iv  : $fieldHistory->initialization_vector->getValue()
                     )
@@ -84,9 +83,10 @@ readonly class EntryService
 
 
                 $fieldHistory->save();
-            };
-        }
+            }
 
+            $field->save();
+        }
         $entry->save();
     }
 }

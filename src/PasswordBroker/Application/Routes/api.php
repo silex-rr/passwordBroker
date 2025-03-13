@@ -59,9 +59,11 @@ Route::middleware('auth.sanctum.cookie')->group(function () {
         [EntryController::class, 'destroy']);
 
     Route::post('/entryGroups/{entryGroup:entry_group_id}/entries/bulkEdit/delete',
-        [EntryBulkController::class, 'bulkDestroy']);
+        [EntryBulkController::class, 'bulkDestroy'])
+    ->name('entryGroupEntriesBulkDestroy');
     Route::post('/entryGroups/{entryGroup:entry_group_id}/entries/bulkEdit/move',
-        [EntryBulkController::class, 'bulkMove']);
+        [EntryBulkController::class, 'bulkMove'])
+    ->name('entryGroupEntriesBulkMove');
 
     Route::get('/entrySearch', [EntrySearchController::class, 'index'])
         ->name('entrySearch');

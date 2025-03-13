@@ -70,10 +70,10 @@ $routes = static function () {
 
 Route::middleware('auth.sanctum.cookie')->group($routes);
 
-Route::post('/invite/{recoveryLink:key?}', [InviteController::class, 'activate'])
+Route::post('/invite/{recoveryLink:key}', [InviteController::class, 'activate'])
     ->name('invite_landing');
 
-Route::get('/invite/{recoveryLink:key?}', [InviteController::class, 'show'])
+Route::get('/invite/{recoveryLink:key}', [InviteController::class, 'show'])
     ->name('invite_info');
 
 Route::patch('/recovery/{recoveryLink:key?}', [RecoveryController::class, 'activate'])
