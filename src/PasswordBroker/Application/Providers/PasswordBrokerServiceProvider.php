@@ -63,18 +63,10 @@ class PasswordBrokerServiceProvider extends ServiceProvider
 
     public function bindRoutes(): void
     {
-        Route::bind('entryGroup', fn(string $entry_group_id) => EntryGroup::where('entry_group_id', $entry_group_id)->firstOrFail());
-//        Route::bind('entryGroup', function (string $entry_group_id) {
-//
-//            try{
-//                return EntryGroup::where('entry_group_id', $entry_group_id)->firstOrFail();
-//            } catch (\Exception $exception) {
-//                dd(Route::current());
-//            }
-//
-//        });
-        Route::bind('entryGroupExclude', fn(string $entry_group_id) => EntryGroup::where('entry_group_id', $entry_group_id)->firstOrFail());
-        Route::bind('entryGroupInclude', fn(string $entry_group_id) => EntryGroup::where('entry_group_id', $entry_group_id)->firstOrFail());
+        Route::model('entryGroup', EntryGroup::class);
+
+        Route::model('entryGroupExclude', EntryGroup::class);
+        Route::model('entryGroupInclude', EntryGroup::class);
 
         Route::bind('entry', fn(string $entry_id) => Entry::where('entry_id', $entry_id)->firstOrFail());
         Route::bind('field', fn(string $field_id) => Field::getFiledByFieldId($field_id));

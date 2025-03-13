@@ -450,6 +450,54 @@ paths:
                   timestamp: { type: string, format: timestamp }
                   rsa_private_key_base64: { type: string, format: base64 }
                 type: object
+  '/passwordBroker/api/entryGroups/{sourceEntryGroup:entry_group_id}/entries/bulkEdit/moveTo/{targetEntryGroup:entry_group_id}':
+    post:
+      tags:
+        - PasswordBroker_EntryBulkController
+      summary: 'Delete list of Entries (mark as deleted)'
+      operationId: 29730fcb8609b4f9e7e860dd68f12e05
+      parameters:
+        -
+          name: 'entryGroupSource:entry_group_id'
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/PasswordBroker_EntryGroupId'
+        -
+          name: 'entryGroupTarget:entry_group_id'
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/PasswordBroker_EntryGroupId'
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PasswordBroker_EntryBulkMoveRequest'
+      responses:
+        '204':
+          description: 'Entries was successfully moved'
+  '/passwordBroker/api/entryGroups/{entryGroup:entry_group_id}/entries/bulkEdit/delete':
+    post:
+      tags:
+        - PasswordBroker_EntryBulkController
+      summary: 'Delete list of Entries (mark as deleted)'
+      operationId: bc1d1e53e05ddbb1e8da33490a174bbe
+      parameters:
+        -
+          name: 'entryGroup:entry_group_id'
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/PasswordBroker_EntryGroupId'
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PasswordBroker_EntryBulkDestroyRequest'
+      responses:
+        '204':
+          description: 'Entries was successfully deleted (marked as deleted)'
   '/passwordBroker/api/entryGroups/{entryGroup:entry_group_id}/entries':
     get:
       tags:
@@ -992,6 +1040,26 @@ paths:
         '200':
           description: 'EntryGroup Was successfully moved'
   '/entryGroups/{entryGroup:entry_group_id}':
+    put:
+      tags:
+        - PasswordBroker_EntryGroupController
+      summary: ''
+      operationId: a5f8ac13f6c6096abd2e2e1297f6d4a4
+      parameters:
+        -
+          name: 'entryGroup:entry_group_id'
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/PasswordBroker_EntryGroupId'
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PasswordBroker_GroupName'
+      responses:
+        '200':
+          description: 'EntryGroup was updated'
     delete:
       tags:
         - PasswordBroker_EntryGroupController
@@ -1595,6 +1663,26 @@ components:
           type: string
           format: date-time
       type: object
+    PasswordBroker_EntryBulkDestroyRequest:
+      properties:
+        entries:
+          type: array
+          items:
+            $ref: '#/components/schemas/PasswordBroker_EntryId'
+      type: object
+    PasswordBroker_EntryBulkMoveRequest:
+      properties:
+        entryGroupTarget:
+          description: EntryGroupId
+          type: string
+          format: uuid
+        master_password:
+          type: string
+        entries:
+          type: array
+          items:
+            $ref: '#/components/schemas/PasswordBroker_EntryId'
+      type: object
     PasswordBroker_EntryFieldDecryptedRequest:
       type: string
     PasswordBroker_EntryFieldDestroyRequest:
@@ -1709,6 +1797,11 @@ components:
           $ref: '#/components/schemas/PasswordBroker_GroupName'
         parent_entry_group_id:
           $ref: '#/components/schemas/PasswordBroker_EntryGroupId'
+      type: object
+    PasswordBroker_EntryGroupUpdateRequest:
+      properties:
+        name:
+          $ref: '#/components/schemas/PasswordBroker_GroupName'
       type: object
     PasswordBroker_EntryGroupUserRequest:
       properties:
@@ -2133,6 +2226,9 @@ tags:
   -
     name: Identity_UserController
     description: Identity_UserController
+  -
+    name: PasswordBroker_EntryBulkController
+    description: PasswordBroker_EntryBulkController
   -
     name: PasswordBroker_EntryController
     description: PasswordBroker_EntryController

@@ -22,7 +22,7 @@ use PasswordBroker\Application\Http\Controllers\Api\ImportController;
 |
 */
 //Route::middleware('api')->group(function () {
-Route::middleware('auth.sanctum.cookie')->group(function (){
+Route::middleware('auth.sanctum.cookie')->group(function () {
 
     Route::get('/entryGroups', [EntryGroupController::class, 'index'])
         ->name('entryGroups');
@@ -55,9 +55,13 @@ Route::middleware('auth.sanctum.cookie')->group(function (){
         ->name('entryGroupEntry');
     Route::put('/entryGroups/{entryGroup:entry_group_id}/entries/{entry:entry_id}', [EntryController::class, 'update']);
     Route::patch('/entryGroups/{entryGroup:entry_group_id}/entries/{entry:entry_id}', [EntryController::class, 'move']);
-    Route::delete('/entryGroups/{entryGroup:entry_group_id}/entries/{entry:entry_id}', [EntryController::class, 'destroy']);
+    Route::delete('/entryGroups/{entryGroup:entry_group_id}/entries/{entry:entry_id}',
+        [EntryController::class, 'destroy']);
 
-    Route::post('/entryGroups/{entryGroup:entry_group_id}/entries/bulkEdit/delete', [EntryBulkController::class, 'destroy']);
+    Route::post('/entryGroups/{entryGroup:entry_group_id}/entries/bulkEdit/delete',
+        [EntryBulkController::class, 'bulkDestroy']);
+    Route::post('/entryGroups/{entryGroup:entry_group_id}/entries/bulkEdit/move',
+        [EntryBulkController::class, 'bulkMove']);
 
     Route::get('/entrySearch', [EntrySearchController::class, 'index'])
         ->name('entrySearch');

@@ -143,11 +143,35 @@ class EntryGroupPolicy
         return Response::allow();
     }
 
+
+    //BULK Policies
+
     public function entryBulkDelete(User $user, EntryGroup $entryGroup): Response
     {
         return $entryGroup->admins()->where('user_id', $user->user_id->getValue())->exists()
-            || $entryGroup->moderators()->where('user_id', $user->user_id->getValue())->exists()
-        ? Response::allow()
-        : Response::denyWithStatus(403, 'You do not have right to do bulk delete');
+        || $entryGroup->moderators()->where('user_id', $user->user_id->getValue())->exists()
+            ? Response::allow()
+            : Response::denyWithStatus(403, 'You do not have right to do bulk delete');
+    }
+
+    public function entryBulkMove(User $user, EntryGroup $entryGroup): Response
+    {
+        $entryGroupSource = $entryGroup;
+
+        $entryGroupTargetId = request('entryGroupTarget');
+        $entryGroupTarget = EntryGroup::find($entryGroupTargetId);
+
+        if ($entryGroupTarget === null) {
+            return Response::denyWithStatus(404, 'Entry Group not found');
+        }
+
+        return ($entryGroupSource->admins()->where('user_id', $user->user_id->getValue())->exists()
+            || $entryGroupSource->moderators()->where('user_id', $user->user_id->getValue())->exists())
+        && (
+            $entryGroupTarget->admins()->where('user_id', $user->user_id->getValue())->exists()
+            || $entryGroupTarget->moderators()->where('user_id', $user->user_id->getValue())->exists()
+        )
+            ? Response::allow()
+            : Response::denyWithStatus(403, 'You do not have right to do bulk move for these Entry Groups');
     }
 }
