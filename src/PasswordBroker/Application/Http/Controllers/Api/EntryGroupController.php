@@ -347,6 +347,12 @@ class EntryGroupController extends Controller
             new PathParameter(name  : "entryGroup:entry_group_id", required: true,
                               schema: new Schema(ref: "#/components/schemas/PasswordBroker_EntryGroupId")),
         ],
+        responses : [
+            new Response(
+                response   : 200,
+                description: "EntryGroup was updated"
+            ),
+        ],
     )]
     public function update(EntryGroup $entryGroup, EntryGroupUpdateRequest $request): JsonResponse
     {
