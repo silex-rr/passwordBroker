@@ -79,6 +79,7 @@ services:
             - ./public:/app
             - ./docker/nginx/app.conf:/opt/bitnami/nginx/conf/server_blocks/app.conf:ro
             - ./docker/nginx/logs:/opt/bitnami/nginx/logs:rw
+            - ./docker/nginx/tmp:/opt/bitnami/nginx/tmp:rw
         restart: always
         depends_on:
             file_fix_permissions:
