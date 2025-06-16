@@ -11,6 +11,9 @@ services:
             - ./storage:/permission/app_storage
             - .:/app
             - ./docker/permission.sh:/permission.sh
+        environment:
+            UID: ${UID}
+            GID: ${GID}
     php_fpm:
 #        tty: true # Enables debugging capabilities when attached to this container.
         image: bitnami/php-fpm:8.4.1
@@ -128,7 +131,7 @@ services:
         command: bash /app/docker/start.sh
         restart: always
         environment:
-            APP_ENV: production
+            APP_ENV: ${APP_ENV}
             CONTAINER_ROLE: queue
         networks:
             PB_backend:
@@ -150,7 +153,7 @@ services:
         command: bash /app/docker/start.sh
         restart: always
         environment:
-            APP_ENV: production
+            APP_ENV: ${APP_ENV}
             CONTAINER_ROLE: scheduler
         networks:
             PB_backend:
